@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="160" viewBox="0 0 520 160" role="img" aria-label="Bukni Si logo">
+  <defs>
+    <style>
+      .stroke { stroke:#8A5A5A; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; fill:none; }
+      .soft   { stroke:#D29A8A; stroke-width:3; stroke-linecap:round; stroke-linejoin:round; fill:none; opacity:.95; }
+      .bukni  { fill:#6F4A4A; font: 700 64px "Playfair Display", "DM Serif Display", Georgia, serif; letter-spacing:.2px; }
+      .si     { fill:#D29A8A; font: 700 64px "Playfair Display", "DM Serif Display", Georgia, serif; letter-spacing:.2px; }
+    </style>
+  </defs>
+
+  <!-- Icon -->
+  <g transform="translate(20,18)">
+    <!-- smaller circle -->
+    <circle cx="62" cy="62" r="44" class="stroke" opacity=".9"/>
+
+    <!-- Hair (flowing) -->
+    <path class="soft"
+      d="M52 34
+         C38 44, 34 60, 40 78
+         C46 96, 42 112, 34 120" />
+    <path class="soft"
+      d="M70 30
+         C86 40, 92 58, 86 76
+         C80 94, 86 108, 96 118" />
+    <path class="soft"
+      d="M58 40
+         C50 52, 50 66, 56 78
+         C62 90, 60 104, 54 116" />
+
+    <!-- Face profile -->
+    <path class="stroke"
+      d="M76 38
+         C70 44, 72 52, 78 56
+         C84 60, 84 72, 78 78
+         C74 82, 74 90, 80 96" />
+    <!-- Nose + lips -->
+    <path class="stroke" d="M79 60 C74 62, 74 66, 79 68" />
+    <path class="stroke" d="M78 74 C72 76, 72 80, 78 82" />
+    <!-- Eye -->
+    <path class="stroke" d="M68 58 C64 56, 60 56, 56 58" />
+
+    <!-- Neck -->
+    <path class="stroke" d="M78 96 C74 108, 74 116, 78 124" />
+
+    <!-- Small flower accent (optional) -->
+    <g transform="translate(26,58)">
+      <path class="soft" d="M18 6 C14 0, 6 2, 8 10 C10 18, 18 16, 18 10" />
+      <path class="soft" d="M18 10 C22 4, 30 6, 28 14 C26 22, 18 20, 18 14" />
+      <path class="soft" d="M18 10 C14 16, 6 18, 8 26 C10 34, 18 30, 18 24" />
+    </g>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="150" y="102">
+    <tspan class="bukni">Bukni</tspan>
+    <tspan class="si"> Si</tspan>
+  </text>
+</svg>
