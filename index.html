@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glow & Bloom - Výsledky vyhľadávania</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lato:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #d4a373; /* Gold/Earth */
+            --bg-color: #fcfcfc;
+            --header-bg: #fff;
+            --text-main: #2c2c2c;
+            --text-muted: #787878;
+            --border-color: #f2f2f2;
+            --accent-pink: #fff0f3;
+            --radius: 12px;
+            --shadow: 0 4px 20px rgba(0,0,0,0.03);
+            --font-heading: 'Playfair Display', serif;
+            --font-body: 'Lato', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- Compact Sticky Header --- */
+        header {
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .logo {
+            font-family: var(--font-heading);
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        
+        .logo span { color: var(--primary-color); }
+
+        /* Compact Search Bar */
+        .search-strip {
+            display: flex;
+            flex-grow: 1;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 50px;
+            padding: 5px;
+            max-width: 700px;
+        }
+
+        .search-input-group {
+            flex: 1;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            border-right: 1px solid #eee;
+        }
+        
+        .search-input-group:last-of-type { border-right: none; }
+
+        .search-input-group input {
+            border: none;
+            background: transparent;
+            width: 100%;
+            padding: 8px 0;
+            font-size: 14px;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            outline: none;
+        }
+
+        .search-icon-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .nav-links a { text-decoration: none; color: var(--text-main); }
+        .nav-links a:hover { color: var(--primary-color); }
+
+        /* --- Main Listing Area --- */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        /* Controls & Filters */
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+        h1 {
+            font-family: var(--font-heading);
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: var(--text-main);
+        }
+
+        /* Tags (Pills) */
+        .tags-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .tag-pill {
+            background: var(--accent-pink);
+            color: #8a5a66;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tag-pill:hover {
+            background: #eddfe2;
+        }
+
+        /* --- Listing Cards (Horizontal) --- */
+        .listing-card {
+            display: flex;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+            gap: 30px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .listing-card:hover {
+            transform: translateY(-2px);
+            border-color: #e0d0d4;
+        }
+
+        /* Left: Gallery/Image */
+        .card-image-col {
+            width: 320px;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .main-img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #f0f0f0;
+        }
+
+        .rating-float {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255,255,255,0.95);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: var(--text-main);
+        }
+
+        .rating-float span { color: #f1c40f; margin-right: 3px; }
+
+        /* Right: Content */
+        .card-content-col {
+            flex-grow: 1;
+        }
+
+        .salon-header {
+            margin-bottom: 15px;
+        }
+
+        .salon-name {
+            font-family: var(--font-heading);
+            font-size: 22px;
+            margin-bottom: 5px;
+            color: var(--text-main);
+        }
+
+        .salon-meta {
+            color: var(--text-muted);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Service Table (No Buttons) */
+        .service-table {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .service-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-top: 1px dashed #eee;
+        }
+
+        .service-row:first-child { border-top: none; }
+
+        .service-left {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #444;
+            margin-bottom: 2px;
+        }
+
+        .service-desc {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .service-right {
+            text-align: right;
+            min-width: 80px;
+        }
+
+        .price {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--primary-color);
+            display: block;
+        }
+
+        .duration {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        /* --- Footer & Breadcrumbs --- */
+        .breadcrumbs-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            width: 100%;
+        }
+
+        .breadcrumbs {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .breadcrumbs a {
+            text-decoration: none;
+            color: var(--text-muted);
+            transition: color 0.2s;
+        }
+
+        .breadcrumbs a:hover { color: var(--primary-color); }
+        .breadcrumbs span { color: var(--text-main); font-weight: 600; }
+
+        footer {
+            background-color: #231f20;
+            color: #b0b0b0;
+            padding: 50px 0 30px;
+            font-size: 14px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid #3a3a3a;
+            padding-bottom: 40px;
+            margin-bottom: 30px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            max-width: 600px;
+        }
+
+        .footer-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+            line-height: 2;
+        }
+
+        .footer-links a:hover { color: var(--primary-color); }
+
+        .app-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .store-btn {
+            background: #000;
+            border: 1px solid #444;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: border-color 0.2s;
+            text-decoration: none;
+        }
+        
+        .store-btn:hover { border-color: var(--primary-color); }
+
+        .store-btn-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .small-txt { font-size: 9px; opacity: 0.7; }
+        .big-txt { font-size: 13px; font-weight: 700; }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .footer-logo {
+            font-size: 20px;
+            color: white;
+            font-family: var(--font-heading);
+            font-weight: 700;
+            text-decoration: none;
+        }
+        
+        .footer-logo span { color: var(--primary-color); }
+
+        .copyright {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-circle {
+            width: 36px;
+            height: 36px;
+            background: #3a3a3a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .social-circle:hover { background: var(--primary-color); }
+
+        @media (max-width: 768px) {
+            .listing-card { flex-direction: column; padding: 15px; }
+            .card-image-col { width: 100%; }
+            .main-img { height: 180px; }
+            .header-inner { flex-direction: column; padding: 10px; gap: 15px; }
+            .search-strip { width: 100%; }
+            .nav-links { display: none; }
+            
+            .footer-top { flex-direction: column; align-items: flex-start; gap: 30px; }
+            .footer-links { flex-direction: column; gap: 10px; }
+            .footer-bottom { flex-direction: column; gap: 20px; align-items: flex-start; }
+            .footer-brand { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="#" class="logo">Glow<span>&</span>Bloom</a>
+            
+            <div class="search-strip">
+                <div class="search-input-group">
+                    <input type="text" placeholder="Procedúra (napr. Nechty)">
+                </div>
+                <div class="search-input-group">
+                    <input type="text" placeholder="Lokalita">
+                </div>
+                <div class="search-input-group">
+                    <input type="text" placeholder="Kedy?">
+                </div>
+                <button class="search-icon-btn">🔍</button>
+            </div>
+
+            <nav class="nav-links">
+                <a href="#">Prihlásiť sa</a>
+                <a href="#">Pre firmy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="controls-row">
+            <div style="display:flex; gap:10px;">
+                <button class="filter-btn">Filtre</button>
+                <button class="filter-btn">Zoradiť: Odporúčané</button>
+            </div>
+            <button class="filter-btn">Zobraziť mapu 📍</button>
+        </div>
+ 
+        <h1>Salóny nechtov vo vašom okolí (21)</h1>
+ 
+        <div class="tags-row">
+            <div class="tag-pill">Manikúra</div>
+            <div class="tag-pill">Pedikúra</div>
+            <div class="tag-pill">Gélový lak</div>
+            <div class="tag-pill">Nechtové umenie</div>
+            <div class="tag-pill">Predĺženie</div>
+            <div class="tag-pill">Wellness</div>
+        </div>
+
+
+        <!-- Listing 1 -->
+        <a class="listing-card" href="detail.html">
+            <div class="card-image-col">
+                <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80" alt="Salon" class="main-img">
+                <div class="rating-float"><span>★</span> 4.9 (124)</div>
+            </div>
+            
+            <div class="card-content-col">
+                <div class="salon-header">
+                    <div class="salon-name">Luxe Nail Studio</div>
+                    <div class="salon-meta">12 Palm Avenue, Beverly Hills • 0.5 km</div>
+                </div>
+
+                <div class="service-table">
+                    <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Klasická manikúra</span>
+                            <span class="service-desc">Tvarovanie, starostlivosť o kožtičky, masáž</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$25</span>
+                            <span class="duration">30min</span>
+                        </div>
+                    </div>
+ 
+                    <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Gélový povrch</span>
+                            <span class="service-desc">Dlhodobý lesk a pevnosť</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$45</span>
+                            <span class="duration">45min</span>
+                        </div>
+                    </div>
+ 
+                    <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Luxusná pedikúra</span>
+                            <span class="service-desc">Vrátane peelingu a masky</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$60</span>
+                            <span class="duration">1h</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </a>
+
+        <!-- Listing 2 -->
+        <a class="listing-card" href="detail.html">
+            <div class="card-image-col">
+                <img src="https://images.unsplash.com/photo-1519014816548-bf5fe059e98b?auto=format&fit=crop&w=800&q=80" alt="Salon" class="main-img">
+                <div class="rating-float"><span>★</span> 4.7 (85)</div>
+            </div>
+            
+            <div class="card-content-col">
+                <div class="salon-header">
+                    <div class="salon-name">Organic Touch Salon</div>
+                    <div class="salon-meta">45 Market St, Downtown • 1.2 km</div>
+                </div>
+
+                <div class="service-table">
+                    <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Bio gélové tipy</span>
+                            <span class="service-desc">Organické gélové predĺženie</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$55</span>
+                            <span class="duration">1h 15min</span>
+                        </div>
+                    </div>
+ 
+                    <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Odstránenie laku</span>
+                            <span class="service-desc">Šetrné čistenie bez agresívnych látok</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$15</span>
+                            <span class="duration">15min</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </a>
+
+        <!-- Listing 3 -->
+        <a class="listing-card" href="detail.html">
+            <div class="card-image-col">
+                <img src="https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=800&q=80" alt="Salon" class="main-img">
+                <div class="rating-float"><span>★</span> 4.5 (200+)</div>
+            </div>
+            
+            <div class="card-content-col">
+                <div class="salon-header">
+                    <div class="salon-name">Quick Glam Bar</div>
+                    <div class="salon-meta">Mall Center, 2nd Floor • 3.0 km</div>
+                </div>
+
+                <div class="service-table">
+                    <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Expresná manikúra</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$20</span>
+                            <span class="duration">20min</span>
+                        </div>
+                    </div>
+                      <div class="service-row">
+                        <div class="service-left">
+                            <span class="service-title">Vytrhávanie obočia niťou</span>
+                        </div>
+                        <div class="service-right">
+                            <span class="price">$15</span>
+                            <span class="duration">10min</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </a>
+
+    </main>
+
+    <div class="breadcrumbs-container">
+        <div class="breadcrumbs">
+            <a href="#">🏠</a> / <a href="#">Salóny nechtov</a> / <span>Salóny nechtov v južnom Sydney</span>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-top">
+                <div class="footer-links">
+                    <a href="#">Blog</a>
+                    <a href="#">O nás</a>
+                    <a href="#">Časté otázky</a>
+                    <a href="#">Zásady ochrany osobných údajov</a>
+                    <a href="#">Obchodné podmienky</a>
+                    <a href="#">Kariéra</a>
+                    <a href="#">Pre firmy</a>
+                    <a href="#">Kontakt</a>
+                </div>
+                <div class="app-buttons">
+                    <a href="#" class="store-btn">
+                        <span style="font-size: 20px;"></span>
+                        <div class="store-btn-text">
+                            <span class="small-txt">Stiahnite v</span>
+                            <span class="big-txt">App Store</span>
+                        </div>
+                    </a>
+                    <a href="#" class="store-btn">
+                        <span style="font-size: 20px;">▶</span>
+                        <div class="store-btn-text">
+                            <span class="small-txt">Získajte v</span>
+                            <span class="big-txt">Google Play</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-brand">
+                    <a href="#" class="footer-logo">Glow<span>&</span>Bloom</a>
+                    <span class="copyright">© 2025 Glow & Bloom Inc. All rights reserved</span>
+                </div>
+                <div class="social-icons">
+                    <a href="#" class="social-circle">IG</a>
+                    <a href="#" class="social-circle">FB</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
