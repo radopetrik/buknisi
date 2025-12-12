@@ -60,7 +60,8 @@
 
         .btn-ghost-sm { padding: 8px 14px; border-radius: 18px; border: 1px solid #ddd; text-decoration: none; color: var(--text-main); font-weight: 700; }
         .btn-ghost-sm:hover { border-color: var(--primary-color); color: var(--primary-color); }
-        .btn-primary-sm { padding: 8px 16px; border-radius: 18px; background: var(--primary-color); color: #fff; text-decoration: none; font-weight: 700; border: none; }
+        .btn-primary-sm { padding: 8px 16px; border-radius: 18px; background: var(--primary-color); color: #fff; text-decoration: none; font-weight: 700; border: none; transition: background 0.2s, color 0.2s; }
+        .btn-primary-sm:hover { background: #c18b5c; color: #fff; }
 
         /* HERO */
         .hero {
@@ -76,7 +77,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
+            background: url('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat;
             transform: scale(1.05);
             filter: brightness(0.6);
         }
@@ -141,6 +142,7 @@
         .split h2 { font-family: var(--font-heading); font-size: 28px; margin-bottom: 12px; }
         .split p { color: var(--text-muted); line-height: 1.7; margin-bottom: 8px; }
         .split strong { color: var(--text-main); }
+        .split .btn-primary-sm { margin-top: 12px; display: inline-block; }
         .illustration { width: 100%; max-width: 420px; justify-self: center; display: block; }
 .illustration svg { width: 100%; height: auto; display: block; }
 
@@ -199,7 +201,7 @@
 
     <section class="hero">
         <div class="hero-content">
-            <h1>Buď sebavedomý</h1>
+            <h1>Buď sebavedomá</h1>
             <p>Objavujte a rezervujte krásu & wellness pri vás doma či v meste.</p>
             <div class="search-strip" style="margin-bottom:12px;">
                 <div class="search-input-group"><input type="text" placeholder="Hľadať služby alebo podniky"></div>
