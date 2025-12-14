@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { createClient } from "@/lib/supabase/client";
 
 const getStartOfWeek = (value: Date) => {
   const date = new Date(value);
@@ -21,53 +22,23 @@ const formatDateKey = (value: Date) => value.toISOString().split("T")[0];
 
 const safeId = () => (typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`);
 
-const sampleStaff = [
-  { id: "s1", name: "Andrea K." },
-  { id: "s2", name: "Marek P." },
-  { id: "s3", name: "Zuzana L." },
-];
+type StaffOption = { id: string; name: string };
 
-const sampleServices = [
-  { id: "svc1", name: "Konzultácia" },
-  { id: "svc2", name: "Ošetrenie" },
-  { id: "svc3", name: "Kontrola" },
-];
+type AddonOption = { id: string; name: string; price: number; duration: number };
 
-const sampleClients = [
-  { id: "c1", firstName: "Jana", lastName: "Nováková" },
-  { id: "c2", firstName: "Peter", lastName: "Hruška" },
-];
+type ServiceOption = { id: string; name: string; price: number; duration: number; addons: AddonOption[] };
 
-const sampleBookings = [
-  {
-    id: "b1",
-    serviceId: "svc1",
-    staffId: "s1",
-    clientId: "c1",
-    date: formatDateKey(new Date()),
-    timeFrom: "09:00",
-    timeTo: "10:00",
-    internalNote: "VIP klient",
-    clientNote: "",
-  },
-  {
-    id: "b2",
-    serviceId: "svc2",
-    staffId: "s2",
-    clientId: "c2",
-    date: formatDateKey(new Date()),
-    timeFrom: "11:00",
-    timeTo: "12:00",
-    internalNote: "",
-    clientNote: "Prísť skôr",
-  },
-];
+type ClientOption = { id: string; firstName: string; lastName: string; phone?: string | null; email?: string | null };
+
+type BookingServiceAddonSelection = { addonId: string; count: number };
+
+type BookingServiceSelection = { id: string; serviceId: string; addons: BookingServiceAddonSelection[] };
 
 type ViewMode = "month" | "week" | "day" | "agenda";
 
 type Booking = {
   id: string;
-  serviceId: string;
+  serviceSelections: BookingServiceSelection[];
   staffId: string;
   clientId?: string | null;
   date: string; // yyyy-mm-dd
@@ -108,10 +79,18 @@ const dayNames = ["Po", "Ut", "St", "Št", "Pi", "So", "Ne"];
 
 const isSameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
 
-const createEmptyBooking = (date: string, timeFrom = "09:00", timeTo = "10:00"): Booking => ({
+const createEmptyBooking = (
+  date: string,
+  servicesList: ServiceOption[],
+  staffList: StaffOption[],
+  timeFrom = "09:00",
+  timeTo = "10:00",
+): Booking => ({
   id: safeId(),
-  serviceId: sampleServices[0]?.id ?? "",
-  staffId: sampleStaff[0]?.id ?? "",
+  serviceSelections: servicesList[0]
+    ? [{ id: safeId(), serviceId: servicesList[0].id, addons: [] }]
+    : [],
+  staffId: staffList[0]?.id ?? "",
   clientId: null,
   date,
   timeFrom,
@@ -123,14 +102,48 @@ const createEmptyBooking = (date: string, timeFrom = "09:00", timeTo = "10:00"):
 const getDateLabel = (date: Date) =>
   date.toLocaleDateString("sk-SK", { day: "numeric", month: "short", year: "numeric" });
 
+const addMinutesToTime = (time: string, minutes: number) => {
+  const [hours, mins] = time.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hours, mins, 0, 0);
+  date.setMinutes(date.getMinutes() + minutes);
+  return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+};
+
+const normalizeTime = (value?: string | null) => (value ? value.slice(0, 5) : "");
+
+const formatPrice = (value: number) => new Intl.NumberFormat("sk-SK", { style: "currency", currency: "EUR" }).format(value);
+
+const calculateBookingTotals = (booking: Booking, services: ServiceOption[]) => {
+  let totalMinutes = 0;
+  let totalPrice = 0;
+
+  booking.serviceSelections.forEach((selection) => {
+    const service = services.find((item) => item.id === selection.serviceId);
+    if (!service) return;
+    totalMinutes += service.duration;
+    totalPrice += service.price;
+
+    selection.addons.forEach((addonSel) => {
+      const addon = service.addons.find((item) => item.id === addonSel.addonId);
+      if (!addon) return;
+      const count = Math.max(1, addonSel.count);
+      totalMinutes += addon.duration * count;
+      totalPrice += Number(addon.price) * count;
+    });
+  });
+
+  return { totalMinutes, totalPrice };
+};
+
 export default function CalendarPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [focusedDate, setFocusedDate] = useState<Date>(new Date());
   const [staffFilter, setStaffFilter] = useState<string>("");
-  const [bookings, setBookings] = useState<Booking[]>(sampleBookings);
-  const [staffMembers] = useState(sampleStaff);
-  const [services] = useState(sampleServices);
-  const [clients, setClients] = useState(sampleClients);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [staffMembers, setStaffMembers] = useState<StaffOption[]>([]);
+  const [services, setServices] = useState<ServiceOption[]>([]);
+  const [clients, setClients] = useState<ClientOption[]>([]);
   const [sheetState, setSheetState] = useState<{ mode: "view" | "edit" | "create"; booking: Booking | null }>(
     { mode: "view", booking: null },
   );
@@ -142,8 +155,174 @@ export default function CalendarPage() {
   const [clientOptionsOpen, setClientOptionsOpen] = useState(false);
   const [clientModalOpen, setClientModalOpen] = useState(false);
   const [clientModalError, setClientModalError] = useState<string>("");
+  const [addonsOpen, setAddonsOpen] = useState<Record<string, boolean>>({});
+  const [loadingData, setLoadingData] = useState(true);
+  const [dataError, setDataError] = useState<string>("");
   const clientModalRef = useRef<HTMLDivElement | null>(null);
   const clientModalFirstInputRef = useRef<HTMLInputElement | null>(null);
+
+  const loadData = useCallback(async () => {
+    const supabase = createClient();
+    setLoadingData(true);
+    setDataError("");
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      setDataError("Nepodarilo sa načítať používateľa.");
+      setLoadingData(false);
+      return;
+    }
+
+    if (!user) {
+      setDataError("Nie ste prihlásený.");
+      setLoadingData(false);
+      return;
+    }
+
+    const { data: companyRow, error: companyError } = await supabase
+      .from("company_users")
+      .select("company_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (companyError) {
+      setDataError("Nepodarilo sa načítať firmu.");
+      setLoadingData(false);
+      return;
+    }
+
+    const companyId = companyRow?.company_id;
+    if (!companyId) {
+      setDataError("Firma nebola nájdená.");
+      setLoadingData(false);
+      return;
+    }
+
+    const [servicesRes, bookingsRes, staffRes, clientsRes] = await Promise.all([
+      supabase
+        .from("services")
+        .select("id,name,price,duration")
+        .eq("company_id", companyId)
+        .order("name", { ascending: true }),
+      supabase
+        .from("bookings")
+        .select(
+          "id, client_id, staff_id, date, time_from, time_to, internal_note, client_note, booking_services(id, service_id, booking_service_addons(addon_id, count))",
+        )
+        .eq("company_id", companyId),
+      supabase
+        .from("staff")
+        .select("id, full_name")
+        .eq("company_id", companyId)
+        .order("full_name", { ascending: true }),
+      supabase
+        .from("clients")
+        .select("id, first_name, last_name, phone, email")
+        .order("first_name", { ascending: true }),
+    ]);
+
+    if (servicesRes.error || bookingsRes.error || staffRes.error || clientsRes.error) {
+      setDataError("Nepodarilo sa načítať dáta.");
+      setLoadingData(false);
+      return;
+    }
+
+    const serviceIds = (servicesRes.data ?? []).map((s) => s.id);
+
+    const [addonsRes, serviceAddonsRes] = await Promise.all([
+      supabase
+        .from("addons")
+        .select("id,name,price,duration,company_id")
+        .eq("company_id", companyId)
+        .order("name", { ascending: true }),
+      serviceIds.length
+        ? supabase.from("service_addons").select("service_id, addon_id").in("service_id", serviceIds)
+        : Promise.resolve({ data: [], error: null } as any),
+    ]);
+
+    if (addonsRes.error || serviceAddonsRes.error) {
+      setDataError("Nepodarilo sa načítať doplnky.");
+      setLoadingData(false);
+      return;
+    }
+
+    const addonsMap = new Map<string, AddonOption>(
+      (addonsRes.data ?? []).map((addon: any) => [addon.id, {
+        id: addon.id,
+        name: addon.name,
+        price: Number(addon.price ?? 0),
+        duration: addon.duration ?? 0,
+      } satisfies AddonOption]),
+    );
+
+    const serviceAddonMap = new Map<string, string[]>();
+    (serviceAddonsRes.data ?? []).forEach((row: any) => {
+      const arr = serviceAddonMap.get(row.service_id) ?? [];
+      arr.push(row.addon_id);
+      serviceAddonMap.set(row.service_id, arr);
+    });
+
+    const servicesMapped: ServiceOption[] = (servicesRes.data ?? []).map((service) => {
+      const addonIds = serviceAddonMap.get(service.id) ?? [];
+      const addons = addonIds
+        .map((addonId) => addonsMap.get(addonId) ?? null)
+        .filter(Boolean) as AddonOption[];
+
+      return {
+        id: service.id,
+        name: service.name,
+        price: Number(service.price ?? 0),
+        duration: service.duration ?? 0,
+        addons,
+      } satisfies ServiceOption;
+    });
+
+    const staffMapped: StaffOption[] = (staffRes.data ?? []).map((staff) => ({
+      id: staff.id,
+      name: staff.full_name,
+    }));
+
+    const clientsMapped: ClientOption[] = (clientsRes.data ?? []).map((client) => ({
+      id: client.id,
+      firstName: client.first_name,
+      lastName: client.last_name,
+      phone: client.phone,
+      email: client.email,
+    }));
+
+    const bookingsMapped: Booking[] = (bookingsRes.data ?? []).map((booking) => ({
+      id: booking.id,
+      staffId: booking.staff_id ?? "",
+      clientId: booking.client_id,
+      date: booking.date,
+      timeFrom: normalizeTime(booking.time_from),
+      timeTo: normalizeTime(booking.time_to),
+      internalNote: booking.internal_note ?? "",
+      clientNote: booking.client_note ?? "",
+      serviceSelections: (booking.booking_services ?? []).map((bs: any) => ({
+        id: bs.id ?? safeId(),
+        serviceId: bs.service_id,
+        addons: (bs.booking_service_addons ?? []).map((addonRow: any) => ({
+          addonId: addonRow.addon_id,
+          count: addonRow.count ?? 1,
+        })),
+      })),
+    }));
+
+    setServices(servicesMapped);
+    setStaffMembers(staffMapped);
+    setClients(clientsMapped);
+    setBookings(bookingsMapped);
+    setLoadingData(false);
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => (staffFilter ? booking.staffId === staffFilter : true));
@@ -162,7 +341,16 @@ export default function CalendarPage() {
   };
 
   const handleCreateClick = () => {
-    const draft = createEmptyBooking(formatDateKey(focusedDate));
+    if (services.length === 0) {
+      setFormError("Nie sú dostupné žiadne služby.");
+      return;
+    }
+    if (staffMembers.length === 0) {
+      setFormError("Nie sú dostupní pracovníci.");
+      return;
+    }
+
+    const draft = createEmptyBooking(formatDateKey(focusedDate), services, staffMembers);
     setSheetState({ mode: "create", booking: draft });
     setFormError("");
     setClientDraft({ firstName: "", lastName: "", phone: "", email: "" });
@@ -187,8 +375,9 @@ export default function CalendarPage() {
   const handleSave = () => {
     if (!sheetState.booking) return;
     const booking = sheetState.booking;
-    if (!booking.serviceId || !booking.staffId || !booking.date || !booking.timeFrom || !booking.timeTo) {
-      setFormError("Vyplňte službu, pracovníka, dátum a čas.");
+    const hasServices = booking.serviceSelections.length > 0 && booking.serviceSelections.every((item) => item.serviceId);
+    if (!hasServices || !booking.staffId || !booking.date || !booking.timeFrom || !booking.timeTo) {
+      setFormError("Vyplňte aspoň jednu službu, pracovníka, dátum a čas.");
       return;
     }
     if (booking.timeFrom >= booking.timeTo) {
@@ -217,6 +406,96 @@ export default function CalendarPage() {
     setSheetState((prev) => (prev ? { ...prev, booking: { ...prev.booking!, [field]: nextValue as never } } : prev));
   };
 
+  const handleAddService = () => {
+    if (!sheetState.booking) return;
+    const fallbackService = services[0];
+    if (!fallbackService) return;
+    const selection: BookingServiceSelection = { id: safeId(), serviceId: fallbackService.id, addons: [] };
+    setSheetState((prev) => (prev ? { ...prev, booking: { ...prev.booking!, serviceSelections: [...prev.booking!.serviceSelections, selection] } } : prev));
+  };
+
+  const handleRemoveService = (selectionId: string) => {
+    if (!sheetState.booking) return;
+    setSheetState((prev) =>
+      prev
+        ? {
+            ...prev,
+            booking: {
+              ...prev.booking!,
+              serviceSelections: prev.booking!.serviceSelections.filter((item) => item.id !== selectionId),
+            },
+          }
+        : prev,
+    );
+  };
+
+  const handleServiceChange = (selectionId: string, serviceId: string) => {
+    if (!sheetState.booking) return;
+    setSheetState((prev) =>
+      prev
+        ? {
+            ...prev,
+            booking: {
+              ...prev.booking!,
+              serviceSelections: prev.booking!.serviceSelections.map((item) =>
+                item.id === selectionId ? { ...item, serviceId, addons: [] } : item,
+              ),
+            },
+          }
+        : prev,
+    );
+  };
+
+  const handleAddonToggle = (selectionId: string, addonId: string, checked: boolean) => {
+    if (!sheetState.booking) return;
+    setSheetState((prev) =>
+      prev
+        ? {
+            ...prev,
+            booking: {
+              ...prev.booking!,
+              serviceSelections: prev.booking!.serviceSelections.map((selection) => {
+                if (selection.id !== selectionId) return selection;
+                if (checked) {
+                  const exists = selection.addons.find((addon) => addon.addonId === addonId);
+                  if (exists) return selection;
+                  return { ...selection, addons: [...selection.addons, { addonId, count: 1 }] };
+                }
+                return { ...selection, addons: selection.addons.filter((addon) => addon.addonId !== addonId) };
+              }),
+            },
+          }
+        : prev,
+    );
+  };
+
+  const handleAddonPanelToggle = (selectionId: string) => {
+    setAddonsOpen((prev) => ({ ...prev, [selectionId]: !prev[selectionId] }));
+  };
+
+  const handleAddonCountChange = (selectionId: string, addonId: string, count: number) => {
+    if (!sheetState.booking) return;
+    setSheetState((prev) =>
+      prev
+        ? {
+            ...prev,
+            booking: {
+              ...prev.booking!,
+              serviceSelections: prev.booking!.serviceSelections.map((selection) => {
+                if (selection.id !== selectionId) return selection;
+                return {
+                  ...selection,
+                  addons: selection.addons.map((addon) =>
+                    addon.addonId === addonId ? { ...addon, count: Math.max(1, count) } : addon,
+                  ),
+                };
+              }),
+            },
+          }
+        : prev,
+    );
+  };
+
   const handleCreateClient = () => {
     if (!clientDraft.firstName.trim() && !clientDraft.lastName.trim()) {
       setClientModalError("Zadajte aspoň meno alebo priezvisko.");
@@ -241,7 +520,10 @@ export default function CalendarPage() {
 
   const renderBookingChip = (booking: Booking) => {
     const staffName = staffMembers.find((s) => s.id === booking.staffId)?.name ?? "N/A";
-    const serviceName = services.find((s) => s.id === booking.serviceId)?.name ?? "Služba";
+    const primaryServiceId = booking.serviceSelections[0]?.serviceId;
+    const primaryServiceName = services.find((s) => s.id === primaryServiceId)?.name ?? "Služba";
+    const extraServicesCount = Math.max(booking.serviceSelections.length - 1, 0);
+    const { totalPrice } = calculateBookingTotals(booking, services);
     const clientName = booking.clientId
       ? `${clients.find((c) => c.id === booking.clientId)?.firstName ?? "Klient"}`
       : "Bez klienta";
@@ -255,8 +537,14 @@ export default function CalendarPage() {
           <span>{booking.timeFrom} – {booking.timeTo}</span>
           <span className="font-medium text-foreground">{staffName}</span>
         </div>
-        <p className="text-sm font-semibold text-foreground">{serviceName}</p>
-        <p className="text-xs text-muted-foreground">{clientName}</p>
+        <p className="text-sm font-semibold text-foreground">
+          {primaryServiceName}
+          {extraServicesCount > 0 && <span className="text-xs font-semibold text-muted-foreground"> +{extraServicesCount} služieb</span>}
+        </p>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{clientName}</span>
+          <span className="font-semibold text-foreground">{formatPrice(totalPrice)}</span>
+        </div>
       </button>
     );
   };
@@ -450,6 +738,11 @@ export default function CalendarPage() {
     return clients.filter((client) => `${client.firstName} ${client.lastName}`.toLowerCase().includes(query));
   }, [clientSearch, clients]);
 
+  const bookingTotals = useMemo(() => {
+    if (!sheetState.booking) return { totalMinutes: 0, totalPrice: 0 };
+    return calculateBookingTotals(sheetState.booking, services);
+  }, [sheetState.booking, services]);
+
   useEffect(() => {
     if (!sheetState.booking) return;
     const client = clients.find((c) => c.id === sheetState.booking?.clientId);
@@ -457,11 +750,32 @@ export default function CalendarPage() {
   }, [sheetState.booking?.id, sheetState.booking?.clientId, clients]);
 
   useEffect(() => {
+    if (!sheetState.booking) return;
+    const nextTimeTo = addMinutesToTime(sheetState.booking.timeFrom, bookingTotals.totalMinutes);
+    if (nextTimeTo !== sheetState.booking.timeTo) {
+      setSheetState((prev) => (prev ? { ...prev, booking: { ...prev.booking!, timeTo: nextTimeTo } } : prev));
+    }
+  }, [sheetState.booking?.timeFrom, sheetState.booking?.serviceSelections, bookingTotals.totalMinutes]);
+
+  useEffect(() => {
     if (clientModalOpen) {
       setClientModalError("");
       clientModalFirstInputRef.current?.focus();
     }
   }, [clientModalOpen]);
+
+  if (loadingData) {
+    return <div className="p-6 text-sm text-muted-foreground">Načítavam dáta...</div>;
+  }
+
+  if (dataError) {
+    return (
+      <div className="p-6 space-y-3">
+        <p className="text-sm font-semibold text-red-600">{dataError}</p>
+        <Button onClick={loadData}>Skúsiť znova</Button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -515,7 +829,15 @@ export default function CalendarPage() {
                 <option key={staff.id} value={staff.id}>{staff.name}</option>
               ))}
             </select>
-            <Button onClick={handleCreateClick}>Pridať booking</Button>
+            <Button
+              onClick={handleCreateClick}
+              disabled={loadingData || services.length === 0 || staffMembers.length === 0}
+            >
+              Pridať booking
+            </Button>
+            {(services.length === 0 || staffMembers.length === 0) && !loadingData && (
+              <span className="text-xs text-red-600">Pridajte služby a pracovníkov, aby ste mohli vytvárať bookingy.</span>
+            )}
           </div>
         </div>
         <div className="space-y-2">
@@ -632,49 +954,34 @@ export default function CalendarPage() {
               </div>
 
               {bookingTab === "booking" && (
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="space-y-3">
-                    <Label htmlFor="service">Služba</Label>
-                    <select
-                      id="service"
-                      disabled={sheetState.mode === "view"}
-                      value={sheetState.booking.serviceId}
-                      onChange={(event) => handleBookingField("serviceId", event.target.value)}
-                      className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {services.map((service) => (
-                        <option key={service.id} value={service.id}>{service.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div className="space-y-6">
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <div className="space-y-3">
+                      <Label htmlFor="staff">Pracovník</Label>
+                      <select
+                        id="staff"
+                        disabled={sheetState.mode === "view"}
+                        value={sheetState.booking.staffId}
+                        onChange={(event) => handleBookingField("staffId", event.target.value)}
+                        className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {staffMembers.map((staff) => (
+                          <option key={staff.id} value={staff.id}>{staff.name}</option>
+                        ))}
+                      </select>
+                    </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="staff">Pracovník</Label>
-                    <select
-                      id="staff"
-                      disabled={sheetState.mode === "view"}
-                      value={sheetState.booking.staffId}
-                      onChange={(event) => handleBookingField("staffId", event.target.value)}
-                      className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {staffMembers.map((staff) => (
-                        <option key={staff.id} value={staff.id}>{staff.name}</option>
-                      ))}
-                    </select>
-                  </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="date">Dátum</Label>
+                      <Input
+                        id="date"
+                        type="date"
+                        disabled={sheetState.mode === "view"}
+                        value={sheetState.booking.date}
+                        onChange={(event) => handleBookingField("date", event.target.value)}
+                      />
+                    </div>
 
-                  <div className="space-y-3">
-                    <Label htmlFor="date">Dátum</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      disabled={sheetState.mode === "view"}
-                      value={sheetState.booking.date}
-                      onChange={(event) => handleBookingField("date", event.target.value)}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-3">
                       <Label htmlFor="timeFrom">Čas od</Label>
                       <Input
@@ -690,10 +997,145 @@ export default function CalendarPage() {
                       <Input
                         id="timeTo"
                         type="time"
-                        disabled={sheetState.mode === "view"}
+                        readOnly
+                        disabled
                         value={sheetState.booking.timeTo}
-                        onChange={(event) => handleBookingField("timeTo", event.target.value)}
                       />
+                      <p className="text-xs text-muted-foreground">Koniec sa počíta podľa trvania služieb a doplnkov.</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label>Servisy a doplnky</Label>
+                      {sheetState.mode !== "view" && (
+                        <Button size="sm" variant="outline" onClick={handleAddService}>
+                          Pridať službu
+                        </Button>
+                      )}
+                    </div>
+                    <div className="space-y-4">
+                      {sheetState.booking.serviceSelections.map((selection, index) => {
+                        const service = services.find((item) => item.id === selection.serviceId);
+                        const selectionTotals = calculateBookingTotals(
+                          { ...sheetState.booking!, serviceSelections: [selection] },
+                          services,
+                        );
+                        const selectedAddonDetails = service
+                          ? selection.addons
+                              .map((addonSel) => {
+                                const addon = service.addons.find((item) => item.id === addonSel.addonId);
+                                if (!addon) return null;
+                                return { ...addon, count: addonSel.count };
+                              })
+                              .filter(Boolean) as { id: string; name: string; price: number; duration: number; count: number }[]
+                          : [];
+                        return (
+                          <div key={selection.id} className="space-y-3 rounded-md border bg-white p-3">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-sm font-semibold text-foreground">Služba {index + 1}</div>
+                              {sheetState.mode !== "view" && sheetState.booking.serviceSelections.length > 1 && (
+                                <button
+                                  type="button"
+                                  className="text-xs font-semibold text-red-600 hover:underline"
+                                  onClick={() => handleRemoveService(selection.id)}
+                                >
+                                  Odstrániť
+                                </button>
+                              )}
+                            </div>
+
+                            <select
+                              disabled={sheetState.mode === "view"}
+                              value={selection.serviceId}
+                              onChange={(event) => handleServiceChange(selection.id, event.target.value)}
+                              className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {services.map((serviceItem) => (
+                                <option key={serviceItem.id} value={serviceItem.id}>{serviceItem.name}</option>
+                              ))}
+                            </select>
+
+                            {service && (
+                              <div className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-2 text-xs text-muted-foreground">
+                                <span>{service.duration} min • {formatPrice(service.price)}</span>
+                                <span className="font-semibold text-foreground">{formatPrice(selectionTotals.totalPrice)}</span>
+                              </div>
+                            )}
+
+                            {service && (
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-semibold text-muted-foreground">
+                                    Doplnky {selectedAddonDetails.length > 0 ? `(${selectedAddonDetails.length})` : ""}
+                                  </p>
+                                  {service.addons.length > 0 && (
+                                    <button
+                                      type="button"
+                                      className="text-xs font-semibold text-purple-700 hover:underline"
+                                      onClick={() => handleAddonPanelToggle(selection.id)}
+                                    >
+                                      {addonsOpen[selection.id] ? "Skryť" : "Spravovať"} doplnky
+                                    </button>
+                                  )}
+                                </div>
+
+                                {selectedAddonDetails.length > 0 ? (
+                                  <div className="flex flex-wrap gap-2">
+                                    {selectedAddonDetails.map((addon) => (
+                                      <span
+                                        key={addon.id}
+                                        className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-1 text-[11px] font-semibold text-purple-800"
+                                      >
+                                        {addon.name} ×{addon.count}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-xs text-muted-foreground">Žiadne doplnky</p>
+                                )}
+
+                                {service.addons.length > 0 && addonsOpen[selection.id] && (
+                                  <div className="max-h-64 space-y-2 overflow-auto rounded-md border bg-slate-50 p-3">
+                                    {service.addons.map((addon) => {
+                                      const selectedAddon = selection.addons.find((item) => item.addonId === addon.id);
+                                      const checked = !!selectedAddon;
+                                      return (
+                                        <div key={addon.id} className="flex items-center justify-between gap-3 rounded-md border bg-white px-3 py-2">
+                                          <div className="flex flex-col text-sm">
+                                            <span className="font-medium text-foreground">{addon.name}</span>
+                                            <span className="text-xs text-muted-foreground">{addon.duration} min • {formatPrice(addon.price)}</span>
+                                          </div>
+                                          {sheetState.mode === "view" ? (
+                                            <span className="text-xs font-semibold text-foreground">{checked ? `×${selectedAddon?.count ?? 1}` : "-"}</span>
+                                          ) : (
+                                            <div className="flex items-center gap-2">
+                                              <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={(event) => handleAddonToggle(selection.id, addon.id, event.target.checked)}
+                                                className="h-4 w-4"
+                                              />
+                                              <Input
+                                                type="number"
+                                                min={1}
+                                                value={selectedAddon?.count ?? 1}
+                                                disabled={!checked}
+                                                onChange={(event) => handleAddonCountChange(selection.id, addon.id, Number(event.target.value))}
+                                                className="h-9 w-20"
+                                              />
+                                            </div>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -729,7 +1171,17 @@ export default function CalendarPage() {
             </div>
 
             <div className="sticky bottom-0 mt-4 border-t pt-4 bg-background">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Celkový čas</span>
+                  <span className="font-semibold text-foreground">{bookingTotals.totalMinutes} min</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Cena spolu</span>
+                  <span className="font-semibold text-foreground">{formatPrice(bookingTotals.totalPrice)}</span>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center justify-between">
                 <div className="text-sm text-red-600">{formError}</div>
                 {sheetState.mode !== "view" && (
                   <div className="flex gap-2">
@@ -769,7 +1221,12 @@ export default function CalendarPage() {
                   </Button>
                 </SheetClose>
                 <Button onClick={() => {
-                  const draft = createEmptyBooking(formatDateKey(dayDetail.date));
+                  if (services.length === 0 || staffMembers.length === 0) {
+                    closeDayDetailSheet();
+                    setFormError("Chýbajú služby alebo pracovníci.");
+                    return;
+                  }
+                  const draft = createEmptyBooking(formatDateKey(dayDetail.date), services, staffMembers);
                   setSheetState({ mode: "create", booking: draft });
                   closeDayDetailSheet();
                 }}>
@@ -790,7 +1247,7 @@ export default function CalendarPage() {
                   <div>
                     <p className="text-sm font-semibold text-foreground">{booking.timeFrom} – {booking.timeTo}</p>
                     <p className="text-xs text-muted-foreground">
-                      {services.find((s) => s.id === booking.serviceId)?.name ?? "Služba"}
+                      {services.find((s) => s.id === booking.serviceSelections[0]?.serviceId)?.name ?? "Služba"}
                     </p>
                   </div>
                   <div className="text-xs font-medium text-muted-foreground">
