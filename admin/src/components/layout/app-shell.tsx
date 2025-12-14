@@ -11,8 +11,8 @@ export function AppShell({ children, userEmail, companyName }: AppShellProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-foreground">
       <div className="grid min-h-screen gap-6 px-4 py-6 md:grid-cols-[260px_1fr] md:gap-8 md:px-8">
-        <aside className="rounded-2xl border border-border bg-card shadow-sm">
-          <div className="flex h-full flex-col p-4">
+        <aside className="rounded-2xl border border-border bg-card shadow-sm md:sticky md:top-6 md:self-start md:h-[calc(100vh-3rem)]">
+          <div className="flex h-full flex-col p-4 md:overflow-y-auto">
             <div className="mb-6 space-y-1">
               <p className="text-xs font-semibold uppercase tracking-[0.08em] text-purple-700">
                 Control Center
