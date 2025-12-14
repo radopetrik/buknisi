@@ -1,15 +1,65 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { redirect } from "next/navigation";
 
-export default function SettingsServicesPage() {
+import { getUserWithCompany, createClient } from "@/lib/supabase/server";
+
+import { ServicesManager } from "./_components/services-manager";
+import type { Addon, Service, ServiceAddonLink, ServiceCategory } from "./types";
+
+export default async function SettingsServicesPage() {
+  const { company } = await getUserWithCompany();
+
+  if (!company) {
+    redirect("/login?error=no_company");
+  }
+
+  const supabase = await createClient();
+
+  const [services, categories, addons, serviceAddons] = await Promise.all([
+    supabase
+      .from("services")
+      .select("id, name, price, price_type, duration, is_mobile, service_category_id")
+      .eq("company_id", company.id)
+      .order("name", { ascending: true }),
+    supabase
+      .from("service_categories")
+      .select("id, name")
+      .eq("company_id", company.id)
+      .order("name", { ascending: true }),
+    supabase
+      .from("addons")
+      .select("id, name, price, duration, description")
+      .eq("company_id", company.id)
+      .order("name", { ascending: true }),
+    supabase
+      .from("service_addons")
+      .select("service_id, addon_id, services!inner(company_id)")
+      .eq("services.company_id", company.id),
+  ]);
+
+  if (services.error) {
+    throw services.error;
+  }
+  if (categories.error) {
+    throw categories.error;
+  }
+  if (addons.error) {
+    throw addons.error;
+  }
+  if (serviceAddons.error) {
+    throw serviceAddons.error;
+  }
+
+  const mappedServiceAddons: ServiceAddonLink[] =
+    serviceAddons.data?.map(({ service_id, addon_id }) => ({ service_id, addon_id })) ?? [];
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Services</CardTitle>
-        <CardDescription>Manage service offerings, durations, and pricing.</CardDescription>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        Configure the catalog of services clients can book, including durations, add-ons, and visibility.
-      </CardContent>
-    </Card>
+    <ServicesManager
+      initialData={{
+        services: (services.data ?? []) as Service[],
+        categories: (categories.data ?? []) as ServiceCategory[],
+        addons: (addons.data ?? []) as Addon[],
+        serviceAddons: mappedServiceAddons,
+      }}
+    />
   );
 }

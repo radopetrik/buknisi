@@ -1,0 +1,3 @@
+V appke "admin" sekcia "settings" -> "services" pridat CRUID funkcie pre tabulky "services", "service_categories", "service_addons".
+Vsetky tieto tabulky filtruj podla prihlaseneho company. Kazdy user ma company tabulka "company_user". Porozmyslaj o zmysle tychto tabuliek pre normalneho pouzivatela a podla 
+toho aj sprav UI 
