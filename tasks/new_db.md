@@ -1,3 +1,7 @@
+Vytvor db pre supabase z tejto struktury a uloz to do db adresara.
+Nazvy vsetky tabulkym mnoznym cislom.
+
+
 - category
 	- name
 	- order (int)
@@ -134,7 +138,7 @@
     - addon FK
 
 
-- order
+- booking
 	- client FK (null allowed)
 	- company FK
 	- service FK
@@ -146,24 +150,21 @@
     - staffer FK
 
 
-- order_service
+- booking_service
     - order FK
     - service FK
     
-- order_service_addon
+- booking_service_addon
     - order_service FK
     - addon FK
     - count (int)
 
 - reservation
+    - company FK
     - date (date)
     - from_time (time)
     - to_time (time)
     - staffer (FK)
     - description
-
-- review
-	- company FK
-	- client FK
 
 
