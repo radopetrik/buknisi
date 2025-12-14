@@ -1,17 +1,32 @@
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/components/auth/login-form";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, getUserWithCompany } from "@/lib/supabase/server";
 
-export default async function LoginPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+type LoginPageProps = {
+  searchParams?: {
+    error?: string;
+  };
+};
 
-  if (user) {
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const { user, company } = await getUserWithCompany();
+
+  if (user && company) {
     redirect("/");
   }
+
+  if (user && !company) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+  }
+
+  const initialError =
+    user && !company
+      ? "Your account is missing a company association."
+      : searchParams?.error === "no_company"
+        ? "Your account is missing a company association."
+        : null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-slate-50 px-4 py-12">
@@ -25,7 +40,7 @@ export default async function LoginPage() {
             Sign in to continue to your admin workspace.
           </p>
         </div>
-        <LoginForm />
+        <LoginForm initialError={initialError} />
       </div>
     </div>
   );

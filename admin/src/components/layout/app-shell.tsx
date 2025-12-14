@@ -4,9 +4,10 @@ import { UserFooter } from "@/components/layout/user-footer";
 interface AppShellProps {
   children: React.ReactNode;
   userEmail?: string | null;
+  companyName?: string | null;
 }
 
-export function AppShell({ children, userEmail }: AppShellProps) {
+export function AppShell({ children, userEmail, companyName }: AppShellProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-foreground">
       <div className="grid min-h-screen gap-6 px-4 py-6 md:grid-cols-[260px_1fr] md:gap-8 md:px-8">
@@ -21,7 +22,7 @@ export function AppShell({ children, userEmail }: AppShellProps) {
             </div>
             <SidebarNav />
             <div className="mt-auto pt-6">
-              <UserFooter email={userEmail ?? "Signed in"} />
+              <UserFooter email={userEmail ?? "Signed in"} companyName={companyName ?? undefined} />
             </div>
           </div>
         </aside>

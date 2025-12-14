@@ -31,20 +31,48 @@ export async function middleware(request: NextRequest) {
     },
   );
 
+  const redirectWithCookies = (url: URL) => {
+    const response = NextResponse.redirect(url);
+    response.cookies.setAll(supabaseResponse.cookies.getAll());
+    return response;
+  };
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
+  let hasCompany = false;
+
+  if (user) {
+    const { data: companyRelation, error: companyError } = await supabase
+      .from("company_users")
+      .select("company_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!companyError && companyRelation?.company_id) {
+      hasCompany = true;
+    }
+  }
+
   if (!user && !isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url);
   }
 
-  if (user && isAuthRoute) {
+  if (user && !hasCompany) {
+    await supabase.auth.signOut();
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    url.searchParams.set("error", "no_company");
+    return redirectWithCookies(url);
+  }
+
+  if (user && hasCompany && isAuthRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/";
-    return NextResponse.redirect(url);
+    return redirectWithCookies(url);
   }
 
   return supabaseResponse;

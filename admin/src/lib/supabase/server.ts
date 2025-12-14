@@ -1,5 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
+import type { User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
+
+interface UserWithCompanyResult {
+  user: User | null;
+  company: { id: string; name: string } | null;
+}
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -25,4 +31,30 @@ export async function createClient() {
       },
     },
   );
+}
+
+export async function getUserWithCompany(): Promise<UserWithCompanyResult> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { user: null, company: null };
+  }
+
+  const { data: companyRelation, error: companyError } = await supabase
+    .from("company_users")
+    .select("company:companies(id, name)")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (companyError) {
+    throw companyError;
+  }
+
+  return {
+    user,
+    company: companyRelation?.company ?? null,
+  };
 }

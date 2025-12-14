@@ -4,9 +4,10 @@ import { LogoutButton } from "@/components/auth/logout-button";
 
 interface UserFooterProps {
   email: string;
+  companyName?: string;
 }
 
-export function UserFooter({ email }: UserFooterProps) {
+export function UserFooter({ email, companyName }: UserFooterProps) {
   const initials = email
     .split(" ")
     .map((part) => part.charAt(0).toUpperCase())
@@ -20,7 +21,9 @@ export function UserFooter({ email }: UserFooterProps) {
           <AvatarFallback>{initials || "U"}</AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-foreground">Logged in</p>
+          <p className="truncate text-sm font-medium text-foreground" title={companyName ?? "Logged in"}>
+            {companyName ?? "Logged in"}
+          </p>
           <p className="truncate text-xs text-muted-foreground" title={email}>
             {email}
           </p>

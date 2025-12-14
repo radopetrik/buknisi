@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LogIn, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -32,11 +32,23 @@ const loginSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export function LoginForm() {
+interface LoginFormProps {
+  initialError?: string | null;
+}
+
+export function LoginForm({ initialError }: LoginFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const errorParam = searchParams.get("error");
+    if (errorParam === "no_company") {
+      setError("Your account is missing a company association.");
+    }
+  }, [searchParams]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -49,10 +61,38 @@ export function LoginForm() {
   const handleSubmit = async (values: z.infer<typeof loginSchema>) => {
     setError(null);
     setIsSubmitting(true);
-    const { error: signInError } = await supabase.auth.signInWithPassword(values);
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(values);
 
     if (signInError) {
       setError(signInError.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    const signedInUser = data.user ?? (await supabase.auth.getUser()).data.user;
+
+    if (!signedInUser) {
+      setError("Unable to complete sign in.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { data: companyRelation, error: companyError } = await supabase
+      .from("company_users")
+      .select("company:companies(name)")
+      .eq("user_id", signedInUser.id)
+      .maybeSingle();
+
+    if (companyError) {
+      setError("Unable to verify company access.");
+      await supabase.auth.signOut();
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!companyRelation?.company) {
+      setError("Your account is missing a company association.");
+      await supabase.auth.signOut();
       setIsSubmitting(false);
       return;
     }
