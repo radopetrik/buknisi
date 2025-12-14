@@ -8,6 +8,7 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -87,43 +88,6 @@ function buildServiceAddonMap(links: ServiceAddonLink[]) {
     acc[link.service_id] = [...current, link.addon_id];
     return acc;
   }, {});
-}
-
-function Modal({
-  open,
-  title,
-  description,
-  onClose,
-  children,
-}: {
-  open: boolean;
-  title: string;
-  description?: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 py-10">
-      <div className="w-full max-w-2xl overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
-        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
-          <div className="space-y-1">
-            <h3 className="text-base font-semibold text-foreground">{title}</h3>
-            {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md p-2 text-muted-foreground transition hover:bg-muted"
-            aria-label="Close"
-          >
-            ×
-          </button>
-        </div>
-        <div className="max-h-[70vh] overflow-y-auto px-5 py-5">{children}</div>
-      </div>
-    </div>
-  );
 }
 
 export function ServicesManager({ initialData }: ServicesManagerProps) {
@@ -589,252 +553,285 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
       {activeTab === "services" ? renderServicesTab() : null}
       {activeTab === "addons" ? renderAddonsTab() : null}
 
-      <Modal
+      <Dialog
         open={categoryModalOpen}
-        title={categoryForm.getValues("id") ? "Upraviť kategóriu" : "Nová kategória"}
-        description="Pomenujte kategóriu tak, aby klienti rozumeli ponuke."
-        onClose={closeCategoryModal}
+        onOpenChange={(open) => {
+          if (open) {
+            setCategoryModalOpen(true);
+            return;
+          }
+          closeCategoryModal();
+        }}
       >
-        <Form {...categoryForm}>
-          <form className="space-y-4" onSubmit={categoryForm.handleSubmit(handleCategorySubmit)}>
-            <FormField
-              control={categoryForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Názov kategórie</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Napr. Masáže" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={closeCategoryModal}>
-                Zrušiť
-              </Button>
-              <Button type="submit" disabled={isCategoryPending}>
-                {isCategoryPending ? "Ukladám..." : categoryForm.getValues("id") ? "Uložiť" : "Pridať"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </Modal>
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{categoryForm.getValues("id") ? "Upraviť kategóriu" : "Nová kategória"}</DialogTitle>
+            <DialogDescription>
+              Pomenujte kategóriu tak, aby klienti rozumeli ponuke.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...categoryForm}>
+            <form className="space-y-4" onSubmit={categoryForm.handleSubmit(handleCategorySubmit)}>
+              <FormField
+                control={categoryForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Názov kategórie</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Napr. Masáže" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter className="gap-2">
+                <Button type="button" variant="secondary" onClick={closeCategoryModal}>
+                  Zrušiť
+                </Button>
+                <Button type="submit" disabled={isCategoryPending}>
+                  {isCategoryPending ? "Ukladám..." : categoryForm.getValues("id") ? "Uložiť" : "Pridať"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
-      <Modal
+      <Dialog
         open={serviceModalOpen}
-        title={serviceForm.getValues("id") ? "Upraviť službu" : "Nová služba"}
-        description="Nastavte parametre, ktoré uvidí klient pri rezervácii."
-        onClose={closeServiceModal}
+        onOpenChange={(open) => {
+          if (open) {
+            setServiceModalOpen(true);
+            return;
+          }
+          closeServiceModal();
+        }}
       >
-        <Form {...serviceForm}>
-          <form className="space-y-4" onSubmit={serviceForm.handleSubmit(handleServiceSubmit)}>
-            <FormField
-              control={serviceForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Názov služby</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Napr. Švédska masáž" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{serviceForm.getValues("id") ? "Upraviť službu" : "Nová služba"}</DialogTitle>
+            <DialogDescription>
+              Nastavte parametre, ktoré uvidí klient pri rezervácii.
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...serviceForm}>
+            <form className="space-y-4" onSubmit={serviceForm.handleSubmit(handleServiceSubmit)}>
               <FormField
                 control={serviceForm.control}
-                name="price"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cena</FormLabel>
+                    <FormLabel>Názov služby</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" min="0" {...field} />
+                      <Input placeholder="Napr. Švédska masáž" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={serviceForm.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cena</FormLabel>
+                      <FormControl>
+                        <Input type="number" step="0.01" min="0" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={serviceForm.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Trvanie (min)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" step="5" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={serviceForm.control}
+                  name="price_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Typ ceny</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                        >
+                          {priceTypes.map((type) => (
+                            <option key={type} value={type}>
+                              {type === "fixed"
+                                ? "Pevná"
+                                : type === "free"
+                                  ? "Zdarma"
+                                  : type === "dont_show"
+                                    ? "Nezobrazovať"
+                                    : "Od ceny"}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={serviceForm.control}
+                  name="service_category_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Kategória</FormLabel>
+                      <FormControl>
+                        <select
+                          {...field}
+                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                        >
+                          <option value="">Bez kategórie</option>
+                          {initialData.categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={serviceForm.control}
-                name="duration"
+                name="is_mobile"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Trvanie (min)</FormLabel>
+                    <FormLabel>Mobilná služba</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" step="5" {...field} />
+                      <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-sm">
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/70"
+                        />
+                        <span>Možné vykonať u klienta</span>
+                      </label>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={serviceForm.control}
-                name="price_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Typ ceny</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                      >
-                        {priceTypes.map((type) => (
-                          <option key={type} value={type}>
-                            {type === "fixed"
-                              ? "Pevná"
-                              : type === "free"
-                                ? "Zdarma"
-                                : type === "dont_show"
-                                  ? "Nezobrazovať"
-                                  : "Od ceny"}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={serviceForm.control}
-                name="service_category_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kategória</FormLabel>
-                    <FormControl>
-                      <select
-                        {...field}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                      >
-                        <option value="">Bez kategórie</option>
-                        {initialData.categories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={serviceForm.control}
-              name="is_mobile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mobilná služba</FormLabel>
-                  <FormControl>
-                    <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-sm">
-                      <input
-                        type="checkbox"
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/70"
-                      />
-                      <span>Možné vykonať u klienta</span>
-                    </label>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={closeServiceModal}>
-                Zrušiť
-              </Button>
-              <Button type="submit" disabled={isServicePending}>
-                {isServicePending ? "Ukladám..." : serviceForm.getValues("id") ? "Uložiť" : "Pridať"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </Modal>
+              <DialogFooter className="gap-2">
+                <Button type="button" variant="secondary" onClick={closeServiceModal}>
+                  Zrušiť
+                </Button>
+                <Button type="submit" disabled={isServicePending}>
+                  {isServicePending ? "Ukladám..." : serviceForm.getValues("id") ? "Uložiť" : "Pridať"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
 
-      <Modal
+      <Dialog
         open={addonModalOpen}
-        title={addonForm.getValues("id") ? "Upraviť doplnok" : "Nový doplnok"}
-        description="Krátke doplnky k hlavným službám."
-        onClose={closeAddonModal}
+        onOpenChange={(open) => {
+          if (open) {
+            setAddonModalOpen(true);
+            return;
+          }
+          closeAddonModal();
+        }}
       >
-        <Form {...addonForm}>
-          <form className="space-y-4" onSubmit={addonForm.handleSubmit(handleAddonSubmit)}>
-            <FormField
-              control={addonForm.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Názov doplnku</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Napr. Horúci zábal" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid gap-4 sm:grid-cols-2">
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{addonForm.getValues("id") ? "Upraviť doplnok" : "Nový doplnok"}</DialogTitle>
+            <DialogDescription>Krátke doplnky k hlavným službám.</DialogDescription>
+          </DialogHeader>
+          <Form {...addonForm}>
+            <form className="space-y-4" onSubmit={addonForm.handleSubmit(handleAddonSubmit)}>
               <FormField
                 control={addonForm.control}
-                name="price"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cena</FormLabel>
+                    <FormLabel>Názov doplnku</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" step="0.01" {...field} />
+                      <Input placeholder="Napr. Horúci zábal" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <FormField
+                  control={addonForm.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Cena</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="0" step="0.01" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={addonForm.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Trvanie (min)</FormLabel>
+                      <FormControl>
+                        <Input type="number" min="1" step="5" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
               <FormField
                 control={addonForm.control}
-                name="duration"
+                name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Trvanie (min)</FormLabel>
+                    <FormLabel>Popis (voliteľné)</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" step="5" {...field} />
+                      <textarea
+                        rows={2}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                        placeholder="Krátky popis doplnku pre klientov"
+                        value={field.value ?? ""}
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
-            <FormField
-              control={addonForm.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Popis (voliteľné)</FormLabel>
-                  <FormControl>
-                    <textarea
-                      rows={2}
-                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
-                      placeholder="Krátky popis doplnku pre klientov"
-                      value={field.value ?? ""}
-                      onChange={(e) => field.onChange(e.target.value)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={closeAddonModal}>
-                Zrušiť
-              </Button>
-              <Button type="submit" disabled={isAddonPending}>
-                {isAddonPending ? "Ukladám..." : addonForm.getValues("id") ? "Uložiť" : "Pridať"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-
-      </Modal>
+              <DialogFooter className="gap-2">
+                <Button type="button" variant="secondary" onClick={closeAddonModal}>
+                  Zrušiť
+                </Button>
+                <Button type="submit" disabled={isAddonPending}>
+                  {isAddonPending ? "Ukladám..." : addonForm.getValues("id") ? "Uložiť" : "Pridať"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
