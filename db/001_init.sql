@@ -159,6 +159,7 @@ CREATE TABLE IF NOT EXISTS photos (
 
 CREATE TABLE IF NOT EXISTS clients (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
   first_name text NOT NULL,
   last_name text NOT NULL,
   phone text,
@@ -271,5 +272,6 @@ CREATE INDEX IF NOT EXISTS idx_company_business_hours_company ON company_busines
 CREATE INDEX IF NOT EXISTS idx_staff_company ON staff(company_id);
 CREATE INDEX IF NOT EXISTS idx_services_company ON services(company_id);
 CREATE INDEX IF NOT EXISTS idx_addons_company ON addons(company_id);
+CREATE INDEX IF NOT EXISTS idx_clients_company ON clients(company_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_company_date ON bookings(company_id, date);
 CREATE INDEX IF NOT EXISTS idx_reservations_company_date ON reservations(company_id, date);
