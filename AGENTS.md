@@ -1,14 +1,13 @@
 Read 'agents/nextjs.md' and 'agents/supabase.md'
 
-
 Database location: Save all database changes/migrations to folder 'db'z
 
-This Repo contains (or will) two react apps.
+This repo contains (or will) two React apps:
 - catalog in folder 'catalog'
-- admin in folder 'admin'
+- admin in folder 'admin' (Next.js 16 app with Tailwind/shadcn + Supabase auth)
 
-Both use same supabase database. Structure is stored in 'db' folder
+Both use same Supabase database. Structure is stored in 'db' folder.
 
-Folder tasks contains my personal notes for prompts so you don't need to care about them
+Folder 'tasks' contains personal notes for prompts—no need to modify.
 
-Both app are hosted on Vercel
+Both apps are hosted on Vercel.
