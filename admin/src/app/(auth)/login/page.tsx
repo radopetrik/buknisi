@@ -4,12 +4,11 @@ import { LoginForm } from "@/components/auth/login-form";
 import { createClient, getUserWithCompany } from "@/lib/supabase/server";
 
 type LoginPageProps = {
-  searchParams?: {
-    error?: string;
-  };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
   const { user, company } = await getUserWithCompany();
 
   if (user && company) {
@@ -21,10 +20,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     await supabase.auth.signOut();
   }
 
+  const errorParam = Array.isArray(params?.error) ? params.error[0] : params?.error;
+
   const initialError =
     user && !company
       ? "Your account is missing a company association."
-      : searchParams?.error === "no_company"
+      : errorParam === "no_company"
         ? "Your account is missing a company association."
         : null;
 

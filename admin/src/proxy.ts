@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const isAuthRoute = request.nextUrl.pathname.startsWith("/login");
 
   let supabaseResponse = NextResponse.next({
@@ -33,7 +33,9 @@ export async function middleware(request: NextRequest) {
 
   const redirectWithCookies = (url: URL) => {
     const response = NextResponse.redirect(url);
-    response.cookies.setAll(supabaseResponse.cookies.getAll());
+    supabaseResponse.cookies.getAll().forEach(({ name, value, options }) => {
+      response.cookies.set(name, value, options);
+    });
     return response;
   };
 
