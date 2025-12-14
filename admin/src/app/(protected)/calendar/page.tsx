@@ -1,12 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 
 const getStartOfWeek = (value: Date) => {
   const date = new Date(value);
@@ -122,15 +123,6 @@ const createEmptyBooking = (date: string, timeFrom = "09:00", timeTo = "10:00"):
 const getDateLabel = (date: Date) =>
   date.toLocaleDateString("sk-SK", { day: "numeric", month: "short", year: "numeric" });
 
-const SheetBackdrop = ({ children, onClose }: { children: React.ReactNode; onClose: () => void }) => (
-  <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 p-4" role="dialog" aria-modal>
-    <div className="absolute inset-0" onClick={onClose} />
-    <div className="relative mt-10 w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/10">
-      {children}
-    </div>
-  </div>
-);
-
 export default function CalendarPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [focusedDate, setFocusedDate] = useState<Date>(new Date());
@@ -145,6 +137,13 @@ export default function CalendarPage() {
   const [dayDetail, setDayDetail] = useState<{ date: Date; bookings: Booking[] } | null>(null);
   const [clientDraft, setClientDraft] = useState({ firstName: "", lastName: "", phone: "", email: "" });
   const [formError, setFormError] = useState<string>("");
+  const [bookingTab, setBookingTab] = useState<"booking" | "notes">("booking");
+  const [clientSearch, setClientSearch] = useState("");
+  const [clientOptionsOpen, setClientOptionsOpen] = useState(false);
+  const [clientModalOpen, setClientModalOpen] = useState(false);
+  const [clientModalError, setClientModalError] = useState<string>("");
+  const clientModalRef = useRef<HTMLDivElement | null>(null);
+  const clientModalFirstInputRef = useRef<HTMLInputElement | null>(null);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => (staffFilter ? booking.staffId === staffFilter : true));
@@ -153,6 +152,12 @@ export default function CalendarPage() {
   const openBooking = (booking: Booking, mode: "view" | "edit") => {
     setFormError("");
     setClientDraft({ firstName: "", lastName: "", phone: "", email: "" });
+    setBookingTab("booking");
+    setClientOptionsOpen(false);
+    setClientSearch(() => {
+      const client = clients.find((c) => c.id === booking.clientId);
+      return client ? `${client.firstName} ${client.lastName}`.trim() : "";
+    });
     setSheetState({ mode, booking });
   };
 
@@ -161,6 +166,9 @@ export default function CalendarPage() {
     setSheetState({ mode: "create", booking: draft });
     setFormError("");
     setClientDraft({ firstName: "", lastName: "", phone: "", email: "" });
+    setBookingTab("booking");
+    setClientOptionsOpen(false);
+    setClientSearch("");
   };
 
   const handleDateNav = (direction: "prev" | "next" | "today") => {
@@ -176,23 +184,6 @@ export default function CalendarPage() {
     });
   };
 
-  const upsertClientIfNeeded = () => {
-    const hasDraft = clientDraft.firstName.trim() || clientDraft.lastName.trim();
-    if (!hasDraft) {
-      return null;
-    }
-    const newClientId = safeId();
-    const created = {
-      id: newClientId,
-      firstName: clientDraft.firstName.trim() || "Nový",
-      lastName: clientDraft.lastName.trim() || "Klient",
-      phone: clientDraft.phone.trim() || undefined,
-      email: clientDraft.email.trim() || undefined,
-    };
-    setClients((prev) => [...prev, created]);
-    return newClientId;
-  };
-
   const handleSave = () => {
     if (!sheetState.booking) return;
     const booking = sheetState.booking;
@@ -204,22 +195,48 @@ export default function CalendarPage() {
       setFormError("Čas od musí byť menší ako čas do.");
       return;
     }
-    const newClientId = upsertClientIfNeeded();
-    const bookingWithClient = { ...booking, clientId: newClientId ?? booking.clientId ?? null };
 
     setBookings((prev) => {
-      const exists = prev.find((item) => item.id === bookingWithClient.id);
+      const exists = prev.find((item) => item.id === booking.id);
       if (exists) {
-        return prev.map((item) => (item.id === bookingWithClient.id ? bookingWithClient : item));
+        return prev.map((item) => (item.id === booking.id ? booking : item));
       }
-      return [...prev, bookingWithClient];
+      return [...prev, booking];
     });
     setSheetState({ mode: "view", booking: null });
   };
 
-  const handleBookingField = (field: keyof Booking, value: string) => {
+  const handleBookingField = (field: keyof Booking, value: string | null) => {
     if (!sheetState.booking) return;
-    setSheetState((prev) => (prev ? { ...prev, booking: { ...prev.booking!, [field]: value } } : prev));
+    if (field === "clientId") {
+      const client = clients.find((c) => c.id === value);
+      setClientSearch(client ? `${client.firstName} ${client.lastName}`.trim() : "");
+      setClientOptionsOpen(false);
+    }
+    const nextValue = field === "clientId" && value === "" ? null : value;
+    setSheetState((prev) => (prev ? { ...prev, booking: { ...prev.booking!, [field]: nextValue as never } } : prev));
+  };
+
+  const handleCreateClient = () => {
+    if (!clientDraft.firstName.trim() && !clientDraft.lastName.trim()) {
+      setClientModalError("Zadajte aspoň meno alebo priezvisko.");
+      return;
+    }
+
+    const newClientId = safeId();
+    const created = {
+      id: newClientId,
+      firstName: clientDraft.firstName.trim() || "Nový",
+      lastName: clientDraft.lastName.trim() || "Klient",
+      phone: clientDraft.phone.trim() || undefined,
+      email: clientDraft.email.trim() || undefined,
+    };
+    setClients((prev) => [...prev, created]);
+    setSheetState((prev) => (prev && prev.booking ? { ...prev, booking: { ...prev.booking, clientId: newClientId } } : prev));
+    setClientSearch(`${created.firstName} ${created.lastName}`.trim());
+    setClientModalOpen(false);
+    setClientOptionsOpen(false);
+    setClientModalError("");
   };
 
   const renderBookingChip = (booking: Booking) => {
@@ -417,6 +434,35 @@ export default function CalendarPage() {
     }
   };
 
+  const isBookingSheetOpen = !!sheetState.booking;
+  const isDaySheetOpen = !!dayDetail;
+
+  const closeBookingSheet = () => {
+    setSheetState({ mode: "view", booking: null });
+    setClientOptionsOpen(false);
+    setBookingTab("booking");
+  };
+  const closeDayDetailSheet = () => setDayDetail(null);
+
+  const filteredClients = useMemo(() => {
+    const query = clientSearch.trim().toLowerCase();
+    if (!query) return clients;
+    return clients.filter((client) => `${client.firstName} ${client.lastName}`.toLowerCase().includes(query));
+  }, [clientSearch, clients]);
+
+  useEffect(() => {
+    if (!sheetState.booking) return;
+    const client = clients.find((c) => c.id === sheetState.booking?.clientId);
+    setClientSearch(client ? `${client.firstName} ${client.lastName}`.trim() : "");
+  }, [sheetState.booking?.id, sheetState.booking?.clientId, clients]);
+
+  useEffect(() => {
+    if (clientModalOpen) {
+      setClientModalError("");
+      clientModalFirstInputRef.current?.focus();
+    }
+  }, [clientModalOpen]);
+
   return (
     <>
       <div className="space-y-4">
@@ -478,227 +524,349 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {sheetState.booking && (
-        <SheetBackdrop onClose={() => setSheetState({ mode: "view", booking: null })}>
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <div>
-              <p className="text-lg font-semibold text-foreground">
-                {sheetState.mode === "create" ? "Nový booking" : "Detail booking"}
-              </p>
-              <p className="text-sm text-muted-foreground">Client je voliteľný; môžete ho vytvoriť priamo v sheete.</p>
+      <Sheet open={isBookingSheetOpen} modal={!clientModalOpen} onOpenChange={(open) => {
+        if (!open) closeBookingSheet();
+      }}>
+        {sheetState.booking && (
+          <SheetContent
+            side="right"
+            className="flex h-full flex-col w-full sm:max-w-2xl p-6"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <SheetHeader className="text-left">
+                <SheetTitle>{sheetState.mode === "create" ? "Nový booking" : "Detail booking"}</SheetTitle>
+                <SheetDescription>Client je voliteľný; môžete ho vytvoriť priamo v sheete.</SheetDescription>
+              </SheetHeader>
+              <div className="flex items-center gap-2">
+                {sheetState.mode !== "create" && (
+                  <Button variant="outline" onClick={() => setSheetState((prev) => (prev ? { ...prev, mode: "edit" } : prev))}>
+                    Upraviť
+                  </Button>
+                )}
+                <SheetClose asChild>
+                  <Button variant="ghost" onClick={closeBookingSheet}>Zavrieť</Button>
+                </SheetClose>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              {sheetState.mode !== "create" && (
-                <Button variant="outline" onClick={() => setSheetState((prev) => prev ? { ...prev, mode: "edit" } : prev)}>
-                  Upraviť
-                </Button>
+
+            <div className="mt-4 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setBookingTab("booking")}
+                className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                  bookingTab === "booking" ? "bg-purple-600 text-white shadow" : "text-slate-700 hover:bg-purple-50"
+                }`}
+              >
+                Booking
+              </button>
+              <button
+                type="button"
+                onClick={() => setBookingTab("notes")}
+                className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
+                  bookingTab === "notes" ? "bg-purple-600 text-white shadow" : "text-slate-700 hover:bg-purple-50"
+                }`}
+              >
+                Notes & Info
+              </button>
+            </div>
+
+            <div className="mt-4 flex-1 overflow-y-auto pr-1">
+              <div className="mb-6 space-y-3">
+                <Label htmlFor="client">Klient (voliteľné)</Label>
+                <div className="relative">
+                  <Input
+                    id="client"
+                    placeholder="Vyhľadajte klienta"
+                    disabled={sheetState.mode === "view"}
+                    value={clientSearch}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      setClientSearch(value);
+                      if (value.trim() === "") {
+                        handleBookingField("clientId", "");
+                      }
+                      setClientOptionsOpen(true);
+                    }}
+                    onFocus={() => setClientOptionsOpen(true)}
+                  />
+                  {clientOptionsOpen && sheetState.mode !== "view" && (
+                    <div className="absolute z-50 mt-1 w-full rounded-md border border-slate-200 bg-white shadow-lg">
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-semibold text-purple-700 hover:bg-purple-50"
+                        onClick={() => {
+                          setClientDraft({ firstName: "", lastName: "", phone: "", email: "" });
+                          setClientModalOpen(true);
+                          setClientOptionsOpen(false);
+                        }}
+                      >
+                        + Vytvoriť nového klienta
+                      </button>
+                      <div className="max-h-56 divide-y overflow-auto">
+                        {filteredClients.length === 0 ? (
+                          <p className="px-3 py-2 text-sm text-slate-500">Žiadny klient</p>
+                        ) : (
+                          filteredClients.map((client) => (
+                            <button
+                              key={client.id}
+                              type="button"
+                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-purple-50"
+                              onClick={() => {
+                                handleBookingField("clientId", client.id);
+                                setClientSearch(`${client.firstName} ${client.lastName}`.trim());
+                                setClientOptionsOpen(false);
+                              }}
+                            >
+                              <span className="font-medium text-foreground">{client.firstName} {client.lastName}</span>
+                              <span className="text-xs text-muted-foreground">{client.email ?? client.phone ?? ""}</span>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {sheetState.booking.clientId && (
+                  <p className="text-xs text-muted-foreground">Vybraný klient: {clientSearch || ""}</p>
+                )}
+              </div>
+
+              {bookingTab === "booking" && (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  <div className="space-y-3">
+                    <Label htmlFor="service">Služba</Label>
+                    <select
+                      id="service"
+                      disabled={sheetState.mode === "view"}
+                      value={sheetState.booking.serviceId}
+                      onChange={(event) => handleBookingField("serviceId", event.target.value)}
+                      className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {services.map((service) => (
+                        <option key={service.id} value={service.id}>{service.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="staff">Pracovník</Label>
+                    <select
+                      id="staff"
+                      disabled={sheetState.mode === "view"}
+                      value={sheetState.booking.staffId}
+                      onChange={(event) => handleBookingField("staffId", event.target.value)}
+                      className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {staffMembers.map((staff) => (
+                        <option key={staff.id} value={staff.id}>{staff.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="date">Dátum</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      disabled={sheetState.mode === "view"}
+                      value={sheetState.booking.date}
+                      onChange={(event) => handleBookingField("date", event.target.value)}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-3">
+                      <Label htmlFor="timeFrom">Čas od</Label>
+                      <Input
+                        id="timeFrom"
+                        type="time"
+                        disabled={sheetState.mode === "view"}
+                        value={sheetState.booking.timeFrom}
+                        onChange={(event) => handleBookingField("timeFrom", event.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-3">
+                      <Label htmlFor="timeTo">Čas do</Label>
+                      <Input
+                        id="timeTo"
+                        type="time"
+                        disabled={sheetState.mode === "view"}
+                        value={sheetState.booking.timeTo}
+                        onChange={(event) => handleBookingField("timeTo", event.target.value)}
+                      />
+                    </div>
+                  </div>
+                </div>
               )}
-              <Button variant="ghost" onClick={() => setSheetState({ mode: "view", booking: null })}>Zavrieť</Button>
-            </div>
-          </div>
 
-          <div className="grid gap-6 px-6 py-5 sm:grid-cols-2">
-            <div className="space-y-3">
-              <Label htmlFor="service">Služba</Label>
-              <select
-                id="service"
-                disabled={sheetState.mode === "view"}
-                value={sheetState.booking.serviceId}
-                onChange={(event) => handleBookingField("serviceId", event.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {services.map((service) => (
-                  <option key={service.id} value={service.id}>{service.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="staff">Pracovník</Label>
-              <select
-                id="staff"
-                disabled={sheetState.mode === "view"}
-                value={sheetState.booking.staffId}
-                onChange={(event) => handleBookingField("staffId", event.target.value)}
-                className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {staffMembers.map((staff) => (
-                  <option key={staff.id} value={staff.id}>{staff.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="date">Dátum</Label>
-              <Input
-                id="date"
-                type="date"
-                disabled={sheetState.mode === "view"}
-                value={sheetState.booking.date}
-                onChange={(event) => handleBookingField("date", event.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-3">
-                <Label htmlFor="timeFrom">Čas od</Label>
-                <Input
-                  id="timeFrom"
-                  type="time"
-                  disabled={sheetState.mode === "view"}
-                  value={sheetState.booking.timeFrom}
-                  onChange={(event) => handleBookingField("timeFrom", event.target.value)}
-                />
-              </div>
-              <div className="space-y-3">
-                <Label htmlFor="timeTo">Čas do</Label>
-                <Input
-                  id="timeTo"
-                  type="time"
-                  disabled={sheetState.mode === "view"}
-                  value={sheetState.booking.timeTo}
-                  onChange={(event) => handleBookingField("timeTo", event.target.value)}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label htmlFor="client">Klient (voliteľné)</Label>
-              <select
-                id="client"
-                disabled={sheetState.mode === "view"}
-                value={sheetState.booking.clientId ?? ""}
-                onChange={(event) => handleBookingField("clientId", event.target.value || null)}
-                className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <option value="">Bez klienta</option>
-                {clients.map((client) => (
-                  <option key={client.id} value={client.id}>{client.firstName} {client.lastName}</option>
-                ))}
-              </select>
-              {sheetState.mode !== "view" && (
-                <div className="rounded-lg border bg-purple-50/60 p-3">
-                  <p className="text-sm font-semibold text-purple-900">Vytvoriť klienta rýchlo</p>
-                  <p className="text-xs text-purple-800">Ak necháte polia prázdne, klient sa nevytvorí.</p>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
-                    <Input
-                      placeholder="Meno"
-                      value={clientDraft.firstName}
-                      onChange={(event) => setClientDraft((prev) => ({ ...prev, firstName: event.target.value }))}
+              {bookingTab === "notes" && (
+                <div className="space-y-6">
+                  <div className="space-y-3">
+                    <Label htmlFor="internalNote">Interná poznámka</Label>
+                    <textarea
+                      id="internalNote"
+                      disabled={sheetState.mode === "view"}
+                      value={sheetState.booking.internalNote ?? ""}
+                      onChange={(event) => handleBookingField("internalNote", event.target.value)}
+                      className="min-h-[100px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      placeholder="Systémové poznámky viditeľné len interne"
                     />
-                    <Input
-                      placeholder="Priezvisko"
-                      value={clientDraft.lastName}
-                      onChange={(event) => setClientDraft((prev) => ({ ...prev, lastName: event.target.value }))}
-                    />
-                    <Input
-                      placeholder="Telefón"
-                      value={clientDraft.phone}
-                      onChange={(event) => setClientDraft((prev) => ({ ...prev, phone: event.target.value }))}
-                    />
-                    <Input
-                      placeholder="Email"
-                      type="email"
-                      value={clientDraft.email}
-                      onChange={(event) => setClientDraft((prev) => ({ ...prev, email: event.target.value }))}
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label htmlFor="clientNote">Poznámka klienta</Label>
+                    <textarea
+                      id="clientNote"
+                      disabled={sheetState.mode === "view"}
+                      value={sheetState.booking.clientNote ?? ""}
+                      onChange={(event) => handleBookingField("clientNote", event.target.value)}
+                      className="min-h-[100px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      placeholder="Poznámka od klienta / preferencie"
                     />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="space-y-3 sm:col-span-2">
-              <Label htmlFor="internalNote">Interná poznámka</Label>
-              <textarea
-                id="internalNote"
-                disabled={sheetState.mode === "view"}
-                value={sheetState.booking.internalNote ?? ""}
-                onChange={(event) => handleBookingField("internalNote", event.target.value)}
-                className="min-h-[80px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                placeholder="Systémové poznámky viditeľné len interne"
-              />
-            </div>
-
-            <div className="space-y-3 sm:col-span-2">
-              <Label htmlFor="clientNote">Poznámka klienta</Label>
-              <textarea
-                id="clientNote"
-                disabled={sheetState.mode === "view"}
-                value={sheetState.booking.clientNote ?? ""}
-                onChange={(event) => handleBookingField("clientNote", event.target.value)}
-                className="min-h-[80px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-                placeholder="Poznámka od klienta / preferencie"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between border-t px-6 py-4">
-            <div className="text-sm text-red-600">{formError}</div>
-            {sheetState.mode !== "view" && (
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setSheetState({ mode: "view", booking: null })}>
-                  Zrušiť
-                </Button>
-                <Button onClick={handleSave}>Uložiť</Button>
+            <div className="sticky bottom-0 mt-4 border-t pt-4 bg-background">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-red-600">{formError}</div>
+                {sheetState.mode !== "view" && (
+                  <div className="flex gap-2">
+                    <SheetClose asChild>
+                      <Button variant="outline" onClick={closeBookingSheet}>
+                        Zrušiť
+                      </Button>
+                    </SheetClose>
+                    <Button onClick={handleSave}>Uložiť</Button>
+                  </div>
+                )}
+                {sheetState.mode === "view" && (
+                  <Button onClick={() => setSheetState((prev) => (prev ? { ...prev, mode: "edit" } : prev))}>
+                    Upraviť booking
+                  </Button>
+                )}
               </div>
-            )}
-            {sheetState.mode === "view" && (
-              <Button onClick={() => setSheetState((prev) => prev ? { ...prev, mode: "edit" } : prev)}>
-                Upraviť booking
-              </Button>
-            )}
-          </div>
-        </SheetBackdrop>
-      )}
+            </div>
+          </SheetContent>
+        )}
+      </Sheet>
 
-      {dayDetail && (
-        <SheetBackdrop onClose={() => setDayDetail(null)}>
-          <div className="flex items-center justify-between border-b px-6 py-4">
-            <div>
-              <p className="text-lg font-semibold text-foreground">{getDateLabel(dayDetail.date)}</p>
-              <p className="text-sm text-muted-foreground">Vyberte booking alebo vytvorte nový.</p>
+      <Sheet open={isDaySheetOpen} onOpenChange={(open) => {
+        if (!open) closeDayDetailSheet();
+      }}>
+        {dayDetail && (
+          <SheetContent side="right" className="w-full sm:max-w-xl">
+            <div className="flex items-start justify-between gap-4">
+              <SheetHeader className="text-left">
+                <SheetTitle>{getDateLabel(dayDetail.date)}</SheetTitle>
+                <SheetDescription>Vyberte booking alebo vytvorte nový.</SheetDescription>
+              </SheetHeader>
+              <div className="flex items-center gap-2">
+                <SheetClose asChild>
+                  <Button variant="outline" onClick={closeDayDetailSheet}>
+                    Zavrieť
+                  </Button>
+                </SheetClose>
+                <Button onClick={() => {
+                  const draft = createEmptyBooking(formatDateKey(dayDetail.date));
+                  setSheetState({ mode: "create", booking: draft });
+                  closeDayDetailSheet();
+                }}>
+                  Pridať booking
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setDayDetail(null)}>
-                Zavrieť
-              </Button>
-              <Button onClick={() => {
-                const draft = createEmptyBooking(formatDateKey(dayDetail.date));
-                setSheetState({ mode: "create", booking: draft });
-                setDayDetail(null);
-              }}>
-                Pridať booking
-              </Button>
+            <div className="mt-4 divide-y">
+              {dayDetail.bookings.map((booking) => (
+                <button
+                  key={booking.id}
+                  className="flex w-full items-start justify-between gap-3 px-1 py-4 text-left transition hover:bg-purple-50"
+                  onClick={() => {
+                    openBooking(booking, "view");
+                    closeDayDetailSheet();
+                  }}
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{booking.timeFrom} – {booking.timeTo}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {services.find((s) => s.id === booking.serviceId)?.name ?? "Služba"}
+                    </p>
+                  </div>
+                  <div className="text-xs font-medium text-muted-foreground">
+                    {staffMembers.find((s) => s.id === booking.staffId)?.name ?? "Pracovník"}
+                  </div>
+                </button>
+              ))}
+              {dayDetail.bookings.length === 0 && (
+                <p className="px-1 py-6 text-sm text-slate-500">Žiadne rezervácie</p>
+              )}
             </div>
-          </div>
-          <div className="divide-y">
-            {dayDetail.bookings.map((booking) => (
+          </SheetContent>
+        )}
+      </Sheet>
+
+      {clientModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
+          <div ref={clientModalRef} className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4 flex items-start justify-between">
+              <div>
+                <p className="text-lg font-semibold text-foreground">Nový klient</p>
+                <p className="text-sm text-muted-foreground">Vyplňte údaje klienta pre booking.</p>
+              </div>
               <button
-                key={booking.id}
-                className="flex w-full items-start justify-between gap-3 px-6 py-4 text-left transition hover:bg-purple-50"
+                type="button"
+                className="text-sm text-muted-foreground hover:text-foreground"
                 onClick={() => {
-                  openBooking(booking, "view");
-                  setDayDetail(null);
+                  setClientModalOpen(false);
+                  setClientModalError("");
                 }}
               >
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{booking.timeFrom} – {booking.timeTo}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {services.find((s) => s.id === booking.serviceId)?.name ?? "Služba"}
-                  </p>
-                </div>
-                <div className="text-xs font-medium text-muted-foreground">
-                  {staffMembers.find((s) => s.id === booking.staffId)?.name ?? "Pracovník"}
-                </div>
+                Zavrieť
               </button>
-            ))}
-            {dayDetail.bookings.length === 0 && (
-              <p className="px-6 py-6 text-sm text-slate-500">Žiadne rezervácie</p>
-            )}
+            </div>
+
+            <div className="space-y-3">
+                      <Input
+                        ref={clientModalFirstInputRef}
+                        placeholder="Meno"
+                        value={clientDraft.firstName}
+                        onChange={(event) => setClientDraft((prev) => ({ ...prev, firstName: event.target.value }))}
+                      />
+
+              <Input
+                placeholder="Priezvisko"
+                value={clientDraft.lastName}
+                onChange={(event) => setClientDraft((prev) => ({ ...prev, lastName: event.target.value }))}
+              />
+              <Input
+                placeholder="Telefón"
+                value={clientDraft.phone}
+                onChange={(event) => setClientDraft((prev) => ({ ...prev, phone: event.target.value }))}
+              />
+              <Input
+                placeholder="Email"
+                type="email"
+                value={clientDraft.email}
+                onChange={(event) => setClientDraft((prev) => ({ ...prev, email: event.target.value }))}
+              />
+              {clientModalError && <p className="text-sm text-red-600">{clientModalError}</p>}
+            </div>
+
+            <div className="mt-4 flex justify-end gap-2">
+              <Button variant="outline" onClick={() => {
+                setClientModalOpen(false);
+                setClientModalError("");
+              }}>
+                Zrušiť
+              </Button>
+              <Button onClick={handleCreateClient}>Vytvoriť klienta</Button>
+            </div>
           </div>
-        </SheetBackdrop>
+        </div>
       )}
     </>
   );
 }
+
 
