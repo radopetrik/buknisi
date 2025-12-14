@@ -49,7 +49,13 @@ const serviceFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   price: z.coerce.number().min(0, "Price must be zero or higher"),
   price_type: z.enum(priceTypes),
-  duration: z.coerce.number().int().min(1, "Duration must be at least 1 minute"),
+  duration: z
+    .coerce
+    .number()
+    .int()
+    .min(5, "Duration must be at least 5 minutes")
+    .max(55, "Duration must be at most 55 minutes")
+    .refine((value) => value % 5 === 0, "Duration must be in 5-minute steps"),
   service_category_id: z.string().uuid().optional().or(z.literal("")),
   is_mobile: z.boolean().optional(),
 });
@@ -69,7 +75,13 @@ const addonFormSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, "Name is required"),
   price: z.coerce.number().min(0, "Price must be zero or higher"),
-  duration: z.coerce.number().int().min(1, "Duration must be at least 1 minute"),
+  duration: z
+    .coerce
+    .number()
+    .int()
+    .min(5, "Duration must be at least 5 minutes")
+    .max(55, "Duration must be at most 55 minutes")
+    .refine((value) => value % 5 === 0, "Duration must be in 5-minute steps"),
   description: z.string().max(500, "Keep it short").optional().nullable(),
 });
 
@@ -81,6 +93,8 @@ const defaultAddonValues: AddonFormValues = {
   duration: 10,
   description: null,
 };
+
+const durationOptions = Array.from({ length: 11 }, (_, index) => (index + 1) * 5);
 
 function buildServiceAddonMap(links: ServiceAddonLink[]) {
   return links.reduce<Record<string, string[]>>((acc, link) => {
@@ -647,15 +661,30 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                 <FormField
                   control={serviceForm.control}
                   name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Trvanie (min)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="1" step="5" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const selectedValue = Number(field.value ?? durationOptions[0]);
+                    const hasCustomValue = !durationOptions.includes(selectedValue);
+                    return (
+                      <FormItem>
+                        <FormLabel>Trvanie (min)</FormLabel>
+                        <FormControl>
+                          <select
+                            value={selectedValue}
+                            onChange={(event) => field.onChange(Number(event.target.value))}
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                          >
+                            {durationOptions.map((minutes) => (
+                              <option key={minutes} value={minutes}>{`${minutes} min`}</option>
+                            ))}
+                            {hasCustomValue ? (
+                              <option value={selectedValue}>{`${selectedValue} min`}</option>
+                            ) : null}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
                 <FormField
                   control={serviceForm.control}
@@ -790,15 +819,30 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                 <FormField
                   control={addonForm.control}
                   name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Trvanie (min)</FormLabel>
-                      <FormControl>
-                        <Input type="number" min="1" step="5" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const selectedValue = Number(field.value ?? durationOptions[0]);
+                    const hasCustomValue = !durationOptions.includes(selectedValue);
+                    return (
+                      <FormItem>
+                        <FormLabel>Trvanie (min)</FormLabel>
+                        <FormControl>
+                          <select
+                            value={selectedValue}
+                            onChange={(event) => field.onChange(Number(event.target.value))}
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                          >
+                            {durationOptions.map((minutes) => (
+                              <option key={minutes} value={minutes}>{`${minutes} min`}</option>
+                            ))}
+                            {hasCustomValue ? (
+                              <option value={selectedValue}>{`${selectedValue} min`}</option>
+                            ) : null}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
               <FormField

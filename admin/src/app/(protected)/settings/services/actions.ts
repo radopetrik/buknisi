@@ -19,7 +19,12 @@ const serviceSchema = z.object({
   name: z.string().min(1, "Name is required").max(160, "Keep it under 160 characters"),
   price: z.number().nonnegative({ message: "Price must be zero or higher" }),
   price_type: z.enum(priceTypes),
-  duration: z.number().int().positive({ message: "Duration must be at least 1 minute" }),
+  duration: z
+    .number()
+    .int()
+    .min(5, { message: "Duration must be at least 5 minutes" })
+    .max(55, { message: "Duration must be at most 55 minutes" })
+    .refine((value) => value % 5 === 0, { message: "Duration must be in 5-minute steps" }),
   service_category_id: z.string().uuid().nullable().optional(),
   is_mobile: z.boolean().optional().default(false),
 });
@@ -28,7 +33,12 @@ const addonSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, "Name is required").max(160, "Keep it under 160 characters"),
   price: z.number().nonnegative({ message: "Price must be zero or higher" }),
-  duration: z.number().int().positive({ message: "Duration must be at least 1 minute" }),
+  duration: z
+    .number()
+    .int()
+    .min(5, { message: "Duration must be at least 5 minutes" })
+    .max(55, { message: "Duration must be at most 55 minutes" })
+    .refine((value) => value % 5 === 0, { message: "Duration must be in 5-minute steps" }),
   description: z.string().max(500, "Keep description concise").optional().nullable(),
 });
 
