@@ -1,0 +1,15 @@
+Create new app "admin" in folder "@admin" with Login page and Basic layout with categories.
+Loging page connect to supabase.
+Here is token for supabase -> sb_publishable_Xgy6JJxeDi9OyP0P85rU9w_qmpGj732
+
+
+1. Login Page (email, password)
+2. Main categories
+    - Calendar
+    - Billing
+    - Clients
+    - Staff Management
+    - Profile
+    - Settings 
+
+3. On the bottom - who is login and ability to logof
