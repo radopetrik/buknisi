@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-lato);
+  --font-display: var(--font-playfair);
+  --color-background: #fcfcfc;
+  --color-foreground: #2c2c2c;
+  --color-muted: #787878;
+  --color-border: #f2f2f2;
+  --color-header: rgba(255, 255, 255, 0.96);
+  --color-primary: #d4a373;
+  --color-accent: #fff0f3;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply min-h-dvh bg-[var(--color-background)] text-[var(--color-foreground)];
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-[var(--color-primary)];
+  }
+}

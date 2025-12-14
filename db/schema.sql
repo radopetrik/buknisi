@@ -20,12 +20,14 @@ CREATE TYPE IF NOT EXISTS time_off_reason AS ENUM ('sick_day', 'vacation', 'trai
 CREATE TABLE IF NOT EXISTS categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE,
   ordering integer NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS cities (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name text NOT NULL UNIQUE
+  name text NOT NULL UNIQUE,
+  slug text NOT NULL UNIQUE
 );
 
 -- Core entities
@@ -312,6 +314,8 @@ CREATE TABLE IF NOT EXISTS reservations (
 );
 
 -- Helpful indexes
+CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
+CREATE INDEX IF NOT EXISTS idx_cities_slug ON cities(slug);
 CREATE INDEX IF NOT EXISTS idx_companies_category ON companies(category_id);
 CREATE INDEX IF NOT EXISTS idx_companies_city ON companies(city_id);
 CREATE INDEX IF NOT EXISTS idx_company_amenities_company ON company_amenities(company_id);
