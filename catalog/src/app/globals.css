@@ -23,6 +23,26 @@
     font-family: var(--font-sans), "Lato", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   }
 
+  body {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-base leading-relaxed tracking-[0.01em];
+  }
+
+  h1 {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-4xl font-semibold leading-tight tracking-tight md:text-5xl lg:text-6xl;
+  }
+
+  h2 {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-3xl font-semibold leading-snug tracking-tight md:text-4xl;
+  }
+
+  h3 {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-2xl font-semibold leading-snug tracking-tight md:text-3xl;
+  }
+
   a {
     @apply text-inherit no-underline;
   }
@@ -39,5 +59,64 @@
 
   .font-body {
     font-family: var(--font-sans), "Lato", sans-serif;
+  }
+
+  .heading-hero {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl lg:text-7xl;
+  }
+
+  .heading-page {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-4xl font-semibold leading-tight tracking-tight md:text-5xl;
+  }
+
+  .heading-section {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-3xl font-semibold leading-[1.2] tracking-tight md:text-4xl;
+  }
+
+  .heading-card {
+    font-family: var(--font-display), "Playfair Display", serif;
+    @apply text-xl font-semibold leading-snug md:text-2xl;
+  }
+
+  .text-body-lg {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-lg leading-relaxed tracking-[0.01em] md:text-xl;
+  }
+
+  .text-body {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-base leading-relaxed tracking-[0.01em];
+  }
+
+  .text-body-muted {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-sm leading-relaxed tracking-[0.01em];
+    color: var(--color-muted);
+  }
+
+  .text-subtle {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-xs leading-snug;
+    color: var(--color-muted);
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-xs font-semibold uppercase tracking-[0.3em] leading-tight;
+  }
+
+  .eyebrow-muted {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-xs font-semibold uppercase tracking-[0.3em] leading-tight;
+    color: var(--color-muted);
+  }
+
+  .eyebrow-contrast {
+    font-family: var(--font-sans), "Lato", sans-serif;
+    @apply text-xs font-semibold uppercase tracking-[0.3em] leading-tight;
+    color: var(--color-foreground);
   }
 }

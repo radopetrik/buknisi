@@ -155,7 +155,7 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
           <div className="hidden flex-grow items-center rounded-full border border-[#eeeeee] bg-[#f9f9f9] p-2 md:flex">
             <input
               aria-label="Procedúra"
-              className="flex-1 bg-transparent px-4 text-sm font-medium text-[var(--color-foreground)] outline-none"
+              className="flex-1 bg-transparent px-4 text-base font-medium tracking-[0.02em] text-[var(--color-foreground)] outline-none placeholder:text-[var(--color-muted)]"
               defaultValue={category.name}
               placeholder="Procedúra"
               type="text"
@@ -163,31 +163,37 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
             <span className="h-6 w-px bg-[#e5e5e5]" />
             <input
               aria-label="Mesto"
-              className="flex-1 bg-transparent px-4 text-sm font-medium text-[var(--color-foreground)] outline-none"
+              className="flex-1 bg-transparent px-4 text-base font-medium tracking-[0.02em] text-[var(--color-foreground)] outline-none placeholder:text-[var(--color-muted)]"
               defaultValue={city.name}
               placeholder="Lokalita"
               type="text"
             />
             <button
-              className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary)] text-sm font-semibold text-white"
+              className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-primary)] text-xs font-semibold uppercase tracking-[0.16em] text-white"
               type="button"
             >
               🔍
             </button>
           </div>
-          <nav className="hidden items-center gap-5 text-xs font-bold uppercase tracking-wide md:flex">
-            <Link className="transition-colors hover:text-[var(--color-primary)]" href="/login">
+          <nav className="hidden items-center gap-5 md:flex">
+            <Link
+              className="text-sm font-semibold tracking-[0.08em] text-[var(--color-foreground)] transition-colors hover:text-[var(--color-primary)]"
+              href="/login"
+            >
               Prihlásiť sa
             </Link>
-            <Link className="transition-colors hover:text-[var(--color-primary)]" href="/pre-firmy">
+            <Link
+              className="text-sm font-semibold tracking-[0.08em] text-[var(--color-foreground)] transition-colors hover:text-[var(--color-primary)]"
+              href="/pre-firmy"
+            >
               Pre firmy
             </Link>
           </nav>
         </div>
       </header>
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-10">
-        <div className="text-sm text-[var(--color-muted)]">
+      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-5 py-10 text-body">
+        <div className="text-subtle text-[var(--color-muted)]">
           <Link className="transition hover:text-[var(--color-primary)]" href="/">
             🏠 Domov
           </Link>{" "}
@@ -201,7 +207,7 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
 
         <section className="mt-6 grid gap-8 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm md:grid-cols-[1.2fr,1fr]">
           <div className="relative overflow-hidden rounded-2xl bg-[#f3f3f3]">
-            <div className="flex h-80 items-center justify-center text-sm text-[var(--color-muted)] md:h-full">
+            <div className="flex h-80 items-center justify-center text-body text-[var(--color-muted)] md:h-full">
               Galéria pripravujeme
             </div>
             {company.review_rank ? (
@@ -213,10 +219,10 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
           </div>
           <div className="space-y-4">
             <div>
-              <h1 className="font-display text-3xl font-semibold text-[var(--color-foreground)]">
+              <h1 className="heading-page text-[var(--color-foreground)]">
                 {company.name}
               </h1>
-              <div className="mt-2 flex flex-wrap gap-3 text-sm text-[var(--color-muted)]">
+              <div className="mt-2 flex flex-wrap gap-3 text-body-muted">
                 <span>
                   {category.name} • {company.address_text ?? city.name}
                 </span>
@@ -224,24 +230,24 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-[#8a5a66]">
+              <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#8a5a66]">
                 {category.name}
               </span>
               {company.website ? (
-                <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-[#8a5a66]">
+                <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#8a5a66]">
                   Online rezervácia
                 </span>
               ) : null}
               {company.contact_phone ? (
-                <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold text-[#8a5a66]">
+                <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#8a5a66]">
                   Telefonická objednávka
                 </span>
               ) : null}
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 text-sm font-semibold tracking-[0.08em]">
               {company.website ? (
                 <a
-                  className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white transition hover:bg-[#c18b5c]"
+                  className="rounded-full bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold tracking-[0.08em] text-white transition hover:bg-[#c18b5c]"
                   href={company.website}
                   rel="noreferrer"
                   target="_blank"
@@ -251,39 +257,40 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
               ) : null}
               {company.contact_phone ? (
                 <a
-                  className="rounded-full border border-[var(--color-border)] px-5 py-2 text-sm font-semibold text-[var(--color-foreground)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                  className="rounded-full border border-[var(--color-border)] px-5 py-2 text-sm font-semibold tracking-[0.08em] text-[var(--color-foreground)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
                   href={`tel:${company.contact_phone}`}
                 >
                   Zavolať
                 </a>
               ) : null}
             </div>
-            <p className="text-sm text-[var(--color-muted)]">
+            <p className="text-body-muted">
               {company.description ?? "Podnik čoskoro doplní podrobný popis služieb."}
             </p>
-            <div className="flex flex-wrap gap-4 text-sm text-[var(--color-muted)]">
+            <div className="flex flex-wrap gap-3 text-sm font-semibold tracking-[0.08em]">
               {company.facebook ? (
-                <a className="transition hover:text-[var(--color-primary)]" href={company.facebook} rel="noreferrer" target="_blank">
+                <a className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-primary)]" href={company.facebook} rel="noreferrer" target="_blank">
                   Facebook
                 </a>
               ) : null}
               {company.instagram ? (
-                <a className="transition hover:text-[var(--color-primary)]" href={company.instagram} rel="noreferrer" target="_blank">
+                <a className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-primary)]" href={company.instagram} rel="noreferrer" target="_blank">
                   Instagram
                 </a>
               ) : null}
               {company.website ? (
-                <a className="transition hover:text-[var(--color-primary)]" href={company.website} rel="noreferrer" target="_blank">
+                <a className="text-[var(--color-muted)] transition-colors hover:text-[var(--color-primary)]" href={company.website} rel="noreferrer" target="_blank">
                   Webstránka
                 </a>
               ) : null}
             </div>
+
           </div>
         </section>
 
         <section className="mt-8 grid gap-6 md:grid-cols-2">
           <div className="space-y-4 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
-            <h2 className="font-display text-2xl font-semibold text-[var(--color-foreground)]">
+            <h2 className="heading-section text-[var(--color-foreground)]">
               Služby & cenník
             </h2>
             <div className="space-y-0">
@@ -294,14 +301,14 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
                     className="flex items-center justify-between border-t border-dashed border-[#eeeeee] py-3"
                   >
                     <div className="pr-4">
-                      <div className="text-base font-semibold text-[var(--color-foreground)]">
+                      <div className="text-base font-semibold tracking-[0.02em] text-[var(--color-foreground)]">
                         {service.name}
                       </div>
-                      <div className="text-xs text-[#999999]">
+                      <div className="text-subtle text-[#999999]">
                         {service.duration} min
                       </div>
                       {service.description ? (
-                        <p className="mt-2 text-xs text-[var(--color-muted)]">{service.description}</p>
+                        <p className="mt-2 text-subtle text-[var(--color-muted)]">{service.description}</p>
                       ) : null}
                     </div>
                     <div className="text-right">
@@ -312,35 +319,35 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
                   </div>
                 ))
               ) : (
-                <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[#fafafa] px-4 py-8 text-center text-sm text-[var(--color-muted)]">
+                <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[#fafafa] px-4 py-8 text-center text-body text-[var(--color-muted)]">
                   Cenník bude čoskoro dostupný.
                 </div>
               )}
             </div>
           </div>
           <div className="space-y-4 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
-            <h2 className="font-display text-2xl font-semibold text-[var(--color-foreground)]">
+            <h2 className="heading-section text-[var(--color-foreground)]">
               Kontakt & poloha
             </h2>
-            <div className="space-y-3 text-sm text-[var(--color-muted)]">
+            <div className="space-y-3 text-body text-[var(--color-muted)]">
               <div>
-                <span className="font-semibold text-[var(--color-foreground)]">Adresa:</span>
+                <span className="font-semibold tracking-[0.02em] text-[var(--color-foreground)]">Adresa:</span>
                 <p>{company.address_text ?? city.name}</p>
               </div>
               {company.contact_phone ? (
                 <div>
-                  <span className="font-semibold text-[var(--color-foreground)]">Telefón:</span>
+                  <span className="font-semibold tracking-[0.02em] text-[var(--color-foreground)]">Telefón:</span>
                   <p>{company.contact_phone}</p>
                 </div>
               ) : null}
               {company.website ? (
                 <div>
-                  <span className="font-semibold text-[var(--color-foreground)]">Web:</span>
+                  <span className="font-semibold tracking-[0.02em] text-[var(--color-foreground)]">Web:</span>
                   <p>{company.website}</p>
                 </div>
               ) : null}
             </div>
-            <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-[#fafafa] text-sm text-[var(--color-muted)]">
+            <div className="flex h-64 w-full items-center justify-center rounded-2xl border border-dashed border-[var(--color-border)] bg-[#fafafa] text-body text-[var(--color-muted)]">
               Mapa bude čoskoro dostupná
             </div>
           </div>
