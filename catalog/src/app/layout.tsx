@@ -32,9 +32,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="sk">
+    <html lang="sk" className={`${playfair.variable} ${lato.variable}`}>
       <body
-        className={`${playfair.variable} ${lato.variable} font-body min-h-dvh bg-[var(--color-background)] text-[var(--color-foreground)] antialiased`}
+        className="font-body min-h-dvh bg-[var(--color-background)] text-[var(--color-foreground)] antialiased"
       >
         {children}
       </body>
