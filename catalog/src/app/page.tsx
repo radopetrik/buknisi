@@ -104,7 +104,7 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/55 to-black/35" />
           </div>
           <div className="relative z-10 mx-auto max-w-4xl px-5 text-center">
-            <h1 className="font-[var(--font-playfair)] text-4xl font-semibold md:text-6xl">
+            <h1 className="font-display text-4xl font-semibold md:text-6xl">
               Buď sebavedomá
             </h1>
             <p className="mt-3 text-lg text-gray-100 md:text-xl">
@@ -161,7 +161,7 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-5 py-16">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
-              <h2 className="font-[var(--font-playfair)] text-3xl font-semibold text-[var(--color-foreground)]">
+              <h2 className="font-display text-3xl font-semibold text-[var(--color-foreground)]">
                 Odporúčané miesta
               </h2>
               <p className="mt-1 text-sm text-[var(--color-muted)]">
@@ -194,7 +194,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col gap-2 px-4 py-5">
-                  <h3 className="font-[var(--font-playfair)] text-lg font-semibold">
+                  <h3 className="font-display text-lg font-semibold">
                     {salon.name}
                   </h3>
                   <p className="text-sm text-[var(--color-muted)]">{salon.location}</p>
@@ -217,7 +217,7 @@ export default function HomePage() {
         <section className="bg-white">
           <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-2 md:items-center">
             <div className="space-y-4">
-              <h2 className="font-[var(--font-playfair)] text-3xl font-semibold">
+              <h2 className="font-display text-3xl font-semibold">
                 Termíny vybavené lepšie
               </h2>
               <p className="text-base leading-relaxed text-[var(--color-muted)]">
@@ -303,7 +303,7 @@ export default function HomePage() {
             </svg>
           </div>
           <div className="space-y-4">
-            <h2 className="font-[var(--font-playfair)] text-3xl font-semibold">
+            <h2 className="font-display text-3xl font-semibold">
               Niečo vám do toho vošlo? Máme vás.
             </h2>
             <p className="text-base leading-relaxed text-[var(--color-muted)]">
@@ -341,7 +341,7 @@ export default function HomePage() {
         <section className="bg-white">
           <div className="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-2 md:items-center">
             <div className="space-y-4">
-              <h2 className="font-[var(--font-playfair)] text-3xl font-semibold">
+              <h2 className="font-display text-3xl font-semibold">
                 Objednajte sa k najlepším
               </h2>
               <p className="text-base leading-relaxed text-[var(--color-muted)]">
@@ -388,7 +388,7 @@ export default function HomePage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-5 pb-16">
-          <h2 className="font-[var(--font-playfair)] text-3xl font-semibold">
+          <h2 className="font-display text-3xl font-semibold">
             Populárne mestá
           </h2>
           <p className="mt-2 text-sm text-[var(--color-muted)]">

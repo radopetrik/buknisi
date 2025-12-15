@@ -210,7 +210,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
 
         <div className="mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="font-[var(--font-playfair)] text-3xl font-semibold">
+            <h1 className="font-display text-3xl font-semibold">
               {category.name} · {city.name}
             </h1>
             <p className="mt-1 text-sm text-[var(--color-muted)]">
@@ -263,7 +263,7 @@ export default async function ListingPage({ params }: ListingPageProps) {
                 </div>
                 <div className="flex flex-1 flex-col">
                   <div className="border-b border-[#eeeeee] pb-4">
-                    <h2 className="font-[var(--font-playfair)] text-2xl font-semibold text-[var(--color-foreground)]">
+                    <h2 className="font-display text-2xl font-semibold text-[var(--color-foreground)]">
                       {company.name}
                     </h2>
                     <div className="mt-2 flex flex-wrap gap-4 text-sm text-[var(--color-muted)]">

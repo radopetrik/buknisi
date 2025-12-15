@@ -213,7 +213,7 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
           </div>
           <div className="space-y-4">
             <div>
-              <h1 className="font-[var(--font-playfair)] text-3xl font-semibold text-[var(--color-foreground)]">
+              <h1 className="font-display text-3xl font-semibold text-[var(--color-foreground)]">
                 {company.name}
               </h1>
               <div className="mt-2 flex flex-wrap gap-3 text-sm text-[var(--color-muted)]">
@@ -283,7 +283,7 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
 
         <section className="mt-8 grid gap-6 md:grid-cols-2">
           <div className="space-y-4 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
-            <h2 className="font-[var(--font-playfair)] text-2xl font-semibold text-[var(--color-foreground)]">
+            <h2 className="font-display text-2xl font-semibold text-[var(--color-foreground)]">
               Služby & cenník
             </h2>
             <div className="space-y-0">
@@ -319,7 +319,7 @@ export default async function CompanyDetailPage({ params }: DetailPageProps) {
             </div>
           </div>
           <div className="space-y-4 rounded-3xl border border-[var(--color-border)] bg-white p-6 shadow-sm">
-            <h2 className="font-[var(--font-playfair)] text-2xl font-semibold text-[var(--color-foreground)]">
+            <h2 className="font-display text-2xl font-semibold text-[var(--color-foreground)]">
               Kontakt & poloha
             </h2>
             <div className="space-y-3 text-sm text-[var(--color-muted)]">

@@ -6,11 +6,12 @@ const playfair = Playfair_Display({
   subsets: ["latin"],
   weight: ["600", "700"],
   variable: "--font-playfair",
+  display: "swap",
 });
 
 const lato = Lato({
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["300", "400", "700", "900"],
   variable: "--font-lato",
   display: "swap",
 });
@@ -33,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="sk">
       <body
-        className={`${playfair.variable} ${lato.variable} min-h-dvh bg-[var(--color-background)] text-[var(--color-foreground)] antialiased`}
+        className={`${playfair.variable} ${lato.variable} font-body min-h-dvh bg-[var(--color-background)] text-[var(--color-foreground)] antialiased`}
       >
         {children}
       </body>
