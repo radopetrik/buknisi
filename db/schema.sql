@@ -90,10 +90,17 @@ CREATE POLICY "Users can update own rating"
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can delete own rating"
+CREATE POLICY "Company members can delete company ratings"
   ON company_ratings FOR DELETE
   TO authenticated
-  USING (auth.uid() = user_id);
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM company_users
+      WHERE company_users.company_id = company_ratings.company_id
+        AND company_users.user_id = auth.uid()
+    )
+  );
 
 CREATE TABLE IF NOT EXISTS amenities (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -260,8 +267,10 @@ CREATE TABLE IF NOT EXISTS profiles (
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Authenticated users can view all profiles"
+  ON profiles FOR SELECT
+  TO authenticated
+  USING (true);
 
 CREATE POLICY "Users can update own profile" ON profiles
   FOR UPDATE USING (auth.uid() = id);

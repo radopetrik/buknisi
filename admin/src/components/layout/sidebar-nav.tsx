@@ -9,6 +9,7 @@ import {
   User,
   UserCog,
   Users,
+  Star,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -20,6 +21,7 @@ const navItems = [
   { label: "Staff Management", href: "/staff", icon: UserCog },
   { label: "Profile", href: "/profile", icon: User },
   { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Hodnotenia", href: "/rating", icon: Star },
 ];
 
 export function SidebarNav() {
