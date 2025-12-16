@@ -1395,8 +1395,8 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
   );
 
   const renderHoursTab = () => (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
+    <div className="grid gap-6 lg:grid-cols-4">
+      <div className="lg:col-span-3">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1449,10 +1449,10 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                       </div>
                     </div>
 
-                    {state.open ? (
-                      <div className="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
-                        <div className="flex items-center gap-4">
-                          <div className="grid gap-1.5">
+                      {state.open ? (
+                      <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1">
                             <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Od</Label>
                             <input
                               type="time"
@@ -1463,11 +1463,11 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                                   from: event.target.value,
                                 }))
                               }
-                              className="h-9 w-24 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                              className="h-9 w-24 rounded-md border border-input bg-background px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                             />
                           </div>
-                          <span className="mt-5 text-muted-foreground font-medium">–</span>
-                          <div className="grid gap-1.5">
+                          <span className="text-muted-foreground font-medium">–</span>
+                          <div className="flex items-center gap-1">
                             <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">Do</Label>
                             <input
                               type="time"
@@ -1478,12 +1478,12 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                                   to: event.target.value,
                                 }))
                               }
-                              className="h-9 w-24 rounded-md border border-input bg-background px-3 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                              className="h-9 w-24 rounded-md border border-input bg-background px-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                             />
                           </div>
                         </div>
 
-                        <div className="h-8 w-px bg-border hidden sm:block mx-4" />
+                        <div className="h-8 w-px bg-border hidden sm:block mx-2" />
 
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                           {!state.hasBreak ? (
@@ -1506,7 +1506,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                             </Button>
                           ) : (
                             <div className="flex items-center gap-2 bg-muted/50 rounded-md p-1.5">
-                              <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-1.5">
                                 <span className="text-[10px] font-medium text-muted-foreground px-1">OBED</span>
                                 <input
                                   type="time"
@@ -1517,7 +1517,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                                       breakFrom: event.target.value,
                                     }))
                                   }
-                                  className="h-7 rounded border border-input bg-background px-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                  className="h-7 w-24 rounded border border-input bg-background px-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 />
                                 <span className="text-muted-foreground">–</span>
                                 <input
@@ -1529,7 +1529,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                                       breakTo: event.target.value,
                                     }))
                                   }
-                                  className="h-7 rounded border border-input bg-background px-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                  className="h-7 w-24 rounded border border-input bg-background px-1 text-xs shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                                 />
                               </div>
                               <Button
@@ -1590,11 +1590,11 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
 
       <div className="space-y-6">
         <Card className="bg-muted/50">
-          <CardHeader>
-            <CardTitle className="text-base">Rýchly náhľad</CardTitle>
+          <CardHeader className="p-4">
+            <CardTitle className="text-sm font-medium">Rýchly náhľad</CardTitle>
           </CardHeader>
-          <CardContent>
-             <div className="space-y-2 text-sm">
+          <CardContent className="p-4 pt-0">
+             <div className="space-y-2 text-xs">
                 {dayOptions.map(({ value, shortLabel }) => {
                   const state = businessHoursState[value];
                   return (

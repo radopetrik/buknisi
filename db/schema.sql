@@ -449,3 +449,80 @@ CREATE INDEX IF NOT EXISTS idx_clients_company ON clients(company_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_company_date ON bookings(company_id, date);
 CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_reservations_company_date ON reservations(company_id, date);
+
+-- 011_enable_storage_rls.sql
+
+-- Create the storage bucket 'company_photos' if it doesn't exist
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('company_photos', 'company_photos', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Drop existing policies to ensure clean state
+DROP POLICY IF EXISTS "Public Access" ON storage.objects;
+DROP POLICY IF EXISTS "Company members upload photos" ON storage.objects;
+DROP POLICY IF EXISTS "Company members delete photos" ON storage.objects;
+
+-- Policy: Allow public read access to company_photos bucket
+CREATE POLICY "Public Access"
+ON storage.objects FOR SELECT
+USING ( bucket_id = 'company_photos' );
+
+-- Policy: Allow authenticated users to upload photos to their own company folder
+-- Path structure: company_id/filename.ext
+CREATE POLICY "Company members upload photos"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+  bucket_id = 'company_photos' AND
+  (storage.foldername(name))[1] IS NOT NULL AND
+  EXISTS (
+    SELECT 1
+    FROM public.company_users
+    WHERE public.company_users.user_id = auth.uid()
+      AND public.company_users.company_id::text = (storage.foldername(name))[1]
+  )
+);
+
+-- Policy: Allow authenticated users to delete photos from their own company folder
+CREATE POLICY "Company members delete photos"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (
+  bucket_id = 'company_photos' AND
+  (storage.foldername(name))[1] IS NOT NULL AND
+  EXISTS (
+    SELECT 1
+    FROM public.company_users
+    WHERE public.company_users.user_id = auth.uid()
+      AND public.company_users.company_id::text = (storage.foldername(name))[1]
+  )
+);
+
+-- 012_reorder_photos_func.sql
+
+CREATE OR REPLACE FUNCTION reorder_photos(p_company_id uuid, p_photo_ids uuid[])
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_id uuid;
+  v_idx integer;
+BEGIN
+  -- Pass 1: Set ordering to negative values to avoid collisions
+  -- using -1000 - index to be safe and far from 0
+  FOR v_idx IN 1 .. array_length(p_photo_ids, 1) LOOP
+    v_id := p_photo_ids[v_idx];
+    UPDATE photos 
+    SET ordering = -1000 - v_idx
+    WHERE id = v_id AND company_id = p_company_id;
+  END LOOP;
+
+  -- Pass 2: Set ordering to desired 0-based index
+  FOR v_idx IN 1 .. array_length(p_photo_ids, 1) LOOP
+    v_id := p_photo_ids[v_idx];
+    UPDATE photos 
+    SET ordering = v_idx - 1
+    WHERE id = v_id AND company_id = p_company_id;
+  END LOOP;
+END;
+$$;
