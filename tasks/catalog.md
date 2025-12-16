@@ -48,3 +48,45 @@ V sheet prehlade bude na spodku cas, dlzka, a cena a mozno booknut"
 
 prihlaseny user nech ma moznost pristupit na sekciu profil. 
 vytvorit tuto page. na nej bude mat moznost, menit osobne udaje ako kontakt a pod, moznost vidiet bookings ktore este len budua tie ktore uz boli vykonane->zaplatene.
+
+
+Pridat page, na kategoriu url: /c/<category.slug>/. 
+Ak user nema vybrate mesto (v search bar) tak page ukaze zoznam miest ktore si musi vybrat.
+Ak uz ma vybrane mesto tak redirect na /<city>/<category>/
+
+V search bar ako je field "kedy?" tak pridat moznot definovat aj cas od-do 
+
+Zaroven upravit spravanie searchbar ked klikne na hladat
+Ked kliknem na search v searchbar tak nech:
+1) ak je vyplnena kategoria ale nieje city tak hodi na page "category" kde ak je vyplneny datum/cas tak stale zobrazuje firmy volne v tom case
+2) ak je vyplneny datum/cas tak filtrovat company podla toho ci je sluzba volna v tom case (logika je pri bookingu)
+
+
+na homepage ako je Vybrali sme obľúbené podniky s výborným hodnotením.-> tak tie boxy companies nech sa nacitava z realnych, zatial nahodne
+
+V detaile pridat moznost napisat rating pre company. 
+bude treba vytvorit aj tabulku "company_rating" so field "company FK, user FK, rating: 1-5, note (text), datetime.
+do "companies" treba pridat field "rating" kde sa bude ukladat priemer ratingu co ma company pri kazdom pridani ratingu.
+rating bude most napisat iba prihlaseny user tak treba tam dat o tom message abo daco. 
+
+Vytvor page cities kde bude zoznam vsetkych cities z db. user bo vybere city ide na page "categories". Ktoru tiez treba vytvorit  
+
+Pre tabulku companies pridaj field "rating_count" kde sa bude priebezne ukladat celkovy pocet ratings (pri zmene rating sa bude ukladat).
+Zaroven tuto hodnotu treba zohladnit pri vsetktch rating na vsetktch pages ktore zobrazuju ratin
+
+
+Vytvor page "Stiahnut App" a tam popis aktualny stav co si vies vyhladat a objednat. obrazky daj nejake ilustratyvne.
+
+Sekcia caste otazky: Sprav nove page a to tak ze na page bude user mat na vyber typ otazok a to "User otazky" alebo "Firma Otazky". Pre kazdu vygeneruj nejake otazky a odpovede podla toho co uz je spravene. Sprav odkaz z homepage na tuto page
+
+Sekcia obchodne podmienky a 
+Zásady ochrany osobných údajov nieco pidaj, je to web na slovensku, vytvor dve pages. Pridaj odkaz z homepage na tieto pages
+
+Sekcia o nas. vytvor novu page a pridaj tam nejaku vseobecnu story. Pouzi dva nahodne mena chapec a dievca. Startup.
+
+Vytvor sekciu blog. Blog budu staticke clanky, kde bude zoznam a detail, vytvor aj 3 nahodne blogy
+
+Sekcia kontak, pridaj telefone cislo a email a formular tiez naprikla kde bude vydiet prihlaseny uzivatel.
+Formular zatial nebude robit nic 
+
+
