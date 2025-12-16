@@ -744,11 +744,11 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
   };
 
   const reorderAndPersistPhotos = async (nextOrder: CompanyPhoto[]) => {
-    const updates = nextOrder.map((photo, index) =>
-      supabase.from("photos").update({ ordering: index }).eq("id", photo.id),
-    );
-    const results = await Promise.all(updates);
-    const error = results.find((result) => result.error)?.error;
+    const { error } = await supabase.rpc("reorder_photos", {
+      p_company_id: company.id,
+      p_photo_ids: nextOrder.map((p) => p.id),
+    });
+
     if (error) {
       setPhotosMessage({ text: error.message, type: "error" });
       return false;
