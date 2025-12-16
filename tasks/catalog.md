@@ -92,5 +92,9 @@ Formular zatial nebude robit nic
 
 ---- Admin idem pridat ------
 
+V appke "admin" folder "admin", pridaj novu sekciu "rating" aj v menu, kde sa budu zobrazovat vsetky ratings prihlasenej company. Bude mozne aj mazat rations. Ratings cita z databazi. Uvidim aj nejake celkove score. 
+
+
+
 
 

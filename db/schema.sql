@@ -48,6 +48,8 @@ CREATE TABLE IF NOT EXISTS companies (
   instagram text,
   website text,
   is_mobile boolean NOT NULL DEFAULT false,
+  rating numeric(3, 2) DEFAULT 0,
+  rating_count integer DEFAULT 0,
   CONSTRAINT companies_email_chk CHECK (email IS NULL OR email <> ''),
   CONSTRAINT companies_facebook_url_chk CHECK (facebook IS NULL OR facebook ~ '^https?://'),
   CONSTRAINT companies_instagram_url_chk CHECK (instagram IS NULL OR instagram ~ '^https?://'),
@@ -60,6 +62,38 @@ CREATE TABLE IF NOT EXISTS company_users (
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   CONSTRAINT company_users_unique UNIQUE (company_id, user_id)
 );
+
+CREATE TABLE IF NOT EXISTS company_ratings (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_id uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  rating integer NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  note text,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT company_ratings_user_company_unique UNIQUE (company_id, user_id)
+);
+
+ALTER TABLE company_ratings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Everyone can read company ratings"
+  ON company_ratings FOR SELECT
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert own rating"
+  ON company_ratings FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own rating"
+  ON company_ratings FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own rating"
+  ON company_ratings FOR DELETE
+  TO authenticated
+  USING (auth.uid() = user_id);
 
 CREATE TABLE IF NOT EXISTS amenities (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -348,6 +382,42 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+-- Function to update company rating and count
+CREATE OR REPLACE FUNCTION update_company_rating()
+RETURNS TRIGGER AS $$
+DECLARE
+  target_company_id uuid;
+BEGIN
+  IF (TG_OP = 'DELETE') THEN
+    target_company_id := OLD.company_id;
+  ELSE
+    target_company_id := NEW.company_id;
+  END IF;
+
+  UPDATE companies
+  SET 
+    rating = (
+      SELECT COALESCE(AVG(rating), 0)
+      FROM company_ratings
+      WHERE company_id = target_company_id
+    ),
+    rating_count = (
+      SELECT COUNT(*)
+      FROM company_ratings
+      WHERE company_id = target_company_id
+    )
+  WHERE id = target_company_id;
+  
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger for company rating changes
+DROP TRIGGER IF EXISTS on_company_rating_change ON company_ratings;
+CREATE TRIGGER on_company_rating_change
+  AFTER INSERT OR UPDATE OR DELETE ON company_ratings
+  FOR EACH ROW EXECUTE PROCEDURE update_company_rating();
 
 -- Helpful indexes
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
