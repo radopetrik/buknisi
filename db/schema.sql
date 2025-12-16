@@ -215,6 +215,26 @@ CREATE TABLE IF NOT EXISTS clients (
   email citext
 );
 
+-- Profiles Table
+CREATE TABLE IF NOT EXISTS profiles (
+  id uuid REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
+  first_name text,
+  last_name text,
+  phone text,
+  email text
+);
+
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own profile" ON profiles
+  FOR SELECT USING (auth.uid() = id);
+
+CREATE POLICY "Users can update own profile" ON profiles
+  FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Users can insert own profile" ON profiles
+  FOR INSERT WITH CHECK (auth.uid() = id);
+
 CREATE TABLE IF NOT EXISTS service_type_categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE
@@ -276,6 +296,7 @@ CREATE TABLE IF NOT EXISTS service_addons (
 CREATE TABLE IF NOT EXISTS bookings (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id uuid REFERENCES clients(id) ON DELETE SET NULL,
+  user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   company_id uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
   service_id uuid NOT NULL REFERENCES services(id) ON DELETE CASCADE,
   staff_id uuid REFERENCES staff(id) ON DELETE SET NULL,
@@ -313,6 +334,21 @@ CREATE TABLE IF NOT EXISTS reservations (
   CONSTRAINT reservations_time_chk CHECK (from_time < to_time)
 );
 
+-- Functions & Triggers
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email)
+  VALUES (new.id, new.email);
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
 -- Helpful indexes
 CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
 CREATE INDEX IF NOT EXISTS idx_cities_slug ON cities(slug);
@@ -325,4 +361,5 @@ CREATE INDEX IF NOT EXISTS idx_services_company ON services(company_id);
 CREATE INDEX IF NOT EXISTS idx_addons_company ON addons(company_id);
 CREATE INDEX IF NOT EXISTS idx_clients_company ON clients(company_id);
 CREATE INDEX IF NOT EXISTS idx_bookings_company_date ON bookings(company_id, date);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
 CREATE INDEX IF NOT EXISTS idx_reservations_company_date ON reservations(company_id, date);
