@@ -1,9 +1,11 @@
 "use client";
+
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Plus, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +19,16 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 import { createStaff, updateStaff } from "../actions";
@@ -54,6 +66,12 @@ function buildStaffServiceMap(links: StaffServiceLink[]) {
     acc[link.staff_id] = [...current, link.service_id];
     return acc;
   }, {});
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
 export function StaffManager({ initialData }: StaffManagerProps) {
@@ -153,89 +171,108 @@ export function StaffManager({ initialData }: StaffManagerProps) {
     : "Aktualizujte informácie a priraďte služby.";
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Personál</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Personál</h2>
           <p className="text-sm text-muted-foreground">
-            Spravujte členov tímu a priraďte im služby, ktoré poskytujú.
+             Správa členov tímu a priraďovanie služieb.
           </p>
         </div>
-        <Button type="button" onClick={handleOpenCreate}>
+        <Button onClick={handleOpenCreate} disabled={isPending}>
+          <Plus className="mr-2 h-4 w-4" />
           Pridať člena
         </Button>
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Členovia tímu</CardTitle>
-          <CardDescription>Upravte viditeľnosť, rolu a dostupné služby.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {initialData.staff.length === 0 ? (
-            <div className="flex flex-col items-start gap-3 rounded-md border border-dashed border-border/60 bg-muted/30 p-4">
-              <p className="text-sm text-muted-foreground">Zatiaľ žiadni členovia personálu.</p>
-              <Button size="sm" type="button" onClick={handleOpenCreate}>
-                Pridať prvého člena
-              </Button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {initialData.staff.map((staff) => {
-                const assignedServices = staffServiceMap[staff.id] ?? [];
-                return (
-                  <div
-                    key={staff.id}
-                    className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-3 md:flex-row md:items-center md:justify-between"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
-                        <span>{staff.full_name}</span>
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
-                          {roleLabel(staff.role)}
-                        </span>
-                        <span
-                          className={cn(
-                            "rounded-full px-2 py-0.5 text-[11px] font-medium",
-                            staff.available_for_booking
-                              ? "bg-emerald-100 text-emerald-900"
-                              : "bg-amber-100 text-amber-900",
+        <CardContent className="p-0">
+           <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px] pl-4">Avatar</TableHead>
+                  <TableHead>Meno & Pozícia</TableHead>
+                  <TableHead>Rola</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Služby</TableHead>
+                  <TableHead className="text-right pr-4">Akcie</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {initialData.staff.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                      Zatiaľ žiadni členovia personálu.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  initialData.staff.map((staff) => {
+                     const assignedServicesCount = (staffServiceMap[staff.id] ?? []).length;
+                     return (
+                      <TableRow key={staff.id}>
+                        <TableCell className="pl-4">
+                           <Avatar>
+                              <AvatarFallback>{getInitials(staff.full_name)}</AvatarFallback>
+                           </Avatar>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{staff.full_name}</span>
+                            {staff.position && (
+                              <span className="text-xs text-muted-foreground">{staff.position}</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                           <Badge variant="outline">{roleLabel(staff.role)}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          {staff.available_for_booking ? (
+                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 hover:bg-emerald-100/80 border-transparent">
+                               Dostupný
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="bg-amber-100 text-amber-800 hover:bg-amber-100/80 border-transparent">
+                               Skrytý
+                            </Badge>
                           )}
-                        >
-                          {staff.available_for_booking ? "Dostupný na booking" : "Skrytý z bookingu"}
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {staff.position ? `${staff.position} • ` : ""}
-                        {assignedServices.length} služieb
-                      </div>
-                      {staff.description ? (
-                        <p className="text-xs text-muted-foreground">{staff.description}</p>
-                      ) : null}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button size="sm" variant="secondary" type="button" onClick={() => handleOpenStaff(staff)} disabled={isPending}>
-                        Upraviť
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">{assignedServicesCount} služieb</span>
+                        </TableCell>
+                        <TableCell className="text-right pr-4">
+                           <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenStaff(staff)}
+                              disabled={isPending}
+                              title="Upraviť"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Upraviť</span>
+                            </Button>
+                        </TableCell>
+                      </TableRow>
+                     )
+                  })
+                )}
+              </TableBody>
+            </Table>
         </CardContent>
       </Card>
 
       <Sheet open={sheetOpen} onOpenChange={(open) => (open ? setSheetOpen(true) : handleCloseSheet())}>
-        <SheetContent side="right" className="flex h-full w-full flex-col overflow-hidden sm:max-w-xl p-6">
-          <SheetHeader>
-            <SheetTitle>{sheetTitle}</SheetTitle>
-            <SheetDescription>{sheetDescription}</SheetDescription>
-          </SheetHeader>
-
+        <SheetContent side="right" className="flex h-full w-full flex-col overflow-hidden sm:max-w-xl p-0">
+          <div className="px-6 pt-6">
+            <SheetHeader>
+               <SheetTitle>{sheetTitle}</SheetTitle>
+               <SheetDescription>{sheetDescription}</SheetDescription>
+            </SheetHeader>
+          </div>
+          
           <Form {...form}>
-            <form className="mt-4 flex h-full flex-col" onSubmit={form.handleSubmit(handleSubmit)}>
-              <div className="flex-1 space-y-4 overflow-y-auto pr-1">
+            <form className="flex-1 flex flex-col min-h-0" onSubmit={form.handleSubmit(handleSubmit)}>
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
                 <FormField
                   control={form.control}
                   name="full_name"
@@ -260,7 +297,7 @@ export function StaffManager({ initialData }: StaffManagerProps) {
                         <FormControl>
                           <select
                             {...field}
-                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                           >
                             {staffRoles.map((role) => (
                               <option key={role} value={role}>
@@ -299,7 +336,7 @@ export function StaffManager({ initialData }: StaffManagerProps) {
                         <textarea
                           {...field}
                           rows={3}
-                          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                           placeholder="Krátky bio alebo špecializácia"
                         />
                       </FormControl>
@@ -312,20 +349,23 @@ export function StaffManager({ initialData }: StaffManagerProps) {
                   control={form.control}
                   name="available_for_booking"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Viditeľnosť v bookingu</FormLabel>
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Viditeľnosť v bookingu</FormLabel>
+                        <div className="text-sm text-muted-foreground">
+                          Povoliť klientom rezervovať tohto člena tímu online.
+                        </div>
+                      </div>
                       <FormControl>
-                        <label className="flex h-10 items-center gap-2 rounded-md border border-input bg-background px-3 text-sm shadow-sm">
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={(event) => field.onChange(event.target.checked)}
-                            className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/70"
-                          />
-                          <span>Zobraziť pri rezervácii</span>
-                        </label>
+                         <div className="flex items-center space-x-2">
+                            <input
+                              type="checkbox"
+                              checked={field.value}
+                              onChange={(e) => field.onChange(e.target.checked)}
+                              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                            />
+                         </div>
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -334,32 +374,41 @@ export function StaffManager({ initialData }: StaffManagerProps) {
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Služby</p>
-                    <p className="text-xs text-muted-foreground">Vyberte, ktoré služby tento člen poskytuje.</p>
+                    <h3 className="text-sm font-medium leading-none">Priradené služby</h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Vyberte služby, ktoré tento člen tímu vykonáva.
+                    </p>
                   </div>
                   {initialData.services.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">Najprv pridajte služby v sekcii Nastavenia &gt; Služby.</p>
+                    <div className="flex items-center justify-center p-4 border border-dashed rounded-md bg-muted/50">
+                       <p className="text-sm text-muted-foreground">Najprv pridajte služby v nastaveniach.</p>
+                    </div>
                   ) : (
-                    <div className="max-h-64 space-y-2 overflow-y-auto rounded-md border border-border/60 bg-muted/30 p-2">
+                    <div className="grid grid-cols-1 gap-2">
                       {initialData.services.map((service) => {
                         const checked = selectedServiceIds.includes(service.id);
                         return (
-                          <label
+                          <div
                             key={service.id}
-                            className="flex items-center gap-3 rounded-md bg-background px-3 py-2 text-sm"
+                            className={cn(
+                               "flex items-start space-x-3 rounded-md border p-3 transition-colors hover:bg-accent hover:text-accent-foreground",
+                               checked ? "border-primary bg-primary/5" : "bg-card"
+                            )}
                           >
-                            <input
-                              type="checkbox"
-                              checked={checked}
-                              onChange={(event) => toggleService(service.id, event.target.checked)}
-                              className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/70"
-                              disabled={isPending}
-                            />
-                            <div className="flex flex-col">
-                              <span className="font-medium text-foreground">{service.name}</span>
-                              <span className="text-xs text-muted-foreground">{service.duration} min</span>
+                             <div className="flex h-5 items-center">
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={(event) => toggleService(service.id, event.target.checked)}
+                                  className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                                  disabled={isPending}
+                                />
+                             </div>
+                            <div className="flex-1 space-y-1">
+                              <p className="text-sm font-medium leading-none">{service.name}</p>
+                              <p className="text-xs text-muted-foreground">{service.duration} min</p>
                             </div>
-                          </label>
+                          </div>
                         );
                       })}
                     </div>
@@ -367,14 +416,14 @@ export function StaffManager({ initialData }: StaffManagerProps) {
                 </div>
               </div>
 
-              <div className="mt-4 border-t bg-background pt-4">
-                {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
-                <div className="mt-3 flex w-full items-center justify-end gap-2">
+              <div className="border-t bg-background p-6">
+                {message && <p className="mb-4 text-sm text-destructive">{message}</p>}
+                <div className="flex items-center justify-end gap-2">
                   <Button type="button" variant="outline" onClick={handleCloseSheet} disabled={isPending}>
                     Zrušiť
                   </Button>
                   <Button type="submit" disabled={isPending || (!isCreateMode && !selectedStaff?.id)}>
-                    {isPending ? "Ukladám..." : "Uložiť"}
+                    {isPending ? "Ukladám..." : "Uložiť zmeny"}
                   </Button>
                 </div>
               </div>

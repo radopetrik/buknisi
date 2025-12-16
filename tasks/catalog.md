@@ -98,3 +98,5 @@ V appke "admin" folder "admin", pridaj novu sekciu "rating" aj v menu, kde sa bu
 
 
 
+
+

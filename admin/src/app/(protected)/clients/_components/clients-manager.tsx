@@ -5,12 +5,28 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 import { createClient, deleteClient, updateClient } from "../actions";
 import type { Client } from "../types";
@@ -53,10 +69,14 @@ function buildSearchableTokens(client: Client) {
   return { fullName, reversedName, phone, phoneCompact, email };
 }
 
+function getInitials(firstName: string, lastName: string) {
+  return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+}
+
 export function ClientsManager({ initialData }: ClientsManagerProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -92,7 +112,7 @@ export function ClientsManager({ initialData }: ClientsManagerProps) {
     setSelectedClient(null);
     setMessage(null);
     form.reset(defaultValues);
-    setDialogOpen(true);
+    setSheetOpen(true);
   };
 
   const handleOpenEdit = (client: Client) => {
@@ -105,11 +125,11 @@ export function ClientsManager({ initialData }: ClientsManagerProps) {
       phone: client.phone ?? "",
       email: client.email ?? "",
     });
-    setDialogOpen(true);
+    setSheetOpen(true);
   };
 
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
+  const handleCloseSheet = () => {
+    setSheetOpen(false);
     setMode("create");
     setSelectedClient(null);
     setMessage(null);
@@ -142,7 +162,7 @@ export function ClientsManager({ initialData }: ClientsManagerProps) {
 
       actionPromise.then((result) => {
         if (result.success) {
-          handleCloseDialog();
+          handleCloseSheet();
           setMessage(result.message);
           router.refresh();
           return;
@@ -169,109 +189,129 @@ export function ClientsManager({ initialData }: ClientsManagerProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="space-y-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Klienti</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-foreground">Klienti</h2>
           <p className="text-sm text-muted-foreground">
-            Spravujte klientov podľa spoločnosti a udržiavajte kontakty aktuálne.
+            Spravujte databázu klientov a ich kontaktné údaje.
           </p>
         </div>
-        <Button type="button" onClick={handleOpenCreate} disabled={isPending}>
+        <Button onClick={handleOpenCreate} disabled={isPending}>
+          <Plus className="mr-2 h-4 w-4" />
           Nový klient
         </Button>
       </div>
 
       <Card>
-        <CardHeader className="space-y-4">
-          <div>
-            <CardTitle>Zoznam klientov</CardTitle>
-            <CardDescription>Vyhľadávajte podľa mena alebo telefónneho čísla.</CardDescription>
+        <div className="p-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Hľadať..."
+              className="pl-9"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <Input
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder="Hľadať klienta..."
-            className="max-w-md"
-          />
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {filteredClients.length === 0 ? (
-            <div className="rounded-md border border-dashed border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
-              Žiadni klienti nezodpovedajú vyhľadávaniu.
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {filteredClients.map((client) => {
-                const hasPhone = !!client.phone;
-                const hasEmail = !!client.email;
-                return (
-                  <div
-                    key={client.id}
-                    className="flex flex-col gap-3 rounded-lg border border-border/60 bg-card p-3 md:flex-row md:items-center md:justify-between"
-                  >
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold text-foreground">
+        </div>
+        <CardContent className="p-0">
+          <div className="border-t">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[80px] pl-4">Avatar</TableHead>
+                  <TableHead>Meno</TableHead>
+                  <TableHead>Kontakt</TableHead>
+                  <TableHead className="text-right pr-4">Akcie</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredClients.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
+                      Žiadni klienti nezodpovedajú hľadaniu.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredClients.map((client) => (
+                    <TableRow key={client.id}>
+                      <TableCell className="pl-4">
+                        <Avatar>
+                          <AvatarFallback>{getInitials(client.first_name, client.last_name)}</AvatarFallback>
+                        </Avatar>
+                      </TableCell>
+                      <TableCell className="font-medium">
                         {client.first_name} {client.last_name}
-                      </p>
-                      {hasPhone || hasEmail ? (
-                        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                          {hasPhone ? <span>{client.phone}</span> : null}
-                          {hasPhone && hasEmail ? <span>•</span> : null}
-                          {hasEmail ? <span>{client.email}</span> : null}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col text-sm text-muted-foreground">
+                          {client.email && <span>{client.email}</span>}
+                          {client.phone && <span>{client.phone}</span>}
+                          {!client.email && !client.phone && <span className="italic">Bez kontaktu</span>}
                         </div>
-                      ) : (
-                        <p className="text-xs text-muted-foreground">Bez kontaktných údajov</p>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        type="button"
-                        onClick={() => handleOpenEdit(client)}
-                        disabled={isPending}
-                      >
-                        Upraviť
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        type="button"
-                        onClick={() => handleDelete(client)}
-                        disabled={isPending}
-                      >
-                        Vymazať
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                      </TableCell>
+                      <TableCell className="text-right pr-4">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleOpenEdit(client)}
+                            disabled={isPending}
+                            title="Upraviť"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">Upraviť</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDelete(client)}
+                            disabled={isPending}
+                            title="Vymazať"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Vymazať</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {message && (
+             <div className="m-4 p-3 rounded-md bg-muted text-sm text-muted-foreground text-center">
+               {message}
+             </div>
           )}
-          {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
         </CardContent>
       </Card>
 
-      <Dialog
-        open={dialogOpen}
+      <Sheet
+        open={sheetOpen}
         onOpenChange={(open) => {
           if (open) {
-            setDialogOpen(true);
-            return;
+            setSheetOpen(true);
+          } else {
+            handleCloseSheet();
           }
-          handleCloseDialog();
         }}
       >
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{mode === "create" ? "Nový klient" : "Upraviť klienta"}</DialogTitle>
-            <DialogDescription>
-              Vyplňte kontaktné údaje klienta. Údaje sa použijú v rámci vašej spoločnosti.
-            </DialogDescription>
-          </DialogHeader>
+        <SheetContent className="flex flex-col gap-6 sm:max-w-md">
+          <SheetHeader className="text-left">
+            <SheetTitle>{mode === "create" ? "Nový klient" : "Upraviť klienta"}</SheetTitle>
+            <SheetDescription>
+              {mode === "create"
+                ? "Pridajte nového klienta do vašej databázy."
+                : "Aktualizujte údaje existujúceho klienta."}
+            </SheetDescription>
+          </SheetHeader>
           <Form {...form}>
-            <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4 flex-1">
               <FormField
                 control={form.control}
                 name="first_name"
@@ -279,13 +319,12 @@ export function ClientsManager({ initialData }: ClientsManagerProps) {
                   <FormItem>
                     <FormLabel>Meno</FormLabel>
                     <FormControl>
-                      <Input placeholder="Napr. Jana" {...field} />
+                      <Input placeholder="Jana" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="last_name"
@@ -293,53 +332,51 @@ export function ClientsManager({ initialData }: ClientsManagerProps) {
                   <FormItem>
                     <FormLabel>Priezvisko</FormLabel>
                     <FormControl>
-                      <Input placeholder="Napr. Nováková" {...field} />
+                      <Input placeholder="Nováková" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefón (voliteľné)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Napr. +421 900 000 000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email (voliteľné)</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input type="email" placeholder="Napr. klient@example.com" {...field} />
+                      <Input type="email" placeholder="jana@example.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              <DialogFooter className="gap-2">
-                <Button type="button" variant="secondary" onClick={handleCloseDialog} disabled={isPending}>
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefón</FormLabel>
+                    <FormControl>
+                      <Input placeholder="+421 900 000 000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex-1" />
+              <div className="flex gap-3 pt-6 border-t mt-auto">
+                <Button type="button" variant="outline" onClick={handleCloseSheet} disabled={isPending} className="flex-1">
                   Zrušiť
                 </Button>
-                <Button type="submit" disabled={isPending || (mode === "edit" && !selectedClient)}>
-                  {isPending ? "Ukladám..." : mode === "create" ? "Pridať" : "Uložiť"}
+                <Button type="submit" disabled={isPending} className="flex-1">
+                  {isPending ? "Ukladám..." : "Uložiť"}
                 </Button>
-              </DialogFooter>
+              </div>
             </form>
           </Form>
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
