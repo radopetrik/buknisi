@@ -73,6 +73,13 @@ CREATE TABLE IF NOT EXISTS company_ratings (
   CONSTRAINT company_ratings_user_company_unique UNIQUE (company_id, user_id)
 );
 
+-- Ensure company_ratings has FK to profiles
+ALTER TABLE company_ratings
+ADD CONSTRAINT company_ratings_profiles_fkey
+FOREIGN KEY (user_id) 
+REFERENCES profiles(id)
+ON DELETE CASCADE;
+
 ALTER TABLE company_ratings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Everyone can read company ratings"
