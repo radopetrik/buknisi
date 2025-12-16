@@ -1034,7 +1034,7 @@ export default function CalendarPage() {
                           <div key={selection.id} className="space-y-3 rounded-md border bg-white p-3">
                             <div className="flex items-center justify-between gap-3">
                               <div className="text-sm font-semibold text-foreground">Služba {index + 1}</div>
-                              {sheetState.mode !== "view" && sheetState.booking.serviceSelections.length > 1 && (
+                              {sheetState.mode !== "view" && sheetState.booking && sheetState.booking.serviceSelections.length > 1 && (
                                 <button
                                   type="button"
                                   className="text-xs font-semibold text-red-600 hover:underline"

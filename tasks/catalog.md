@@ -90,3 +90,7 @@ Sekcia kontak, pridaj telefone cislo a email a formular tiez naprikla kde bude v
 Formular zatial nebude robit nic 
 
 
+---- Admin idem pridat ------
+
+
+

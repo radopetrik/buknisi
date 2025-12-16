@@ -489,7 +489,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
 
       const upsertResult = await supabase
         .from("company_business_hours")
-        .upsert(payload, { onConflict: "company_id,day_in_week", returning: "minimal" });
+        .upsert(payload, { onConflict: "company_id,day_in_week" });
 
       if (upsertResult.error) {
         const message = upsertResult.error.message.includes("violates row-level security policy")
@@ -560,11 +560,11 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
       const result = values.id
         ? await supabase
             .from("company_business_hours_extras")
-            .update(payload, { returning: "minimal" })
+            .update(payload)
             .eq("id", values.id)
         : await supabase
             .from("company_business_hours_extras")
-            .insert(payload, { returning: "minimal" });
+            .insert(payload);
 
       if (result.error) {
         const message = result.error.message.includes("violates row-level security policy")
@@ -650,7 +650,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
       const ordering = photos.length;
       const insertResult = await supabase
         .from("photos")
-        .insert({ company_id: company.id, url: publicUrl, ordering }, { returning: "minimal" });
+        .insert({ company_id: company.id, url: publicUrl, ordering });
 
       if (insertResult.error) {
         const message = insertResult.error.message.includes("violates row-level security policy")
