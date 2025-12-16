@@ -555,13 +555,16 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-foreground">Services</h2>
-          <p className="text-sm text-muted-foreground">Spravujte kategórie, služby a doplnky vo firemnom kontexte.</p>
+          <h3 className="text-2xl font-bold tracking-tight">Services</h3>
+          <p className="text-sm text-muted-foreground">
+            Spravujte kategórie, služby a doplnky vo firemnom kontexte.
+          </p>
         </div>
         {renderTabs()}
       </div>
+      <Separator />
 
       {activeTab === "categories" ? renderCategoryTab() : null}
       {activeTab === "services" ? renderServicesTab() : null}
