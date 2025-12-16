@@ -37,9 +37,9 @@ export function SidebarNav() {
             href={item.href}
             className={cn(
               "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-              "hover:bg-purple-50 hover:text-purple-900",
+              "hover:bg-secondary hover:text-secondary-foreground",
               isActive
-                ? "bg-purple-100 text-purple-900 shadow-sm"
+                ? "bg-secondary text-secondary-foreground shadow-sm"
                 : "text-muted-foreground",
             )}
           >

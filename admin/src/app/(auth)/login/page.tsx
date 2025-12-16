@@ -30,10 +30,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         : null;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-white to-slate-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-secondary/50 via-white to-background px-4 py-12">
       <div className="w-full max-w-xl space-y-8 text-center">
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-purple-700">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             Admin Access
           </p>
           <h1 className="text-3xl font-semibold text-foreground">Welcome back</h1>

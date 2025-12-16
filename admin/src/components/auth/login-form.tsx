@@ -158,9 +158,9 @@ export function LoginForm({ initialError }: LoginFormProps) {
             </Button>
           </form>
         </Form>
-        <div className="rounded-lg bg-purple-50 p-3 text-sm text-purple-900">
+        <div className="rounded-lg bg-secondary p-3 text-sm text-secondary-foreground">
           <p className="font-medium">Welcome back!</p>
-          <p className="text-purple-800/80">
+          <p className="text-secondary-foreground/80">
             Keep your credentials secure. You can sign out anytime from the sidebar footer.
           </p>
         </div>

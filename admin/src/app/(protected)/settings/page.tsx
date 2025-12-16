@@ -33,10 +33,10 @@ export default function SettingsPage() {
             <Link
               key={category.href}
               href={category.href}
-              className="group rounded-xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-purple-200 hover:shadow-md"
+              className="group rounded-xl border bg-card p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-secondary hover:shadow-md"
             >
               <CardHeader className="p-0">
-                <CardTitle className="text-base group-hover:text-purple-700">{category.title}</CardTitle>
+                <CardTitle className="text-base group-hover:text-primary">{category.title}</CardTitle>
                 <CardDescription>{category.description}</CardDescription>
               </CardHeader>
             </Link>

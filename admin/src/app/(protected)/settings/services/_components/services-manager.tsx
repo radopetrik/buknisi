@@ -372,7 +372,7 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                     <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                       <span>{service.name}</span>
                       {service.is_mobile ? (
-                        <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-medium text-purple-900">
+                        <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-medium text-secondary-foreground">
                           Mobilné
                         </span>
                       ) : null}
@@ -520,7 +520,7 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                       <span className="text-xs text-muted-foreground">{service.duration} min</span>
                     </div>
                     {pendingAddonServiceId === service.id ? (
-                      <span className="text-xs text-purple-900">Ukladám zmeny...</span>
+                      <span className="text-xs text-secondary-foreground">Ukladám zmeny...</span>
                     ) : null}
                   </div>
                   <div className="flex flex-wrap gap-2">

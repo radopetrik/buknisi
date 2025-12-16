@@ -3,18 +3,18 @@
 @theme inline {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-background: #f8fafc;
-  --color-foreground: #0f172a;
+  --color-background: #fcfcfc;
+  --color-foreground: #2c2c2c;
   --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
-  --color-muted: #e2e8f0;
-  --color-muted-foreground: #475569;
-  --color-border: #e2e8f0;
-  --color-input: #e2e8f0;
-  --color-primary: #7c3aed;
-  --color-primary-foreground: #f8fafc;
-  --color-secondary: #ede9fe;
-  --color-secondary-foreground: #4c1d95;
+  --color-card-foreground: #2c2c2c;
+  --color-muted: #f9f9f9;
+  --color-muted-foreground: #787878;
+  --color-border: #f2f2f2;
+  --color-input: #f2f2f2;
+  --color-primary: #d4a373;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #fff0f3;
+  --color-secondary-foreground: #8a5a66;
 }
 
 @layer base {

@@ -4,14 +4,14 @@ import { Separator } from "@/components/ui/separator";
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg">
+      <Card className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl">Welcome to the Admin panel</CardTitle>
-          <CardDescription className="text-purple-100">
+          <CardDescription className="text-primary-foreground/90">
             Your central place to manage calendar, billing, clients, staff, profile, and settings.
           </CardDescription>
         </CardHeader>
-        <CardContent className="text-purple-50">
+        <CardContent className="text-primary-foreground/80">
           Track your operations and jump into a category using the sidebar.
         </CardContent>
       </Card>

@@ -530,7 +530,7 @@ export default function CalendarPage() {
     return (
       <button
         key={booking.id}
-        className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition hover:border-purple-300 hover:bg-purple-50"
+        className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-left shadow-sm transition hover:border-primary/50 hover:bg-secondary"
         onClick={() => openBooking(booking, "view")}
       >
         <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -579,10 +579,10 @@ export default function CalendarPage() {
                 <button
                   type="button"
                   onClick={handleDayClick}
-                  className="flex items-center justify-between px-2 py-1 text-xs font-semibold text-muted-foreground transition hover:bg-purple-50"
+                  className="flex items-center justify-between px-2 py-1 text-xs font-semibold text-muted-foreground transition hover:bg-secondary"
                 >
                   <div className="flex items-center gap-2">
-                    <span className={`${isSameDay(day, new Date()) ? "text-purple-700" : "text-muted-foreground"}`}>
+                    <span className={`${isSameDay(day, new Date()) ? "text-primary" : "text-muted-foreground"}`}>
                       {day.getDate()}
                     </span>
                     {hasBookings && (
@@ -592,7 +592,7 @@ export default function CalendarPage() {
                     )}
                   </div>
                   {isSameDay(day, new Date()) && (
-                    <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700">Dnes</span>
+                    <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-secondary-foreground">Dnes</span>
                   )}
                 </button>
 
@@ -606,7 +606,7 @@ export default function CalendarPage() {
                         <button
                           type="button"
                           onClick={handleDayClick}
-                          className="w-full rounded-md border border-dashed border-slate-200 bg-white px-3 py-1 text-left text-[11px] font-semibold text-purple-700 transition hover:border-purple-200 hover:bg-purple-50"
+                          className="w-full rounded-md border border-dashed border-slate-200 bg-white px-3 py-1 text-left text-[11px] font-semibold text-primary transition hover:border-secondary hover:bg-secondary"
                         >
                           +{overflowCount} ďalšie
                         </button>
@@ -637,7 +637,7 @@ export default function CalendarPage() {
             <div key={day.toISOString()} className="rounded-lg border bg-white p-3">
               <div className="mb-2 flex items-center justify-between text-xs font-semibold text-muted-foreground">
                 <span>{dayNames[(day.getDay() + 6) % 7]} {day.getDate()}.</span>
-                {isSameDay(day, new Date()) && <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-semibold text-purple-700">Dnes</span>}
+                {isSameDay(day, new Date()) && <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-semibold text-secondary-foreground">Dnes</span>}
               </div>
               <div className="space-y-2">
                 {dayBookings.length === 0 ? (
@@ -811,8 +811,8 @@ export default function CalendarPage() {
                     type="button"
                     onClick={() => setViewMode(key as ViewMode)}
                     className={`px-3 py-2 text-sm font-medium transition ${
-                      active ? "bg-purple-600 text-white" : "text-slate-700 hover:bg-purple-50"
-                    }`}
+                  active ? "bg-primary text-primary-foreground" : "text-slate-700 hover:bg-secondary"
+                }`}
                   >
                     {label}
                   </button>
@@ -822,7 +822,7 @@ export default function CalendarPage() {
             <select
               value={staffFilter}
               onChange={(event) => setStaffFilter(event.target.value)}
-              className="h-10 rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2"
+              className="h-10 rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <option value="">Všetci pracovníci</option>
               {staffMembers.map((staff) => (
@@ -876,7 +876,7 @@ export default function CalendarPage() {
                 type="button"
                 onClick={() => setBookingTab("booking")}
                 className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                  bookingTab === "booking" ? "bg-purple-600 text-white shadow" : "text-slate-700 hover:bg-purple-50"
+                  bookingTab === "booking" ? "bg-primary text-primary-foreground shadow" : "text-slate-700 hover:bg-secondary"
                 }`}
               >
                 Booking
@@ -885,7 +885,7 @@ export default function CalendarPage() {
                 type="button"
                 onClick={() => setBookingTab("notes")}
                 className={`rounded-md px-3 py-2 text-sm font-semibold transition ${
-                  bookingTab === "notes" ? "bg-purple-600 text-white shadow" : "text-slate-700 hover:bg-purple-50"
+                  bookingTab === "notes" ? "bg-primary text-primary-foreground shadow" : "text-slate-700 hover:bg-secondary"
                 }`}
               >
                 Notes & Info
@@ -915,7 +915,7 @@ export default function CalendarPage() {
                     <div className="absolute z-50 mt-1 w-full rounded-md border border-slate-200 bg-white shadow-lg">
                       <button
                         type="button"
-                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-semibold text-purple-700 hover:bg-purple-50"
+                        className="flex w-full items-center justify-between px-3 py-2 text-left text-sm font-semibold text-primary hover:bg-secondary"
                         onClick={() => {
                           setClientDraft({ firstName: "", lastName: "", phone: "", email: "" });
                           setClientModalOpen(true);
@@ -932,7 +932,7 @@ export default function CalendarPage() {
                             <button
                               key={client.id}
                               type="button"
-                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-purple-50"
+                              className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-secondary"
                               onClick={() => {
                                 handleBookingField("clientId", client.id);
                                 setClientSearch(`${client.firstName} ${client.lastName}`.trim());
@@ -963,7 +963,7 @@ export default function CalendarPage() {
                         disabled={sheetState.mode === "view"}
                         value={sheetState.booking.staffId}
                         onChange={(event) => handleBookingField("staffId", event.target.value)}
-                        className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {staffMembers.map((staff) => (
                           <option key={staff.id} value={staff.id}>{staff.name}</option>
@@ -1049,7 +1049,7 @@ export default function CalendarPage() {
                               disabled={sheetState.mode === "view"}
                               value={selection.serviceId}
                               onChange={(event) => handleServiceChange(selection.id, event.target.value)}
-                              className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                              className="h-10 w-full rounded-md border border-input bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               {services.map((serviceItem) => (
                                 <option key={serviceItem.id} value={serviceItem.id}>{serviceItem.name}</option>
@@ -1072,7 +1072,7 @@ export default function CalendarPage() {
                                   {service.addons.length > 0 && (
                                     <button
                                       type="button"
-                                      className="text-xs font-semibold text-purple-700 hover:underline"
+                                      className="text-xs font-semibold text-primary hover:underline"
                                       onClick={() => handleAddonPanelToggle(selection.id)}
                                     >
                                       {addonsOpen[selection.id] ? "Skryť" : "Spravovať"} doplnky
@@ -1085,7 +1085,7 @@ export default function CalendarPage() {
                                     {selectedAddonDetails.map((addon) => (
                                       <span
                                         key={addon.id}
-                                        className="inline-flex items-center gap-1 rounded-full bg-purple-50 px-2 py-1 text-[11px] font-semibold text-purple-800"
+                                        className="inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-1 text-[11px] font-semibold text-secondary-foreground"
                                       >
                                         {addon.name} ×{addon.count}
                                       </span>
@@ -1150,7 +1150,7 @@ export default function CalendarPage() {
                       disabled={sheetState.mode === "view"}
                       value={sheetState.booking.internalNote ?? ""}
                       onChange={(event) => handleBookingField("internalNote", event.target.value)}
-                      className="min-h-[100px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="min-h-[100px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                       placeholder="Systémové poznámky viditeľné len interne"
                     />
                   </div>
@@ -1162,7 +1162,7 @@ export default function CalendarPage() {
                       disabled={sheetState.mode === "view"}
                       value={sheetState.booking.clientNote ?? ""}
                       onChange={(event) => handleBookingField("clientNote", event.target.value)}
-                      className="min-h-[100px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="min-h-[100px] w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
                       placeholder="Poznámka od klienta / preferencie"
                     />
                   </div>
@@ -1238,7 +1238,7 @@ export default function CalendarPage() {
               {dayDetail.bookings.map((booking) => (
                 <button
                   key={booking.id}
-                  className="flex w-full items-start justify-between gap-3 px-1 py-4 text-left transition hover:bg-purple-50"
+                  className="flex w-full items-start justify-between gap-3 px-1 py-4 text-left transition hover:bg-secondary"
                   onClick={() => {
                     openBooking(booking, "view");
                     closeDayDetailSheet();

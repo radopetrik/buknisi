@@ -14,7 +14,7 @@ export function AppShell({ children, userEmail, companyName }: AppShellProps) {
         <aside className="rounded-2xl border border-border bg-card shadow-sm md:sticky md:top-6 md:self-start md:h-[calc(100vh-3rem)]">
           <div className="flex h-full flex-col p-4 md:overflow-y-auto">
             <div className="mb-6 space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-purple-700">
+              <p className="text-xs font-semibold uppercase tracking-[0.08em] text-primary">
                 Control Center
               </p>
               <h1 className="text-xl font-semibold text-foreground">Admin</h1>
