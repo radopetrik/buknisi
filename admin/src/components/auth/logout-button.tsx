@@ -7,7 +7,7 @@ import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 
-export function LogoutButton() {
+export function LogoutButton({ isCollapsed }: { isCollapsed?: boolean }) {
   const router = useRouter();
   const supabase = createClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,12 +23,13 @@ export function LogoutButton() {
     <Button
       type="button"
       variant="outline"
-      className="w-full justify-center"
+      className={isCollapsed ? "w-full px-2" : "w-full justify-center"}
       onClick={handleLogout}
       disabled={isSubmitting}
+      size={isCollapsed ? "icon" : "default"}
     >
       <LogOut className="h-4 w-4" />
-      {isSubmitting ? "Signing out..." : "Log out"}
+      {!isCollapsed && <span className="ml-2">{isSubmitting ? "Signing out..." : "Log out"}</span>}
     </Button>
   );
 }

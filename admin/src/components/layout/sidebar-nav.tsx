@@ -24,7 +24,7 @@ const navItems = [
   { label: "Hodnotenia", href: "/rating", icon: Star },
 ];
 
-export function SidebarNav() {
+export function SidebarNav({ isCollapsed }: { isCollapsed?: boolean }) {
   const pathname = usePathname();
 
   return (
@@ -43,10 +43,12 @@ export function SidebarNav() {
               isActive
                 ? "bg-white/60 text-foreground shadow-sm ring-1 ring-black/5 backdrop-blur-sm"
                 : "text-foreground/70 hover:text-foreground",
+              isCollapsed && "justify-center px-2"
             )}
+            title={isCollapsed ? item.label : undefined}
           >
-            <Icon className="h-4 w-4" />
-            <span>{item.label}</span>
+            <Icon className="h-4 w-4 shrink-0" />
+            {!isCollapsed && <span className="truncate">{item.label}</span>}
           </Link>
         );
       })}
