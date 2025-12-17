@@ -62,7 +62,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div className="flex flex-col items-center space-y-2 text-center">
             <div className="relative mb-4 h-16 w-48">
               <Image
-                src="/logo_buknisi.png"
+                src="/logo_buknisi_hlava.png"
                 alt="Buknisi Logo"
                 fill
                 className="object-contain"

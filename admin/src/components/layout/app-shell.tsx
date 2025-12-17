@@ -15,13 +15,13 @@ export function AppShell({ children, userEmail, companyName }: AppShellProps) {
         <aside className="rounded-3xl border border-white/20 bg-white/60 shadow-xl backdrop-blur-xl md:sticky md:top-6 md:self-start md:h-[calc(100vh-3rem)]">
           <div className="flex h-full flex-col p-4 md:overflow-y-auto">
             <div className="mb-6 flex items-center gap-3 px-1">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/50 shadow-sm ring-1 ring-black/5">
+              <div className="flex shrink-0 items-center justify-center">
                 <Image
-                  src="/logo_buknisi.png"
+                  src="/logo_buknisi_hlava.png"
                   alt="Logo"
-                  width={24}
-                  height={24}
-                  className="h-6 w-6 object-contain"
+                  width={60}
+                  height={60}
+                  className="h-16 w-16 object-contain"
                 />
               </div>
               <div className="flex flex-col overflow-hidden">

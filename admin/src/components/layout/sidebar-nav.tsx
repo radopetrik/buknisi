@@ -15,12 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Calendar", href: "/calendar", icon: CalendarRange },
-  { label: "Billing", href: "/billing", icon: CreditCard },
-  { label: "Clients", href: "/clients", icon: Users },
-  { label: "Staff Management", href: "/staff", icon: UserCog },
-  { label: "Profile", href: "/profile", icon: User },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { label: "Kalendár", href: "/calendar", icon: CalendarRange },
+  { label: "Fakturácia", href: "/billing", icon: CreditCard },
+  { label: "Klienti", href: "/clients", icon: Users },
+  { label: "Zamestnanci", href: "/staff", icon: UserCog },
+  { label: "Profil", href: "/profile", icon: User },
+  { label: "Nastavenia", href: "/settings", icon: Settings },
   { label: "Hodnotenia", href: "/rating", icon: Star },
 ];
 
@@ -42,7 +42,7 @@ export function SidebarNav() {
               "hover:bg-white/40 hover:text-foreground hover:shadow-sm",
               isActive
                 ? "bg-white/60 text-foreground shadow-sm ring-1 ring-black/5 backdrop-blur-sm"
-                : "text-muted-foreground/80 hover:text-foreground",
+                : "text-foreground/70 hover:text-foreground",
             )}
           >
             <Icon className="h-4 w-4" />
