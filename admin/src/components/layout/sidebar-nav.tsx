@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   CalendarRange,
   CreditCard,
+  LayoutDashboard,
   Settings,
   User,
   UserCog,
@@ -15,6 +16,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const navItems = [
+  { label: "Prehľad", href: "/dashboard", icon: LayoutDashboard },
   { label: "Kalendár", href: "/calendar", icon: CalendarRange },
   { label: "Fakturácia", href: "/billing", icon: CreditCard },
   { label: "Klienti", href: "/clients", icon: Users },
