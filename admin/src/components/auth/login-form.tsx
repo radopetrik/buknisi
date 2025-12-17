@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -34,9 +35,10 @@ const loginSchema = z.object({
 
 interface LoginFormProps {
   initialError?: string | null;
+  className?: string;
 }
 
-export function LoginForm({ initialError }: LoginFormProps) {
+export function LoginForm({ initialError, className }: LoginFormProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -102,7 +104,7 @@ export function LoginForm({ initialError }: LoginFormProps) {
   };
 
   return (
-    <Card className="w-full max-w-md border-border/80 shadow-lg">
+    <Card className={cn("w-full max-w-md border-border/80 shadow-lg", className)}>
       <CardHeader className="space-y-2">
         <CardTitle className="text-2xl font-semibold text-foreground">
           Sign in
