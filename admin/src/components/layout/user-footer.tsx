@@ -15,7 +15,7 @@ export function UserFooter({ email, companyName }: UserFooterProps) {
     .slice(0, 2);
 
   return (
-    <div className="space-y-3 rounded-xl border border-border/80 bg-muted/50 p-3">
+    <div className="space-y-3 rounded-xl border border-white/20 bg-white/30 p-3 shadow-sm backdrop-blur-sm">
       <div className="flex items-center gap-3">
         <Avatar>
           <AvatarFallback>{initials || "U"}</AvatarFallback>

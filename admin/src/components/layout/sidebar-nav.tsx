@@ -38,11 +38,11 @@ export function SidebarNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-colors",
-              "hover:bg-secondary hover:text-secondary-foreground",
+              "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+              "hover:bg-white/40 hover:text-foreground hover:shadow-sm",
               isActive
-                ? "bg-secondary text-secondary-foreground shadow-sm"
-                : "text-muted-foreground",
+                ? "bg-white/60 text-foreground shadow-sm ring-1 ring-black/5 backdrop-blur-sm"
+                : "text-muted-foreground/80 hover:text-foreground",
             )}
           >
             <Icon className="h-4 w-4" />
