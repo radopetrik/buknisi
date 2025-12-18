@@ -89,7 +89,9 @@ function getInitials(name: string) {
 
 export function StaffManager({ initialData }: StaffManagerProps) {
   const router = useRouter();
-  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(
+    initialData.staff.length > 0 ? initialData.staff[0].id : null
+  );
   const [isCreating, setIsCreating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
