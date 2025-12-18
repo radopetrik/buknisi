@@ -58,7 +58,7 @@ export default function RegistrationForm({ cities, categories }: { cities: any[]
              <h2>Prihlásenie pre firmy</h2>
              <p>Pre správu vašej firmy prejdite do administračnej aplikácie.</p>
              <div style={{marginTop: '20px'}}>
-                <a href="https://admin.buknisi.sk" className="btn-primary" target="_blank">Prejsť do adminu</a>
+                <a href="https://buknisi-admin.vercel.app" className="btn-primary" target="_blank">Prejsť do adminu</a>
              </div>
           </div>
         ) : (
