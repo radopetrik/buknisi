@@ -96,12 +96,39 @@ V appke "admin" folder "admin", pridaj novu sekciu "rating" aj v menu, kde sa bu
 
 ---
 
-"Pokladna"
-Tam je vidiet bookings co este niesu zaplatene. Zaroven mozne pridat novu plar
+"Task: Pokladna"
+Najpr Databaza sa meni:
+
+nova tabulka "invoices" tu su field priblizne co chcem
+field: 
+    - client FK (null=True)
+    - amount (double)
+    - date/time
+    - payment_method (cash, card)
+    - services_and_addons (json) - here it will generate json list of services witn name na price and same for addons name and price 
+
+Este bude treba new field do bookings a to:
+    - bookings.invoice FK    
+
+
+Pokladna (menu) nech tam je toto:
+
+Ak napisem zaplatit tak to je process ked vyskoci modal okno a opyta sa na typ platby zobrazi sumu sluby+addons a clien ak je vyplneny. Booking je zaplatena ak ma vyplneny field "invoice"
+
+Fukcie co by to malo vediet to menu Pokladna:
+1) Je mozne pridat novu platbu, kde v sheet sa vyberie services s addons a zaplati sa
+2) je mozne vidiet bookings zoznam co este niesu zaplatene tam je moznost kliknut otvori sa checkout a mozes editovat services a addons a zaplatit
+3) Je mozne vidiet uz zaplatene sluzby ("invoices" tabulka) a vidiet fakturu 
+
+Akonahle sa zaplati za tak ulozi zaznam do tabulky "invoices"
 
 
 
 
 
----- admin 
+
+---- zamestanci
+
+
+Zmen sekciu zamestanci, staff, tak nech to je rozdelene v lavo zoznam zamestnancov kde je iba meno a v pravo detail zamestnca. Pozri si tabulky "staff_working_hours" a "staff_time_off" tak to daj do kopy aj s tym co existuje v edit a nejak to zmen aby sa dalo editovat oba tabulky co som spomenul
 

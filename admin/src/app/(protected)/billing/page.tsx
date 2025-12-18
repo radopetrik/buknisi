@@ -1,15 +1,17 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getBillingData } from "./actions";
+import { BillingManager } from "./_components/billing-manager";
 
-export default function BillingPage() {
+export default async function BillingPage() {
+  const { services, clients, unpaidBookings, invoices } = await getBillingData();
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Billing</CardTitle>
-        <CardDescription>Monitor invoices, payments, and balances.</CardDescription>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        Billing dashboards and payment management will live here.
-      </CardContent>
-    </Card>
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <BillingManager 
+        services={services}
+        clients={clients}
+        unpaidBookings={unpaidBookings}
+        invoices={invoices}
+      />
+    </div>
   );
 }
