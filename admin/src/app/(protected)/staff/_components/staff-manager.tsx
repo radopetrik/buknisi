@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Plus, Pencil, Trash2, Calendar as CalendarIcon, Clock, User as UserIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, Calendar as CalendarIcon, Clock, User as UserIcon, Mail, Phone } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
-import { createStaff, updateStaff, updateStaffWorkingHours, createStaffTimeOff, deleteStaffTimeOff } from "../actions";
+import { createStaff, updateStaff, updateStaffWorkingHours, createStaffTimeOff, deleteStaffTimeOff, updateStaffServices } from "../actions";
 import { StaffAvatarManager } from "./staff-avatar-manager";
 import {
   staffRoles,
@@ -228,9 +228,10 @@ function StaffDetailView({
               <TabsList>
                 <TabsTrigger value="overview">Prehľad</TabsTrigger>
                 <TabsTrigger value="profile">Profil</TabsTrigger>
-                <TabsTrigger value="avatar">Foto</TabsTrigger>
+                <TabsTrigger value="services">Služby</TabsTrigger>
                 <TabsTrigger value="hours">Pracovná doba</TabsTrigger>
                 <TabsTrigger value="timeoff">Voľno</TabsTrigger>
+                <TabsTrigger value="avatar">Foto</TabsTrigger>
               </TabsList>
             </Tabs>
           )}
@@ -266,14 +267,23 @@ function StaffDetailView({
                 onSuccess={onSuccess}
               />
             </TabsContent>
-            <TabsContent value="avatar" className="h-full m-0">
-              {staff && <StaffAvatarManager staff={staff} />}
+            <TabsContent value="services" className="h-full m-0">
+              {staff && (
+                <ServicesManager
+                  staff={staff}
+                  initialServices={initialServices}
+                  assignedServiceIds={assignedServiceIds}
+                />
+              )}
             </TabsContent>
             <TabsContent value="hours" className="h-full m-0">
               {staff && <WorkingHoursManager staff={staff} initialHours={workingHours} />}
             </TabsContent>
             <TabsContent value="timeoff" className="h-full m-0">
               {staff && <TimeOffManager staff={staff} initialTimeOffs={timeOffs} />}
+            </TabsContent>
+            <TabsContent value="avatar" className="h-full m-0">
+              {staff && <StaffAvatarManager staff={staff} />}
             </TabsContent>
           </Tabs>
         )}
@@ -319,22 +329,29 @@ function StaffOverview({
 
   return (
     <div className="space-y-6 max-w-5xl">
-      {/* Top Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">O zamestnancovi</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={staff.photo || ""} className="object-cover" />
-                <AvatarFallback className="text-lg">{getInitials(staff.full_name)}</AvatarFallback>
-              </Avatar>
-              <div>
-                <h3 className="text-lg font-bold">{staff.full_name}</h3>
-                <p className="text-sm text-muted-foreground">{staff.position || "Bez pozície"}</p>
-                <Badge variant="outline" className="mt-1">
+      {/* Profile Header Card */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-6 items-start">
+            <Avatar className="h-24 w-24 border-4 border-background shadow-sm">
+              <AvatarImage src={staff.photo || ""} className="object-cover" />
+              <AvatarFallback className="text-2xl">{getInitials(staff.full_name)}</AvatarFallback>
+            </Avatar>
+
+            <div className="flex-1 space-y-2 w-full">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold">{staff.full_name}</h2>
+                  <p className="text-muted-foreground font-medium">{staff.position || "Bez pozície"}</p>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => onTabChange("profile")}>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  Upraviť profil
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
                   {staff.role === "manager"
                     ? "Manažér"
                     : staff.role === "reception"
@@ -343,121 +360,148 @@ function StaffOverview({
                     ? "Personál"
                     : "Základný"}
                 </Badge>
-              </div>
-            </div>
-            {staff.description && (
-              <div className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-md">
-                "{staff.description}"
-              </div>
-            )}
-            <div className="flex items-center justify-between pt-2">
-               <span className="text-sm font-medium">Status v bookingu:</span>
-               {staff.available_for_booking ? (
-                 <Badge variant="secondary" className="bg-emerald-100 text-emerald-800 border-transparent">Dostupný</Badge>
-               ) : (
-                 <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-transparent">Skrytý</Badge>
-               )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 text-sm">
-               <div>
-                  <span className="text-xs text-muted-foreground block">Email</span>
-                  <span className="font-medium">{staff.email || "-"}</span>
-               </div>
-               <div>
-                  <span className="text-xs text-muted-foreground block">Telefón</span>
-                  <span className="font-medium">{staff.phone || "-"}</span>
-               </div>
-            </div>
-
-            <Button variant="outline" size="sm" className="w-full" onClick={() => onTabChange("profile")}>
-              Upraviť profil
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-medium">Služby ({assignedServices.length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {assignedServices.length > 0 ? (
-              <div className="flex flex-wrap gap-2 mb-4 max-h-[160px] overflow-y-auto">
-                {assignedServices.map((s) => (
-                  <Badge key={s.id} variant="secondary">
-                    {s.name} ({s.duration}m)
+                {staff.available_for_booking ? (
+                  <Badge variant="outline" className="border-emerald-200 bg-emerald-50 text-emerald-700">
+                    Dostupný na booking
                   </Badge>
-                ))}
+                ) : (
+                  <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-700">
+                    Skrytý z bookingu
+                  </Badge>
+                )}
               </div>
-            ) : (
-              <p className="text-sm text-muted-foreground mb-4">Žiadne priradené služby.</p>
-            )}
-            <Button variant="outline" size="sm" className="w-full mt-auto" onClick={() => onTabChange("profile")}>
-              Spravovať služby
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
 
-      {/* Bottom Row */}
+              {staff.description && <p className="text-sm text-muted-foreground mt-2 max-w-2xl">{staff.description}</p>}
+
+              <div className="flex flex-wrap gap-x-6 gap-y-2 pt-4 mt-2 border-t">
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{staff.email || "Email nenastavený"}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">{staff.phone || "Telefón nenastavený"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="md:col-span-2">
-           <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        {/* Main Column: Working Hours (2 cols wide) */}
+        <div className="md:col-span-2 flex flex-col h-full">
+          <Card className="flex-1">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base font-medium">Pracovná doba</CardTitle>
               <Button variant="ghost" size="sm" onClick={() => onTabChange("hours")}>
                 Upraviť
               </Button>
-           </CardHeader>
-           <CardContent>
+            </CardHeader>
+            <CardContent>
               {sortedHours.length > 0 ? (
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {sortedHours.map(wh => (
-                       <div key={wh.id} className="flex justify-between items-center text-sm p-2 border rounded bg-muted/10">
-                          <span className="font-medium">{daysMap[wh.day_in_week]}</span>
-                          <span className="text-muted-foreground">
-                            {wh.from_time.slice(0,5)} - {wh.to_time.slice(0,5)}
-                            {wh.break_from_time && ` (Pauza: ${wh.break_from_time.slice(0,5)} - ${wh.break_to_time?.slice(0,5)})`}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                  {sortedHours.map((wh) => (
+                    <div
+                      key={wh.id}
+                      className="flex justify-between items-center text-sm p-3 border rounded-md bg-muted/5 hover:bg-muted/10 transition-colors"
+                    >
+                      <span className="font-medium">{daysMap[wh.day_in_week]}</span>
+                      <span className="text-muted-foreground font-mono text-xs">
+                        {wh.from_time.slice(0, 5)} - {wh.to_time.slice(0, 5)}
+                        {wh.break_from_time && (
+                          <span className="block text-xs opacity-70 mt-0.5">
+                            (Pauza: {wh.break_from_time.slice(0, 5)} - {wh.break_to_time?.slice(0, 5)})
                           </span>
-                       </div>
-                    ))}
-                 </div>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Nie je nastavená žiadna pracovná doba.</p>
+                <div className="flex flex-col items-center justify-center py-8 text-muted-foreground border border-dashed rounded-md bg-muted/5">
+                  <Clock className="h-8 w-8 mb-2 opacity-20" />
+                  <p className="text-sm">Nie je nastavená žiadna pracovná doba.</p>
+                  <Button variant="link" size="sm" onClick={() => onTabChange("hours")} className="mt-2">
+                    Nastaviť pracovnú dobu
+                  </Button>
+                </div>
               )}
-           </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        <Card>
-           <CardHeader className="pb-2 flex flex-row items-center justify-between">
+        {/* Side Column: Services & Time Off (1 col wide) */}
+        <div className="space-y-6 flex flex-col">
+          <Card>
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
+              <CardTitle className="text-base font-medium">Služby ({assignedServices.length})</CardTitle>
+              <Button variant="ghost" size="sm" onClick={() => onTabChange("services")}>
+                Spravovať
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {assignedServices.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {assignedServices.map((s) => (
+                    <Badge key={s.id} variant="secondary" className="font-normal">
+                      {s.name} <span className="text-muted-foreground ml-1 text-xs">({s.duration}m)</span>
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <div className="py-4 text-center">
+                  <p className="text-sm text-muted-foreground mb-2">Žiadne priradené služby.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="flex-1">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base font-medium">Nadchádzajúce voľno</CardTitle>
               <Button variant="ghost" size="sm" onClick={() => onTabChange("timeoff")}>
                 Spravovať
               </Button>
-           </CardHeader>
-           <CardContent>
-              <div className="space-y-3">
-                 {upcomingTimeOffs.length > 0 ? (
-                    upcomingTimeOffs.slice(0, 5).map(to => (
-                      <div key={to.id} className="flex items-start gap-3 text-sm pb-2 border-b last:border-0 last:pb-0">
-                         <Badge variant="outline" className={cn(
-                           "mt-0.5",
-                           to.reason === 'sick_day' ? "border-red-200 bg-red-50 text-red-700" :
-                           to.reason === 'vacation' ? "border-blue-200 bg-blue-50 text-blue-700" : "border-gray-200"
-                         )}>
-                            {to.reason === 'sick_day' ? 'PN' : to.reason === 'vacation' ? 'Dov' : 'Iné'}
-                         </Badge>
-                         <div>
-                            <p className="font-medium">{new Date(to.day).toLocaleDateString('sk-SK')}</p>
-                            <p className="text-xs text-muted-foreground">{to.all_day ? "Celý deň" : `${to.from_time?.slice(0,5)} - ${to.to_time?.slice(0,5)}`}</p>
-                         </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3 mt-2">
+                {upcomingTimeOffs.length > 0 ? (
+                  upcomingTimeOffs.slice(0, 5).map((to) => (
+                    <div
+                      key={to.id}
+                      className="flex items-start gap-3 text-sm pb-3 border-b last:border-0 last:pb-0"
+                    >
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          "mt-0.5 shrink-0",
+                          to.reason === "sick_day"
+                            ? "border-red-200 bg-red-50 text-red-700"
+                            : to.reason === "vacation"
+                            ? "border-blue-200 bg-blue-50 text-blue-700"
+                            : "border-gray-200"
+                        )}
+                      >
+                        {to.reason === "sick_day" ? "PN" : to.reason === "vacation" ? "Dov" : "Iné"}
+                      </Badge>
+                      <div>
+                        <p className="font-medium">{new Date(to.day).toLocaleDateString("sk-SK")}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {to.all_day ? "Celý deň" : `${to.from_time?.slice(0, 5)} - ${to.to_time?.slice(0, 5)}`}
+                        </p>
                       </div>
-                    ))
-                 ) : (
-                   <p className="text-sm text-muted-foreground">Žiadne naplánované voľno.</p>
-                 )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-4 text-center">
+                     <p className="text-sm text-muted-foreground">Žiadne naplánované voľno.</p>
+                  </div>
+                )}
               </div>
-           </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -518,11 +562,6 @@ function StaffProfileForm({
       actionPromise.then((result) => {
         setMessage(result.message);
         if (result.success) {
-          // If created, we might want to return the new staff object but our action currently just returns success/message.
-          // For now, we just refresh. Ideally createStaff returns the new ID or object.
-          // Assuming refresh will re-render parent with new data if we created one.
-          // But to select it automatically, we'd need the ID.
-          // For now, simple success callback.
           onSuccess();
         }
       });
@@ -664,48 +703,51 @@ function StaffProfileForm({
           )}
         />
 
-        <Separator />
-
-        <div className="space-y-3">
-          <div>
-            <h3 className="text-sm font-medium leading-none">Priradené služby</h3>
-            <p className="text-xs text-muted-foreground mt-1">Vyberte služby, ktoré tento člen tímu vykonáva.</p>
-          </div>
-          {initialServices.length === 0 ? (
-            <div className="flex items-center justify-center p-4 border border-dashed rounded-md bg-muted/50">
-              <p className="text-sm text-muted-foreground">Najprv pridajte služby v nastaveniach.</p>
+        {!staff && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-sm font-medium leading-none">Priradené služby</h3>
+                <p className="text-xs text-muted-foreground mt-1">Vyberte služby, ktoré tento člen tímu vykonáva.</p>
+              </div>
+              {initialServices.length === 0 ? (
+                <div className="flex items-center justify-center p-4 border border-dashed rounded-md bg-muted/50">
+                  <p className="text-sm text-muted-foreground">Najprv pridajte služby v nastaveniach.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {initialServices.map((service) => {
+                    const checked = selectedServiceIds.includes(service.id);
+                    return (
+                      <div
+                        key={service.id}
+                        className={cn(
+                          "flex items-start space-x-3 rounded-md border p-3 transition-colors hover:bg-accent hover:text-accent-foreground",
+                          checked ? "border-primary bg-primary/5" : "bg-card"
+                        )}
+                      >
+                        <div className="flex h-5 items-center">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={(event) => toggleService(service.id, event.target.checked)}
+                            className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
+                            disabled={isPending}
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium leading-none">{service.name}</p>
+                          <p className="text-xs text-muted-foreground">{service.duration} min</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {initialServices.map((service) => {
-                const checked = selectedServiceIds.includes(service.id);
-                return (
-                  <div
-                    key={service.id}
-                    className={cn(
-                      "flex items-start space-x-3 rounded-md border p-3 transition-colors hover:bg-accent hover:text-accent-foreground",
-                      checked ? "border-primary bg-primary/5" : "bg-card"
-                    )}
-                  >
-                    <div className="flex h-5 items-center">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(event) => toggleService(service.id, event.target.checked)}
-                        className="h-4 w-4 rounded border-primary text-primary focus:ring-primary"
-                        disabled={isPending}
-                      />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <p className="text-sm font-medium leading-none">{service.name}</p>
-                      <p className="text-xs text-muted-foreground">{service.duration} min</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+          </>
+        )}
 
         <div className="pt-4 flex items-center justify-between">
             <span className="text-sm text-destructive font-medium">{message}</span>
@@ -715,6 +757,98 @@ function StaffProfileForm({
         </div>
       </form>
     </Form>
+  );
+}
+
+function ServicesManager({
+  staff,
+  initialServices,
+  assignedServiceIds,
+}: {
+  staff: Staff;
+  initialServices: ServiceSummary[];
+  assignedServiceIds: string[];
+}) {
+  const [selectedIds, setSelectedIds] = useState<string[]>(assignedServiceIds);
+  const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState<string | null>(null);
+
+  const toggleService = (serviceId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds((prev) => [...prev, serviceId]);
+    } else {
+      setSelectedIds((prev) => prev.filter((id) => id !== serviceId));
+    }
+    setMessage(null);
+  };
+
+  const handleSave = () => {
+    setMessage(null);
+    startTransition(() => {
+      updateStaffServices(staff.id, selectedIds).then((res) => {
+        setMessage(res.message);
+      });
+    });
+  };
+
+  // Check if there are changes
+  const hasChanges =
+    selectedIds.length !== assignedServiceIds.length || !selectedIds.every((id) => assignedServiceIds.includes(id));
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-medium">Spravovanie služieb</h3>
+          <p className="text-sm text-muted-foreground">Vyberte služby, ktoré {staff.full_name} vykonáva.</p>
+        </div>
+        <Button onClick={handleSave} disabled={isPending || !hasChanges}>
+          {isPending ? "Ukladám..." : "Uložiť zmeny"}
+        </Button>
+      </div>
+
+      <Separator />
+
+      {initialServices.length === 0 ? (
+        <div className="flex items-center justify-center p-8 border border-dashed rounded-md bg-muted/50">
+          <p className="text-muted-foreground">Najprv pridajte služby v sekcii Nastavenia.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {initialServices.map((service) => {
+            const checked = selectedIds.includes(service.id);
+            return (
+              <div
+                key={service.id}
+                className={cn(
+                  "flex items-start space-x-3 rounded-md border p-4 transition-all cursor-pointer",
+                  checked
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "bg-card hover:bg-accent hover:text-accent-foreground"
+                )}
+                onClick={() => toggleService(service.id, !checked)}
+              >
+                <div className="flex h-5 items-center mt-0.5">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={(e) => toggleService(service.id, e.target.checked)}
+                    className="h-4 w-4 rounded border-primary text-primary focus:ring-primary pointer-events-none"
+                    disabled={isPending}
+                  />
+                </div>
+                <div className="flex-1 space-y-1">
+                  <p className="font-medium leading-none">{service.name}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration} min</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {message && <p className="text-sm font-medium text-destructive text-right">{message}</p>}
+    </div>
   );
 }
 

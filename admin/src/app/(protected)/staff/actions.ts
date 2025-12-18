@@ -374,3 +374,37 @@ export async function updateStaffPhoto(staffId: string, photoUrl: string | null)
     return handleActionError(error);
   }
 }
+
+export async function updateStaffServices(staffId: string, serviceIds: string[]) {
+  try {
+    const { supabase, companyId } = await getScopedClient();
+
+    // Verify staff belongs to company
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select("id")
+      .eq("id", staffId)
+      .eq("company_id", companyId)
+      .single();
+
+    if (staffError || !staff) {
+      return { success: false, message: "Staff member not found" };
+    }
+
+    const uniqueServiceIds = Array.from(new Set(serviceIds));
+    const validation = await validateServiceIds(uniqueServiceIds, companyId, supabase);
+    if (!validation.success) {
+      return validation;
+    }
+
+    const result = await replaceStaffServices(staffId, uniqueServiceIds, supabase);
+    if (!result.success) {
+      return result;
+    }
+
+    revalidatePath("/staff");
+    return { success: true, message: "Services updated" };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
