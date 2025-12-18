@@ -70,7 +70,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Vitajte späť
+              Vitajte na Portáli
             </h1>
             <p className="text-sm text-muted-foreground">
               Zadajte svoje údaje pre vstup do administrácie
