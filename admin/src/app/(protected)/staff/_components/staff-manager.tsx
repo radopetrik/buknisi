@@ -580,7 +580,7 @@ function StaffProfileForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-4xl">
         <FormField
           control={form.control}
           name="full_name"

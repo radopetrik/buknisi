@@ -150,3 +150,5 @@ Mozes aj pouzit ine fonty, ma to byt ladene viacej pre zeny ale nech je to extra
 
 Ak kliknes na nejake mesto tak znamena ze si si zmenil preferovane mesto tak nech sa to zohladni aj v hornom search bare kde je city
 
+V sekcii "profile" pridaj este userovy zoznam jeho "invoices". Cele to mozno vylepsi, popremyslaj nad layout
+
