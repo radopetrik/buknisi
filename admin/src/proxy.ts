@@ -33,8 +33,8 @@ export async function proxy(request: NextRequest) {
 
   const redirectWithCookies = (url: URL) => {
     const response = NextResponse.redirect(url);
-    supabaseResponse.cookies.getAll().forEach(({ name, value, options }) => {
-      response.cookies.set(name, value, options);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie);
     });
     return response;
   };
