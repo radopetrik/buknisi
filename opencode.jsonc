@@ -7,6 +7,15 @@
       "headers": {
         "CONTEXT7_API_KEY": "ctx7sk-d286846f-0eb7-40c3-82e4-2e2f42dd32f6"
       }
+    },
+    "postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres:meptav-femneh-4kiNtu@[YOUR-DB-REF].supabase.co:5432/postgres"
+      ],
+      "enabled": true
     }
   },
   "$schema": "https://opencode.ai/config.json"
