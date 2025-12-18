@@ -26,9 +26,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   const initialError =
     user && !company
-      ? "Your account is missing a company association."
+      ? "Vášmu účtu chýba priradenie k spoločnosti."
       : errorParam === "no_company"
-        ? "Your account is missing a company association."
+        ? "Vášmu účtu chýba priradenie k spoločnosti."
         : null;
 
   return (

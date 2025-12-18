@@ -29,7 +29,7 @@ export function LogoutButton({ isCollapsed }: { isCollapsed?: boolean }) {
       size={isCollapsed ? "icon" : "default"}
     >
       <LogOut className="h-4 w-4" />
-      {!isCollapsed && <span className="ml-2">{isSubmitting ? "Signing out..." : "Log out"}</span>}
+      {!isCollapsed && <span className="ml-2">{isSubmitting ? "Odhlasujem..." : "Odhlásiť sa"}</span>}
     </Button>
   );
 }

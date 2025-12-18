@@ -29,8 +29,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const loginSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Zadajte platný email"),
+  password: z.string().min(6, "Heslo musí mať aspoň 6 znakov"),
 });
 
 interface LoginFormProps {
@@ -48,7 +48,7 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
   useEffect(() => {
     const errorParam = searchParams.get("error");
     if (errorParam === "no_company") {
-      setError("Your account is missing a company association.");
+      setError("Vášmu účtu chýba priradenie k spoločnosti.");
     }
   }, [searchParams]);
 
@@ -66,7 +66,14 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
     const { data, error: signInError } = await supabase.auth.signInWithPassword(values);
 
     if (signInError) {
-      setError(signInError.message);
+      // Basic translation for common Supabase errors
+      let msg = signInError.message;
+      if (msg === "Invalid login credentials") {
+        msg = "Neplatné prihlasovacie údaje.";
+      } else if (msg === "Email not confirmed") {
+        msg = "Email nebol potvrdený.";
+      }
+      setError(msg);
       setIsSubmitting(false);
       return;
     }
@@ -74,7 +81,7 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
     const signedInUser = data.user ?? (await supabase.auth.getUser()).data.user;
 
     if (!signedInUser) {
-      setError("Unable to complete sign in.");
+      setError("Nepodarilo sa dokončiť prihlásenie.");
       setIsSubmitting(false);
       return;
     }
@@ -86,14 +93,14 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
       .maybeSingle();
 
     if (companyError) {
-      setError("Unable to verify company access.");
+      setError("Nepodarilo sa overiť prístup k spoločnosti.");
       await supabase.auth.signOut();
       setIsSubmitting(false);
       return;
     }
 
     if (!companyRelation?.company) {
-      setError("Your account is missing a company association.");
+      setError("Vášmu účtu chýba priradenie k spoločnosti.");
       await supabase.auth.signOut();
       setIsSubmitting(false);
       return;
@@ -107,10 +114,10 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
     <Card className={cn("w-full max-w-md border-border/80 shadow-lg", className)}>
       <CardHeader className="space-y-2">
         <CardTitle className="text-2xl font-semibold text-foreground">
-          Sign in
+          Prihlásenie
         </CardTitle>
         <CardDescription>
-          Access your admin workspace with your email and password.
+          Vstúpte do svojho admin prostredia pomocou emailu a hesla.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -123,9 +130,9 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="you@example.com" type="email" autoComplete="email" {...field} />
+                    <Input placeholder="vy@priklad.com" type="email" autoComplete="email" {...field} />
                   </FormControl>
-                  <FormDescription>Use your work email to sign in.</FormDescription>
+                  <FormDescription>Na prihlásenie použite svoj pracovný email.</FormDescription>
                   <FormMessage>{form.formState.errors.email?.message}</FormMessage>
                 </FormItem>
               )}
@@ -135,7 +142,7 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Heslo</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="••••••••"
@@ -156,14 +163,14 @@ export function LoginForm({ initialError, className }: LoginFormProps) {
             ) : null}
             <Button className="w-full" type="submit" disabled={isSubmitting}>
               <LogIn className="h-4 w-4" />
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? "Prihlasujem..." : "Prihlásiť sa"}
             </Button>
           </form>
         </Form>
         <div className="rounded-lg bg-secondary p-3 text-sm text-secondary-foreground">
-          <p className="font-medium">Welcome back!</p>
+          <p className="font-medium">Vitajte späť!</p>
           <p className="text-secondary-foreground/80">
-            Keep your credentials secure. You can sign out anytime from the sidebar footer.
+            Udržujte svoje prihlasovacie údaje v bezpečí. Odhlásiť sa môžete kedykoľvek v pätičke bočného panela.
           </p>
         </div>
       </CardContent>

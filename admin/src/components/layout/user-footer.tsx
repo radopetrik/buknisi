@@ -23,8 +23,8 @@ export function UserFooter({ email, companyName, isCollapsed }: UserFooterProps)
         </Avatar>
         {!isCollapsed && (
           <div className="min-w-0 flex-1 overflow-hidden transition-all duration-300">
-            <p className="truncate text-sm font-medium text-foreground" title={companyName ?? "Logged in"}>
-              {companyName ?? "Logged in"}
+            <p className="truncate text-sm font-medium text-foreground" title={companyName ?? "Prihlásený"}>
+              {companyName ?? "Prihlásený"}
             </p>
             <p className="truncate text-xs text-muted-foreground" title={email}>
               {email}
