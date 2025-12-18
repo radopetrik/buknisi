@@ -1,22 +1,14 @@
 {
   "mcp": {
-    "context7": {
+    "supabase": {
       "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
+      "url": "https://mcp.supabase.com/mcp",
       "enabled": true,
+      "oauth": false,
       "headers": {
-        "CONTEXT7_API_KEY": "ctx7sk-d286846f-0eb7-40c3-82e4-2e2f42dd32f6"
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcnpxZ3lobHp6cHJoc2xvZXV1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTYyMTQ3NCwiZXhwIjoyMDgxMTk3NDc0fQ.M17norznnYGm5RKTinkj6nlVDrRPj7T-l1M2JBNsBOY"
       }
-    },
-    "postgres": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://postgres:meptav-femneh-4kiNtu@[YOUR-DB-REF].supabase.co:5432/postgres"
-      ],
-      "enabled": true
-    }
-  },
+    } 
+},
   "$schema": "https://opencode.ai/config.json"
 }
