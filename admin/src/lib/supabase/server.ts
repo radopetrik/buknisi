@@ -53,8 +53,11 @@ export async function getUserWithCompany(): Promise<UserWithCompanyResult> {
     throw companyError;
   }
 
+  const company = companyRelation?.company;
+  const companyData = Array.isArray(company) ? company[0] : company;
+
   return {
     user,
-    company: companyRelation?.company ?? null,
+    company: companyData ?? null,
   };
 }
