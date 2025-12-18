@@ -6,11 +6,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
-  Building2,
   Calendar,
   Camera,
   Check,
   Clock,
+  ExternalLink,
   Facebook,
   Globe,
   Image as ImageIcon,
@@ -26,7 +26,6 @@ import {
   Trash2,
   Wifi,
   AlertTriangle,
-  XCircle,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -237,7 +236,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
-  const [activeTab, setActiveTab] = useState<"overview" | "basic" | "amenities" | "hours" | "extras" | "photos">("basic");
+  const [activeTab, setActiveTab] = useState<"overview" | "basic" | "amenities" | "hours" | "extras" | "photos">("overview");
   const [company, setCompany] = useState<CompanyProfile>(initialData.company);
   const [amenityState, setAmenityState] = useState<string[]>(initialData.selectedAmenityIds);
   const [businessHoursState, setBusinessHoursState] = useState<Record<DayOfWeek, DayHoursState>>(
@@ -1126,19 +1125,36 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
     </div>
   );
 
-  const renderOverviewTab = () => (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card className="h-fit">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <LayoutTemplate className="h-5 w-5 text-primary" />
-            Náhľad profilu
-          </CardTitle>
-          <CardDescription>
-            Takto približne uvidia váš profil klienti v katalógu.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+  const renderOverviewTab = () => {
+    const city = initialData.cities.find((c) => c.id === overviewValues.city_id);
+    const category = initialData.categories.find((c) => c.id === overviewValues.category_id);
+    const catalogUrl = "http://localhost:3004";
+    const companyUrl =
+      city && category && overviewValues.slug
+        ? `${catalogUrl}/${city.slug}/${category.slug}/c/${overviewValues.slug}/`
+        : null;
+
+    return (
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card className="h-fit">
+          <CardHeader className="flex flex-row items-start justify-between space-y-0">
+            <div className="space-y-1">
+              <CardTitle className="flex items-center gap-2">
+                <LayoutTemplate className="h-5 w-5 text-primary" />
+                Náhľad profilu
+              </CardTitle>
+              <CardDescription>Takto približne uvidia váš profil klienti v katalógu.</CardDescription>
+            </div>
+            {companyUrl && (
+              <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                <a href={companyUrl} target="_blank" rel="noopener noreferrer" className="gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  Pozrieť na webe
+                </a>
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
           <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
             <div className="relative aspect-video w-full bg-muted">
               {photos[0] ? (
@@ -1299,7 +1315,8 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
          </Card>
       </div>
     </div>
-  );
+    );
+  };
 
   const renderAmenitiesTab = () => (
     <div className="grid gap-6">
@@ -1409,7 +1426,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
-              {dayOptions.map(({ value, label, shortLabel }) => {
+              {dayOptions.map(({ value, label }) => {
                 const state = businessHoursState[value];
                 return (
                   <div
@@ -1772,7 +1789,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                   <div className="space-y-4">
                      <div className="flex items-center justify-between">
                         <Label>Otváracia doba</Label>
-                        <span className="text-xs text-muted-foreground">Nechajte prázdne pre "Zatvorené"</span>
+                        <span className="text-xs text-muted-foreground">Nechajte prázdne pre &quot;Zatvorené&quot;</span>
                      </div>
                      <div className="grid gap-4 sm:grid-cols-2">
                         <FormField

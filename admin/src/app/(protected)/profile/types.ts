@@ -27,11 +27,13 @@ export type CompanyProfile = {
 export type CategoryOption = {
   id: string;
   name: string;
+  slug: string;
 };
 
 export type CityOption = {
   id: string;
   name: string;
+  slug: string;
 };
 
 export type AmenityOption = {

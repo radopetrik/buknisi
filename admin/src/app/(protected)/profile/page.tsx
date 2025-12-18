@@ -20,8 +20,8 @@ export default async function ProfilePage() {
       )
       .eq("id", company.id)
       .single(),
-    supabase.from("categories").select("id, name").order("name", { ascending: true }),
-    supabase.from("cities").select("id, name").order("name", { ascending: true }),
+    supabase.from("categories").select("id, name, slug").order("name", { ascending: true }),
+    supabase.from("cities").select("id, name, slug").order("name", { ascending: true }),
     supabase.from("amenities").select("id, name, icon").order("name", { ascending: true }),
     supabase.from("company_amenities").select("amenity_id").eq("company_id", company.id),
     supabase
@@ -86,8 +86,8 @@ export default async function ProfilePage() {
 
   const initialData: CompanyProfileData = {
     company: profile,
-    categories: (categoriesResult.data ?? []).map((category) => ({ id: category.id, name: category.name })),
-    cities: (citiesResult.data ?? []).map((city) => ({ id: city.id, name: city.name })),
+    categories: (categoriesResult.data ?? []).map((category) => ({ id: category.id, name: category.name, slug: category.slug })),
+    cities: (citiesResult.data ?? []).map((city) => ({ id: city.id, name: city.name, slug: city.slug })),
     amenities: (amenitiesResult.data ?? []).map((amenity) => ({ id: amenity.id, name: amenity.name, icon: amenity.icon ?? null })),
     selectedAmenityIds: (companyAmenitiesResult.data ?? []).map((entry) => entry.amenity_id),
     businessHours: (businessHoursResult.data ?? []).map((hour) => ({

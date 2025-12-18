@@ -135,3 +135,8 @@ Zmen sekciu zamestanci (staff) tak nech to je rozdelene v lavo zoznam zamestnanc
 
 
 
+
+Na hľadanie niekde ešte odkaz na samotný aaa, samotný company na webe. Pričom URL sa skladá lomitko IDéčko mesta, v ktorom je Company Slug mesta Lomitko City Slug city Lomítko P Slug company Doménu zatiaľ daj localhost:3000 
+
+
+V preview pridaj este okaz na firmu na webe ten sa sklada <catalog_url - zatial daj localhost:3000 >/<city.slug>/<category.slug>/<company.slug>/
