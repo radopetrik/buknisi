@@ -140,3 +140,13 @@ Na hľadanie niekde ešte odkaz na samotný aaa, samotný company na webe. Prič
 
 
 V preview pridaj este okaz na firmu na webe ten sa sklada <catalog_url - zatial daj localhost:3000 >/<city.slug>/<category.slug>/<company.slug>/
+
+
+Tak ako zobrazuje kategorie tu [city] tak nech tak zobrazuje aj [city]/[category]. Prikladam screenshot z [city].
+
+
+Prejdi kazdu page a pozri velkosi a typ fontu ci sedi lebo som si vsimol ze minimalne napis sa niekde lisi.
+Mozes aj pouzit ine fonty, ma to byt ladene viacej pre zeny ale nech je to extra moderne
+
+Ak kliknes na nejake mesto tak znamena ze si si zmenil preferovane mesto tak nech sa to zohladni aj v hornom search bare kde je city
+

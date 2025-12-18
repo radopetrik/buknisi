@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Invoice, CompanyDetails, ClientOption } from "../types";
 import { formatPrice, formatDateTime } from "../utils";
@@ -30,6 +30,7 @@ export function InvoiceDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl sm:max-h-[90vh] overflow-y-auto">
+        <DialogTitle className="sr-only">Detail faktúry</DialogTitle>
         <div id="print-area" className="p-4 sm:p-8 space-y-8 bg-white text-black">
           {/* Header */}
           <div className="flex justify-between items-start border-b pb-8">

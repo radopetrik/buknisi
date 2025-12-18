@@ -9,6 +9,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatPrice, formatDate } from "../utils";
 import { CreditCard } from "lucide-react";
@@ -28,42 +29,44 @@ export function UnpaidList({ bookings, onPay }: UnpaidListProps) {
   }
 
   return (
-    <div className="rounded-md border bg-white">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Dátum</TableHead>
-            <TableHead>Klient</TableHead>
-            <TableHead>Čas</TableHead>
-            <TableHead>Suma</TableHead>
-            <TableHead className="text-right">Akcia</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {bookings.map((booking) => (
-            <TableRow key={booking.id}>
-              <TableCell className="font-medium">
-                {formatDate(booking.date)}
-              </TableCell>
-              <TableCell>
-                {booking.clientName || "Neznámy klient"}
-              </TableCell>
-              <TableCell>
-                {booking.timeFrom.slice(0, 5)} - {booking.timeTo.slice(0, 5)}
-              </TableCell>
-              <TableCell>
-                {formatPrice(booking.totalPrice)}
-              </TableCell>
-              <TableCell className="text-right">
-                <Button size="sm" onClick={() => onPay(booking)} className="gap-2">
-                  <CreditCard className="h-4 w-4" />
-                  Zaplatiť
-                </Button>
-              </TableCell>
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="pl-4">Dátum</TableHead>
+              <TableHead>Klient</TableHead>
+              <TableHead>Čas</TableHead>
+              <TableHead>Suma</TableHead>
+              <TableHead className="text-right pr-4">Akcia</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {bookings.map((booking) => (
+              <TableRow key={booking.id}>
+                <TableCell className="font-medium pl-4">
+                  {formatDate(booking.date)}
+                </TableCell>
+                <TableCell>
+                  {booking.clientName || "Neznámy klient"}
+                </TableCell>
+                <TableCell>
+                  {booking.timeFrom.slice(0, 5)} - {booking.timeTo.slice(0, 5)}
+                </TableCell>
+                <TableCell>
+                  {formatPrice(booking.totalPrice)}
+                </TableCell>
+                <TableCell className="text-right pr-4">
+                  <Button size="sm" onClick={() => onPay(booking)} className="gap-2">
+                    <CreditCard className="h-4 w-4" />
+                    Zaplatiť
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }
