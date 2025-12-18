@@ -15,6 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 import { createStaff, updateStaff, updateStaffWorkingHours, createStaffTimeOff, deleteStaffTimeOff, updateStaffServices } from "../actions";
@@ -136,7 +137,7 @@ export function StaffManager({ initialData }: StaffManagerProps) {
         <Card className="w-[300px] flex-none flex flex-col h-full overflow-hidden">
           <CardHeader className="py-4 border-b bg-muted/20">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Zoznam zamestnancov</CardTitle>
+              <CardTitle className="text-base">Zamestnanci</CardTitle>
               <Button size="sm" variant="outline" onClick={handleCreateNew} disabled={isCreating && !selectedStaff}>
                 <Plus className="h-4 w-4 mr-2" />
                 Nový
@@ -1032,18 +1033,18 @@ function TimeOffManager({ staff, initialTimeOffs }: { staff: Staff; initialTimeO
     <div className="space-y-6">
       <div className="p-4 border rounded-lg bg-muted/20 space-y-4">
         <h3 className="font-medium text-sm">Pridať nové voľno</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-          <div className="space-y-1">
-             <label className="text-xs font-medium">Dátum</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
+          <div className="space-y-1 col-span-1 lg:col-span-2">
+             <Label className="text-xs">Dátum</Label>
              <Input
                 type="date"
                 value={newTimeOff.date}
                 onChange={(e) => setNewTimeOff({ ...newTimeOff, date: e.target.value })}
-                className="bg-background"
+                className="bg-background text-base h-12 block w-full [&::-webkit-calendar-picker-indicator]:w-6 [&::-webkit-calendar-picker-indicator]:h-6 [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50 hover:[&::-webkit-calendar-picker-indicator]:opacity-100"
              />
           </div>
-          <div className="space-y-1">
-             <label className="text-xs font-medium">Dôvod</label>
+          <div className="space-y-1 lg:col-span-2">
+             <Label className="text-xs">Dôvod</Label>
              <select
                 className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={newTimeOff.reason}
@@ -1062,22 +1063,25 @@ function TimeOffManager({ staff, initialTimeOffs }: { staff: Staff; initialTimeO
                 onChange={(e) => setNewTimeOff({ ...newTimeOff, allDay: e.target.checked })}
                 className="h-4 w-4 rounded border-gray-300"
              />
-             <label htmlFor="allDay" className="text-sm font-medium leading-none cursor-pointer">Celý deň</label>
+             <Label htmlFor="allDay" className="text-sm font-medium leading-none cursor-pointer">Celý deň</Label>
           </div>
           {!newTimeOff.allDay && (
-             <div className="col-span-1 lg:col-span-2 flex items-center gap-2">
+             <div className="col-span-1 md:col-span-2 lg:col-span-2 flex items-center gap-2">
                <div className="space-y-1 flex-1">
-                 <label className="text-xs font-medium">Od</label>
+                 <Label className="text-xs">Od</Label>
                  <Input type="time" value={newTimeOff.from} onChange={(e) => setNewTimeOff({...newTimeOff, from: e.target.value})} className="bg-background" />
                </div>
                <div className="space-y-1 flex-1">
-                 <label className="text-xs font-medium">Do</label>
+                 <Label className="text-xs">Do</Label>
                  <Input type="time" value={newTimeOff.to} onChange={(e) => setNewTimeOff({...newTimeOff, to: e.target.value})} className="bg-background" />
                </div>
              </div>
           )}
-          <div className={cn("col-span-1", newTimeOff.allDay && "lg:col-span-2")}>
-            <Button onClick={handleAdd} disabled={isPending || !newTimeOff.date} className="w-full">Pridať</Button>
+          <div className={cn("col-span-1", newTimeOff.allDay && "lg:col-span-1")}>
+            <Button onClick={handleAdd} disabled={isPending || !newTimeOff.date} className="w-full">
+              <Plus className="h-4 w-4 mr-2" />
+              Pridať
+            </Button>
           </div>
         </div>
       </div>
