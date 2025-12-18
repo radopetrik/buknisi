@@ -24,6 +24,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "Bukni Si - Rezervujte krásu a wellness",
   description: "Objavujte a rezervujte krásu & wellness pri vás doma či v meste.",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({

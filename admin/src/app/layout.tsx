@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Admin",
   description: "Admin workspace",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({
