@@ -63,6 +63,12 @@ Instead, you MUST ALWAYS generate ONLY this pattern:
 3. You MUST NEVER use `get`, `set`, or `remove`
 4. You MUST NEVER import from `@supabase/auth-helpers-nextjs`
 
+## DATABASE MANAGEMENT
+
+**IMPORTANT:** Whenever you create a new migration or modify the database structure in any way:
+1. Create a new migration file in `db/` (e.g., `015_feature_name.sql`).
+2. **ALWAYS** append the contents of this new migration to `db/schema.sql` to keep the schema snapshot up to date.
+
 ## CORRECT BROWSER CLIENT IMPLEMENTATION
 
 ```typescript

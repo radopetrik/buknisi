@@ -17,7 +17,7 @@ export default async function StaffPage() {
   const [staffResult, servicesResult, staffServicesResult] = await Promise.all([
     supabase
       .from("staff")
-      .select("id, full_name, role, position, available_for_booking, description, email, phone")
+      .select("id, company_id, full_name, role, position, available_for_booking, description, email, phone, photo")
       .eq("company_id", company.id)
       .order("full_name", { ascending: true }),
     supabase

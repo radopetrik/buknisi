@@ -4,6 +4,7 @@ export type StaffRole = (typeof staffRoles)[number];
 
 export type Staff = {
   id: string;
+  company_id: string;
   full_name: string;
   role: StaffRole;
   position: string | null;
@@ -11,6 +12,7 @@ export type Staff = {
   description: string | null;
   email: string | null;
   phone: string | null;
+  photo: string | null;
 };
 
 export type ServiceSummary = {

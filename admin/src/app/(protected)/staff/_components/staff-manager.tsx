@@ -13,11 +13,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 import { createStaff, updateStaff, updateStaffWorkingHours, createStaffTimeOff, deleteStaffTimeOff } from "../actions";
+import { StaffAvatarManager } from "./staff-avatar-manager";
 import {
   staffRoles,
   type ServiceSummary,
@@ -156,6 +157,7 @@ export function StaffManager({ initialData }: StaffManagerProps) {
                 )}
               >
                 <Avatar className="h-9 w-9">
+                  <AvatarImage src={staff.photo || ""} className="object-cover" />
                   <AvatarFallback>{getInitials(staff.full_name)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
@@ -226,6 +228,7 @@ function StaffDetailView({
               <TabsList>
                 <TabsTrigger value="overview">Prehľad</TabsTrigger>
                 <TabsTrigger value="profile">Profil</TabsTrigger>
+                <TabsTrigger value="avatar">Foto</TabsTrigger>
                 <TabsTrigger value="hours">Pracovná doba</TabsTrigger>
                 <TabsTrigger value="timeoff">Voľno</TabsTrigger>
               </TabsList>
@@ -262,6 +265,9 @@ function StaffDetailView({
                 assignedServiceIds={assignedServiceIds}
                 onSuccess={onSuccess}
               />
+            </TabsContent>
+            <TabsContent value="avatar" className="h-full m-0">
+              {staff && <StaffAvatarManager staff={staff} />}
             </TabsContent>
             <TabsContent value="hours" className="h-full m-0">
               {staff && <WorkingHoursManager staff={staff} initialHours={workingHours} />}
@@ -322,6 +328,7 @@ function StaffOverview({
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
+                <AvatarImage src={staff.photo || ""} className="object-cover" />
                 <AvatarFallback className="text-lg">{getInitials(staff.full_name)}</AvatarFallback>
               </Avatar>
               <div>

@@ -13,6 +13,7 @@ const staffSchema = z.object({
   position: z.string().max(160, "Keep position concise").optional().nullable(),
   email: z.string().email("Invalid email").optional().nullable().or(z.literal("")),
   phone: z.string().max(20, "Phone number too long").optional().nullable().or(z.literal("")),
+  photo: z.string().optional().nullable(),
   available_for_booking: z.boolean().default(true),
   description: z.string().max(800, "Keep description concise").optional().nullable(),
   serviceIds: z.array(z.string().uuid()).optional().default([]),
@@ -102,6 +103,7 @@ export async function createStaff(input: unknown) {
       position: parsed.data.position?.trim() || null,
       email: parsed.data.email?.trim() || null,
       phone: parsed.data.phone?.trim() || null,
+      photo: parsed.data.photo || null,
       available_for_booking: parsed.data.available_for_booking,
       description: parsed.data.description?.trim() || null,
     };
@@ -170,6 +172,7 @@ export async function updateStaff(input: unknown) {
       position: parsed.data.position?.trim() || null,
       email: parsed.data.email?.trim() || null,
       phone: parsed.data.phone?.trim() || null,
+      photo: parsed.data.photo || null,
       available_for_booking: parsed.data.available_for_booking,
       description: parsed.data.description?.trim() || null,
     };
@@ -335,6 +338,38 @@ export async function deleteStaffTimeOff(timeOffId: string) {
 
     revalidatePath("/staff");
     return { success: true, message: "Time off removed" };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+export async function updateStaffPhoto(staffId: string, photoUrl: string | null) {
+  try {
+    const { supabase, companyId } = await getScopedClient();
+
+    // Verify staff belongs to company
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select("id")
+      .eq("id", staffId)
+      .eq("company_id", companyId)
+      .single();
+
+    if (staffError || !staff) {
+      return { success: false, message: "Staff member not found" };
+    }
+
+    const { error: updateError } = await supabase
+      .from("staff")
+      .update({ photo: photoUrl })
+      .eq("id", staffId);
+
+    if (updateError) {
+      return { success: false, message: updateError.message };
+    }
+
+    revalidatePath("/staff");
+    return { success: true, message: "Photo updated" };
   } catch (error) {
     return handleActionError(error);
   }
