@@ -130,5 +130,5 @@ Akonahle sa zaplati za tak ulozi zaznam do tabulky "invoices"
 ---- zamestanci
 
 
-Zmen sekciu zamestanci, staff, tak nech to je rozdelene v lavo zoznam zamestnancov kde je iba meno a v pravo detail zamestnca. Pozri si tabulky "staff_working_hours" a "staff_time_off" tak to daj do kopy aj s tym co existuje v edit a nejak to zmen aby sa dalo editovat oba tabulky co som spomenul
+Zmen sekciu zamestanci (staff) tak nech to je rozdelene v lavo zoznam zamestnancov kde su iba mena a v pravo detail zamestnca. Pozri si tabulky "staff_working_hours" a "staff_time_off" tak to daj do kopy aj s tym co existuje v edit a nejak to zmen aby sa dalo editovat oba tabulky co som spomenul
 

@@ -8,7 +8,8 @@ import {
   Invoice, 
   BookingServiceSelection,
   PaymentMethod,
-  InvoiceItem
+  InvoiceItem,
+  CompanyDetails
 } from "../types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,10 +26,12 @@ interface BillingManagerProps {
   clients: ClientOption[];
   unpaidBookings: UnpaidBooking[];
   invoices: Invoice[];
+  companyDetails: CompanyDetails;
 }
 
-export function BillingManager({ services, clients, unpaidBookings, invoices }: BillingManagerProps) {
+export function BillingManager({ services, clients, unpaidBookings, invoices, companyDetails }: BillingManagerProps) {
   const [activeTab, setActiveTab] = useState("unpaid");
+
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [checkoutMode, setCheckoutMode] = useState<"new" | "booking">("new");
   const [selectedBooking, setSelectedBooking] = useState<UnpaidBooking | null>(null);
@@ -129,7 +132,7 @@ export function BillingManager({ services, clients, unpaidBookings, invoices }: 
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          <InvoicesList invoices={invoices} clients={clients} />
+          <InvoicesList invoices={invoices} clients={clients} companyDetails={companyDetails} />
         </TabsContent>
       </Tabs>
 

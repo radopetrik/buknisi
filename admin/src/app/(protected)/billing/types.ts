@@ -47,6 +47,7 @@ export type Invoice = {
 export type BookingServiceAddonSelection = {
   addonId: string;
   count: number;
+  price?: number;
 };
 
 export type BookingServiceSelection = {
@@ -64,4 +65,15 @@ export type UnpaidBooking = {
   timeTo: string;
   serviceSelections: BookingServiceSelection[];
   totalPrice: number;
+};
+
+export type CompanyDetails = {
+  name: string;
+  addressText?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  ico?: string | null;
+  dic?: string | null;
+  ic_dph?: string | null;
+  city?: string | null;
 };

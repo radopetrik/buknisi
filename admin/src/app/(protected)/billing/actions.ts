@@ -9,7 +9,8 @@ import {
   ServiceOption, 
   ClientOption, 
   AddonOption,
-  BookingServiceSelection
+  BookingServiceSelection,
+  CompanyDetails
 } from "./types";
 
 export async function getBillingData() {
@@ -27,6 +28,24 @@ export async function getBillingData() {
 
   if (!companyRow?.company_id) throw new Error("Company not found");
   const companyId = companyRow.company_id;
+
+  // Fetch Company Details
+  const { data: companyData, error: companyError } = await supabase
+    .from("companies")
+    .select("name, address_text, phone, email, cities(name)")
+    .eq("id", companyId)
+    .single();
+  
+  if (companyError) throw companyError;
+  
+  const companyDetails: CompanyDetails = {
+    name: companyData.name,
+    addressText: companyData.address_text,
+    phone: companyData.phone,
+    email: companyData.email,
+    city: companyData.cities?.name,
+    // Add ICO/DIC fields if they exist in schema, currently not in provided schema snapshot but good to have in type
+  };
 
   // 1. Fetch Services & Addons
   const [servicesRes, addonsRes, serviceAddonsRes, clientsRes, unpaidBookingsRes, invoicesRes] = await Promise.all([
@@ -143,7 +162,7 @@ export async function getBillingData() {
     // For now, let's skip back-populating bookingId unless necessary.
   }));
 
-  return { services, clients, unpaidBookings, invoices };
+  return { services, clients, unpaidBookings, invoices, companyDetails };
 }
 
 export async function createInvoice(
