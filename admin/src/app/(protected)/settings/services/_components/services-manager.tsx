@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -72,7 +72,7 @@ const serviceFormSchema = z.object({
     .number()
     .int()
     .min(5, "Duration must be at least 5 minutes")
-    .max(55, "Duration must be at most 55 minutes")
+    .max(180, "Duration must be at most 180 minutes")
     .refine((value) => value % 5 === 0, "Duration must be in 5-minute steps"),
   service_category_id: z.string().uuid().optional().or(z.literal("")),
   is_mobile: z.boolean().optional(),
@@ -98,7 +98,7 @@ const addonFormSchema = z.object({
     .number()
     .int()
     .min(5, "Duration must be at least 5 minutes")
-    .max(55, "Duration must be at most 55 minutes")
+    .max(120, "Duration must be at most 120 minutes")
     .refine((value) => value % 5 === 0, "Duration must be in 5-minute steps"),
   description: z.string().max(500, "Keep it short").optional().nullable(),
 });
@@ -112,7 +112,7 @@ const defaultAddonValues: AddonFormValues = {
   description: null,
 };
 
-const durationOptions = Array.from({ length: 11 }, (_, index) => (index + 1) * 5);
+const durationOptions = Array.from({ length: 24 }, (_, index) => (index + 1) * 5);
 
 function buildServiceAddonMap(links: ServiceAddonLink[]) {
   return links.reduce<Record<string, string[]>>((acc, link) => {
@@ -158,6 +158,10 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
     [initialData.serviceAddons],
   );
   const [serviceAddonMap, setServiceAddonMap] = useState<Record<string, string[]>>(serviceAddonMapFromProps);
+
+  const categoryDescId = useId();
+  const serviceDescId = useId();
+  const addonDescId = useId();
 
   useEffect(() => {
     setServiceAddonMap(serviceAddonMapFromProps);
@@ -702,10 +706,10 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
           closeCategoryModal();
         }}
       >
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[80vh] overflow-y-auto" aria-describedby={categoryDescId}>
           <DialogHeader>
             <DialogTitle>{categoryForm.getValues("id") ? "Upraviť kategóriu" : "Nová kategória"}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription id={categoryDescId}>
               Pomenujte kategóriu tak, aby klienti rozumeli ponuke.
             </DialogDescription>
           </DialogHeader>
@@ -747,10 +751,10 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
           closeServiceModal();
         }}
       >
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[80vh] overflow-y-auto" aria-describedby={serviceDescId}>
           <DialogHeader>
             <DialogTitle>{serviceForm.getValues("id") ? "Upraviť službu" : "Nová služba"}</DialogTitle>
-            <DialogDescription>
+            <DialogDescription id={serviceDescId}>
               Nastavte parametre, ktoré uvidí klient pri rezervácii.
             </DialogDescription>
           </DialogHeader>
@@ -907,10 +911,10 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
           closeAddonModal();
         }}
       >
-        <DialogContent className="max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-h-[80vh] overflow-y-auto" aria-describedby={addonDescId}>
           <DialogHeader>
             <DialogTitle>{addonForm.getValues("id") ? "Upraviť doplnok" : "Nový doplnok"}</DialogTitle>
-            <DialogDescription>Krátke doplnky k hlavným službám.</DialogDescription>
+            <DialogDescription id={addonDescId}>Krátke doplnky k hlavným službám.</DialogDescription>
           </DialogHeader>
           <Form {...addonForm}>
             <form className="space-y-4" onSubmit={addonForm.handleSubmit(handleAddonSubmit)}>

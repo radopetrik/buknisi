@@ -152,3 +152,5 @@ Ak kliknes na nejake mesto tak znamena ze si si zmenil preferovane mesto tak nec
 
 V sekcii "profile" pridaj este userovy zoznam jeho "invoices". Cele to mozno vylepsi, popremyslaj nad layout
 
+
+
