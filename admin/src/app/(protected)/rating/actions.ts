@@ -63,9 +63,14 @@ export async function getRatings() {
       throw companyError;
     }
 
+    const transformedRatings = (ratingsData || []).map((r: any) => ({
+      ...r,
+      profiles: Array.isArray(r.profiles) ? r.profiles[0] : r.profiles
+    }));
+
     return {
       success: true,
-      ratings: ratingsData || [],
+      ratings: transformedRatings,
       stats: {
         average: Number(companyData.rating) || 0,
         count: companyData.rating_count || 0,

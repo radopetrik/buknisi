@@ -43,7 +43,7 @@ export async function getBillingData() {
     addressText: companyData.address_text,
     phone: companyData.phone,
     email: companyData.email,
-    city: companyData.cities?.name,
+    city: (companyData.cities as any)?.[0]?.name || (companyData.cities as any)?.name,
     // Add ICO/DIC fields if they exist in schema, currently not in provided schema snapshot but good to have in type
   };
 

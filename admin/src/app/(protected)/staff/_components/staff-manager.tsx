@@ -522,7 +522,7 @@ function StaffProfileForm({
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof staffFormSchema>>({
-    resolver: zodResolver(staffFormSchema),
+    resolver: zodResolver(staffFormSchema) as any,
     defaultValues: staff
       ? {
           full_name: staff.full_name,

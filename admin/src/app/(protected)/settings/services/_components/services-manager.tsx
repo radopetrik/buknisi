@@ -144,12 +144,12 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
   });
 
   const serviceForm = useForm<ServiceFormValues>({
-    resolver: zodResolver(serviceFormSchema),
+    resolver: zodResolver(serviceFormSchema) as any,
     defaultValues: defaultServiceValues,
   });
 
   const addonForm = useForm<AddonFormValues>({
-    resolver: zodResolver(addonFormSchema),
+    resolver: zodResolver(addonFormSchema) as any,
     defaultValues: defaultAddonValues,
   });
 
