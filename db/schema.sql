@@ -153,6 +153,8 @@ CREATE TABLE IF NOT EXISTS staff (
   photo text,
   role staff_role NOT NULL DEFAULT 'staffer',
   position text,
+  email citext,
+  phone text,
   available_for_booking boolean NOT NULL DEFAULT true,
   description text
 );

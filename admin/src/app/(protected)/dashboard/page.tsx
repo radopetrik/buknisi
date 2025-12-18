@@ -54,6 +54,7 @@ export default async function DashboardPage() {
         id,
         date,
         time_from,
+        time_to,
         service:services(name, price),
         client:clients(first_name, last_name, phone)
       `)
@@ -165,7 +166,7 @@ export default async function DashboardPage() {
                         {new Date(booking.date).toLocaleDateString("sk-SK")}
                       </TableCell>
                       <TableCell>
-                        {booking.time_from.slice(0, 5)} - {booking.time_to.slice(0, 5)}
+                        {booking.time_from?.slice(0, 5)} - {booking.time_to?.slice(0, 5)}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">

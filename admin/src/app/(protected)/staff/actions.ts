@@ -11,6 +11,8 @@ const staffSchema = z.object({
   full_name: z.string().min(1, "Name is required").max(160, "Keep it under 160 characters"),
   role: z.enum(staffRoles),
   position: z.string().max(160, "Keep position concise").optional().nullable(),
+  email: z.string().email("Invalid email").optional().nullable().or(z.literal("")),
+  phone: z.string().max(20, "Phone number too long").optional().nullable().or(z.literal("")),
   available_for_booking: z.boolean().default(true),
   description: z.string().max(800, "Keep description concise").optional().nullable(),
   serviceIds: z.array(z.string().uuid()).optional().default([]),
@@ -98,6 +100,8 @@ export async function createStaff(input: unknown) {
       full_name: parsed.data.full_name.trim(),
       role: parsed.data.role,
       position: parsed.data.position?.trim() || null,
+      email: parsed.data.email?.trim() || null,
+      phone: parsed.data.phone?.trim() || null,
       available_for_booking: parsed.data.available_for_booking,
       description: parsed.data.description?.trim() || null,
     };
@@ -164,6 +168,8 @@ export async function updateStaff(input: unknown) {
       full_name: parsed.data.full_name.trim(),
       role: parsed.data.role,
       position: parsed.data.position?.trim() || null,
+      email: parsed.data.email?.trim() || null,
+      phone: parsed.data.phone?.trim() || null,
       available_for_booking: parsed.data.available_for_booking,
       description: parsed.data.description?.trim() || null,
     };
@@ -185,6 +191,150 @@ export async function updateStaff(input: unknown) {
 
     revalidatePath("/staff");
     return { success: true, message: "Staff updated" };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+const workingHoursSchema = z.array(
+  z.object({
+    day_in_week: z.enum(["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]),
+    from_time: z.string(),
+    to_time: z.string(),
+    break_from_time: z.string().nullable().optional(),
+    break_to_time: z.string().nullable().optional(),
+  })
+);
+
+export async function updateStaffWorkingHours(staffId: string, hours: unknown) {
+  const parsed = workingHoursSchema.safeParse(hours);
+  if (!parsed.success) {
+    return { success: false, message: "Invalid working hours data" };
+  }
+
+  try {
+    const { supabase, companyId } = await getScopedClient();
+
+    // Verify staff belongs to company
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select("id")
+      .eq("id", staffId)
+      .eq("company_id", companyId)
+      .single();
+
+    if (staffError || !staff) {
+      return { success: false, message: "Staff member not found" };
+    }
+
+    // Replace working hours
+    const { error: deleteError } = await supabase
+      .from("staff_working_hours")
+      .delete()
+      .eq("staff_id", staffId);
+
+    if (deleteError) {
+      return { success: false, message: deleteError.message };
+    }
+
+    if (parsed.data.length > 0) {
+      const { error: insertError } = await supabase.from("staff_working_hours").insert(
+        parsed.data.map((h) => ({
+          staff_id: staffId,
+          ...h,
+        }))
+      );
+
+      if (insertError) {
+        return { success: false, message: insertError.message };
+      }
+    }
+
+    revalidatePath("/staff");
+    return { success: true, message: "Working hours updated" };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+const timeOffSchema = z.object({
+  staff_id: z.string().uuid(),
+  all_day: z.boolean(),
+  day: z.string(),
+  from_time: z.string().nullable().optional(),
+  to_time: z.string().nullable().optional(),
+  reason: z.enum(["sick_day", "vacation", "training"]),
+});
+
+export async function createStaffTimeOff(input: unknown) {
+  const parsed = timeOffSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Invalid time off data" };
+  }
+
+  try {
+    const { supabase, companyId } = await getScopedClient();
+
+    // Verify staff belongs to company
+    const { data: staff, error: staffError } = await supabase
+      .from("staff")
+      .select("id")
+      .eq("id", parsed.data.staff_id)
+      .eq("company_id", companyId)
+      .single();
+
+    if (staffError || !staff) {
+      return { success: false, message: "Staff member not found" };
+    }
+
+    const { error: insertError } = await supabase.from("staff_time_offs").insert({
+      staff_id: parsed.data.staff_id,
+      all_day: parsed.data.all_day,
+      day: parsed.data.day,
+      from_time: parsed.data.from_time || null,
+      to_time: parsed.data.to_time || null,
+      reason: parsed.data.reason,
+    });
+
+    if (insertError) {
+      return { success: false, message: insertError.message };
+    }
+
+    revalidatePath("/staff");
+    return { success: true, message: "Time off added" };
+  } catch (error) {
+    return handleActionError(error);
+  }
+}
+
+export async function deleteStaffTimeOff(timeOffId: string) {
+  try {
+    const { supabase, companyId } = await getScopedClient();
+
+    // Verify time off belongs to a staff member of the company
+    // We can do this by joining staff
+    const { data: timeOff, error: fetchError } = await supabase
+      .from("staff_time_offs")
+      .select("id, staff!inner(company_id)")
+      .eq("id", timeOffId)
+      .eq("staff.company_id", companyId)
+      .single();
+
+    if (fetchError || !timeOff) {
+      return { success: false, message: "Time off entry not found or access denied" };
+    }
+
+    const { error: deleteError } = await supabase
+      .from("staff_time_offs")
+      .delete()
+      .eq("id", timeOffId);
+
+    if (deleteError) {
+      return { success: false, message: deleteError.message };
+    }
+
+    revalidatePath("/staff");
+    return { success: true, message: "Time off removed" };
   } catch (error) {
     return handleActionError(error);
   }
