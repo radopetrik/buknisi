@@ -6,6 +6,7 @@ import { BookingProvider } from "./components/BookingContext";
 import BookingSheet from "./components/BookingSheet";
 import AuthModal from "./components/AuthModal";
 import Footer from "./components/Footer";
+import CookieConsent from "./components/CookieConsent";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
             <Footer />
             <BookingSheet />
             <AuthModal />
+            <CookieConsent />
         </BookingProvider>
       </body>
     </html>
