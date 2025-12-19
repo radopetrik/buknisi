@@ -1,64 +1,77 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator } from 'react-native';
+import { Stack, useLocalSearchParams, Link, router } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Link, router } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-export default function HomeScreen() {
-  const [cities, setCities] = useState<any[]>([]);
+export default function CityScreen() {
+  const { city: citySlug } = useLocalSearchParams();
+  const [city, setCity] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
-  const [selectedCity, setSelectedCity] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (citySlug) fetchData();
+  }, [citySlug]);
 
   async function fetchData() {
-    const { data: citiesData } = await supabase.from('cities').select('*');
-    const { data: catsData } = await supabase.from('categories').select('*').order('ordering');
-    // Using simple select for now, join syntax depends on Supabase JS client version but this is standard
-    const { data: compsData } = await supabase
-        .from('companies')
-        .select('*, city:cities(name), category:categories(name), photos(url)')
-        .limit(10);
+    try {
+      const { data: cityData } = await supabase.from('cities').select('*').eq('slug', citySlug).single();
+      
+      if (cityData) {
+        setCity(cityData);
+        
+        const { data: catsData } = await supabase.from('categories').select('*').order('ordering');
+        
+        const { data: compsData } = await supabase
+            .from('companies')
+            .select('*, city:cities(name), category:categories(name), photos(url)')
+            .eq('city_id', cityData.id)
+            .limit(10);
 
-    if (citiesData && citiesData.length > 0) {
-        setCities(citiesData);
-        // Default to Bratislava or first
-        const def = citiesData.find((c: any) => c.slug === 'bratislava') || citiesData[0];
-        setSelectedCity(def);
+        if (catsData) setCategories(catsData);
+        if (compsData) setCompanies(compsData);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    if (catsData) setCategories(catsData);
-    if (compsData) setCompanies(compsData);
+  }
+
+  if (loading) {
+    return (
+      <View className="flex-1 justify-center items-center bg-background">
+        <ActivityIndicator color="#d4a373" />
+      </View>
+    );
+  }
+
+  if (!city) {
+    return (
+      <View className="flex-1 justify-center items-center bg-background p-4">
+        <Text className="text-lg text-text-main font-bold mb-2">Mesto nenájdené</Text>
+        <Link href="/cities" asChild>
+          <TouchableOpacity>
+            <Text className="text-primary underline">Späť na zoznam miest</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+    );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <View className="flex-1 bg-background">
+      <Stack.Screen options={{ title: city.name, headerBackTitle: 'Mestá' }} />
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
-        {/* Header / City Selector */}
-        <View className="flex-row justify-between items-center mb-6">
-            <View>
-                <Text className="text-text-muted text-xs uppercase font-bold tracking-widest">Lokalita</Text>
-                <Link href="/cities" asChild>
-                    <TouchableOpacity className="flex-row items-center mt-1">
-                        <Text className="text-xl font-bold text-text-main mr-2">{selectedCity?.name || 'Vybrať mesto'}</Text>
-                        <FontAwesome name="chevron-down" size={12} color="#d4a373" />
-                    </TouchableOpacity>
-                </Link>
-            </View>
-            <View className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
-                 <FontAwesome name="bell-o" size={18} color="#333" />
-            </View>
-        </View>
-
+        
         {/* Search Box */}
         <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8">
             <View className="flex-row items-center border-b border-gray-100 pb-3 mb-3">
                 <FontAwesome name="search" size={16} color="#999" style={{marginRight: 10}} />
                 <TextInput 
-                    placeholder="Čo hľadáte? (napr. Barber)" 
+                    placeholder={`Hľadať v ${city.name}...`} 
                     className="flex-1 text-base text-text-main"
                     placeholderTextColor="#999"
                 />
@@ -71,7 +84,14 @@ export default function HomeScreen() {
 
         {/* Categories */}
         <View className="mb-8">
-            <Text className="text-lg font-bold text-text-main mb-4">Kategórie</Text>
+            <View className="flex-row justify-between items-center mb-4">
+                <Text className="text-lg font-bold text-text-main">Kategórie</Text>
+                <Link href={`/${city.slug}/categories`} asChild>
+                    <TouchableOpacity>
+                        <Text className="text-sm text-primary font-semibold">Všetky</Text>
+                    </TouchableOpacity>
+                </Link>
+            </View>
             <ScrollView 
                 horizontal 
                 showsHorizontalScrollIndicator={false}
@@ -81,7 +101,7 @@ export default function HomeScreen() {
                 {categories.map((cat) => (
                     <TouchableOpacity 
                         key={cat.id} 
-                        onPress={() => router.push(`/${selectedCity?.slug || 'bratislava'}/${cat.slug}`)}
+                        onPress={() => router.push(`/${city.slug}/${cat.slug}`)}
                         className="mr-3 bg-white px-4 py-3 rounded-full border border-gray-100 shadow-sm"
                     >
                         <Text className="font-semibold text-text-main">{cat.name}</Text>
@@ -93,7 +113,7 @@ export default function HomeScreen() {
         {/* Recommended */}
         <View className="mb-8 pb-10">
              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-lg font-bold text-text-main">Odporúčané</Text>
+                <Text className="text-lg font-bold text-text-main">Odporúčané v {city.name}</Text>
              </View>
              
              {companies.map((comp) => (
@@ -116,12 +136,9 @@ export default function HomeScreen() {
                     </TouchableOpacity>
                  </Link>
              ))}
-             {companies.length === 0 && (
-                <Text className="text-text-muted text-center py-4">Načítavam podniky...</Text>
-             )}
         </View>
 
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
