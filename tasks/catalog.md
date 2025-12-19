@@ -159,3 +159,6 @@ cennik je zakladna cena mesacne 9.90 a potom cena za kazdeho staff usera 3.90 me
 
 Prikladam konkurenciu ktora robi to iste pre ilustraciu. 
 
+
+changes [commit|branch|pr], defaults to uncommitted
+pozri sa na "pre-firmy" v appke "web" a skus to vizualne zmodernizovat. ma to byt samostatna homepage na predavanie produktu ktory je catalog. 

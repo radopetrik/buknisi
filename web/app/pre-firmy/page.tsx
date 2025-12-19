@@ -28,12 +28,12 @@ export default function ForCompaniesPage() {
           <div className={styles.heroContent}>
             <div className={styles.heroLeft}>
                 <span className={styles.badge}>
-                    <span>🚀</span> Pre Firmy & Podnikateľov
+                    ⚡ Pre Firmy & Podnikateľov
                 </span>
-                <h1 className={styles.title}>Viac času na to, čo milujete.</h1>
+                <h1 className={styles.title}>Prestante strácať čas telefonátmi.</h1>
                 <p className={styles.subtitle}>
-                Automatizovaný rezervačný systém, ktorý vám pomôže získať nových klientov, 
-                znížiť počet neuskutočnených návštev a mať podnikanie pod kontrolou 24/7.
+                Moderný rezervačný systém, ktorý automaticky získava nových klientov, 
+                eliminuje neúčasť a riadi vaše podnikanie 24/7 – aby ste sa mohli sústrediť na svoju prácu.
                 </p>
                 <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
                     <Link href="/create_customer" className={styles.ctaButton}>
@@ -43,9 +43,9 @@ export default function ForCompaniesPage() {
                     Zistiť viac
                     </Link>
                 </div>
-                <div style={{ marginTop: '30px', display: 'flex', alignItems: 'center', gap: '15px', color: '#666', fontSize: '13px' }}>
-                    <div style={{ display: 'flex' }}>⭐⭐⭐⭐⭐</div>
-                    <span>Dôveruje nám viac ako 100+ salónov</span>
+                <div style={{ marginTop: '36px', display: 'flex', alignItems: 'center', gap: '15px', color: '#666', fontSize: '14px', animation: 'fadeInUp 0.8s ease-out 0.6s both' }}>
+                    <div style={{ display: 'flex', fontSize: '16px' }}>⭐⭐⭐⭐⭐</div>
+                    <span style={{ fontWeight: 500 }}>Dôveruje nám viac ako <strong style={{color: '#8b5cf6'}}>100+ salónov</strong></span>
                 </div>
             </div>
             
@@ -127,10 +127,10 @@ export default function ForCompaniesPage() {
                             Prestaňte dvíhať telefóny počas práce. Náš inteligentný kalendár sa stará o rezervácie 24 hodín denne.
                             Klienti vidia len voľné termíny a okamžite dostanú potvrdenie.
                         </p>
-                        <ul style={{listStyle: 'none', marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                            <li style={{display: 'flex', gap: '10px', alignItems: 'center'}}><span style={{color: '#28c840'}}>✓</span> Synchronizácia s Google Kalendárom</li>
-                            <li style={{display: 'flex', gap: '10px', alignItems: 'center'}}><span style={{color: '#28c840'}}>✓</span> Nastavenie prestávok a smeny</li>
-                            <li style={{display: 'flex', gap: '10px', alignItems: 'center'}}><span style={{color: '#28c840'}}>✓</span> Rezervácie pre viacerých zamestnancov</li>
+                        <ul style={{listStyle: 'none', marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#8b5cf6', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Synchronizácia s Google Kalendárom</li>
+                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#8b5cf6', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Nastavenie prestávok a smeny</li>
+                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#8b5cf6', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Rezervácie pre viacerých zamestnancov</li>
                         </ul>
                         <Link href="/create_customer" className={styles.highlightLink}>
                             Vyskúšať kalendár zadarmo →
@@ -181,36 +181,38 @@ export default function ForCompaniesPage() {
             </div>
         </section>
 
-        {/* Pricing Section */}
+         {/* Pricing Section */}
         <section id="cennik" className={styles.pricingSection}>
-            <div className={styles.sectionTitle} style={{textAlign: 'center', marginBottom: '60px'}}>
-                Jednoduchý a transparentný cenník
+            <div style={{textAlign: 'center', marginBottom: '60px'}}>
+                <div className={styles.sectionTitle}>Jednoduchý a transparentný cenník</div>
+                <p className={styles.sectionSubtitle}>Bez skrytých poplatkov. Bez prekvapení.</p>
             </div>
 
             <div className={styles.pricingContainer}>
                 <div className={styles.pricingLeft}>
-                     <div style={{opacity: 0.8, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '14px', fontWeight: '600'}}>Mesačný poplatok</div>
+                     <div style={{opacity: 0.9, textTransform: 'uppercase', letterSpacing: '1.5px', fontSize: '13px', fontWeight: '700', position: 'relative', zIndex: 1}}>Mesačný poplatok</div>
                      <div className={styles.priceTag}>9.90 €</div>
                      <div className={styles.priceMeta}>+ 3.90 € za každého zamestnanca</div>
-                     <p style={{marginTop: '30px', opacity: 0.8, lineHeight: '1.6'}}>
+                     <p style={{marginTop: '32px', opacity: 0.9, lineHeight: '1.7', fontSize: '15px', position: 'relative', zIndex: 1}}>
                         Férová cena, ktorá sa vráti už pri jednej zachránenej rezervácii mesačne.
                      </p>
-                     <Link href="/create_customer" className={styles.ctaButton} style={{marginTop: '40px', background: 'white', color: 'black', width: '100%'}}>
+                     <Link href="/create_customer" className={styles.ctaButton} style={{marginTop: '40px', background: 'white', color: '#1e1b4b', width: '100%', position: 'relative', zIndex: 1}}>
                         Začať 14 dní zadarmo
                      </Link>
-                     <div style={{textAlign: 'center', marginTop: '15px', fontSize: '12px', opacity: 0.6}}>Bez nutnosti karty</div>
+                     <div style={{textAlign: 'center', marginTop: '16px', fontSize: '13px', opacity: 0.7, position: 'relative', zIndex: 1}}>Bez nutnosti karty · Zrušiteľné kedykoľvek</div>
                 </div>
 
                 <div className={styles.pricingRight}>
-                    <h3 style={{fontSize: '24px', fontFamily: 'var(--font-heading)', marginBottom: '30px'}}>Čo všetko je v cene?</h3>
+                    <h3 style={{fontSize: '28px', fontFamily: 'var(--font-heading)', marginBottom: '32px', fontWeight: 700, color: '#1a1a1a'}}>Čo všetko je v cene?</h3>
                     <ul className={styles.benefitList}>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Online rezervácie 24/7</li>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Neobmedzený počet klientov</li>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> SMS pripomienky (kredity navyše)</li>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Vlastná webová stránka</li>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Mobilná aplikácia pre klientov</li>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Štatistiky a prehľady</li>
-                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Zákaznícka podpora</li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> <strong>Online rezervácie</strong> 24/7</li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> <strong>Neobmedzený</strong> počet klientov</li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> <strong>SMS pripomienky</strong> (kredity navyše)</li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Vlastná <strong>webová stránka</strong></li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> <strong>Mobilná aplikácia</strong> pre klientov</li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> <strong>Štatistiky</strong> a prehľady</li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> <strong>Zákaznícka podpora</strong></li>
+                        <li className={styles.benefitItem}><span className={styles.checkCircle}>✓</span> Pravidelné <strong>aktualizácie</strong></li>
                     </ul>
                 </div>
             </div>
@@ -237,14 +239,20 @@ export default function ForCompaniesPage() {
           </div>
         </section>
 
-        {/* Bottom CTA */}
+         {/* Bottom CTA */}
         <section className={styles.ctaBottom}>
           <h2>Posuňte svoje podnikanie <br/> na vyšší level</h2>
           <p>Pridajte sa k moderným salónom, ktoré šetria čas a zarábajú viac.</p>
-          <div style={{marginTop: '40px'}}>
-            <Link href="/create_customer" className={styles.ctaButton} style={{background: 'white', color: 'black'}}>
-                Vytvoriť účet zadarmo
+          <div style={{marginTop: '48px', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap'}}>
+            <Link href="/create_customer" className={styles.ctaButton} style={{background: 'white', color: '#1e1b4b'}}>
+                Vyskúšať 14 dní zadarmo
             </Link>
+            <Link href="#funkcie" className={styles.ctaButtonOutline} style={{borderColor: 'rgba(255,255,255,0.3)', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
+                Prečítať viac
+            </Link>
+          </div>
+          <div style={{marginTop: '32px', fontSize: '14px', opacity: 0.8}}>
+            ✓ Žiadna kreditná karta · ✓ Nastavenie za 5 minút · ✓ Zrušiteľné kedykoľvek
           </div>
         </section>
       </main>
@@ -257,12 +265,9 @@ export default function ForCompaniesPage() {
 function AudienceItem({ title, icon }: { title: string, icon: string }) {
     return (
         <div className={styles.audienceItem}>
-            <div className={styles.audienceItemImage}></div>
-            <div className={styles.audienceContent}>
-                <span className={styles.audienceIcon}>{icon}</span>
-                <div className={styles.audienceTitle}>{title}</div>
-                <div className={styles.audienceLink}>Viac informácií →</div>
-            </div>
+            <span className={styles.audienceIcon}>{icon}</span>
+            <div className={styles.audienceTitle}>{title}</div>
+            <div className={styles.audienceLink}>Viac informácií →</div>
         </div>
     )
 }
