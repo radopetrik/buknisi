@@ -53,7 +53,7 @@
     right: -10%;
     width: 800px;
     height: 800px;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, rgba(255,255,255,0) 60%);
+    background: radial-gradient(circle, rgba(212, 163, 115, 0.08) 0%, rgba(255,255,255,0) 60%);
     border-radius: 50%;
     z-index: 0;
     animation: float 20s ease-in-out infinite;
@@ -66,7 +66,7 @@
     left: -15%;
     width: 700px;
     height: 700px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.04) 0%, rgba(255,255,255,0) 60%);
+    background: radial-gradient(circle, rgba(212, 163, 115, 0.05) 0%, rgba(255,255,255,0) 60%);
     border-radius: 50%;
     z-index: 0;
     animation: float 25s ease-in-out infinite reverse;
@@ -96,7 +96,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    background: linear-gradient(135deg, #d4a373 0%, #b08d55 100%);
     color: white;
     padding: 10px 20px;
     border-radius: 100px;
@@ -105,7 +105,7 @@
     margin-bottom: 32px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 8px 24px rgba(212, 163, 115, 0.3);
     border: none;
     animation: slideDown 0.6s ease-out;
 }
@@ -148,7 +148,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    background: linear-gradient(135deg, #d4a373 0%, #b08d55 100%);
     color: white;
     padding: 18px 40px;
     border-radius: 100px;
@@ -157,7 +157,7 @@
     text-decoration: none;
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     border: none;
-    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.4);
+    box-shadow: 0 12px 32px rgba(212, 163, 115, 0.4);
     position: relative;
     overflow: hidden;
 }
@@ -169,14 +169,14 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #c18b5c 0%, #8c6a4a 100%);
     opacity: 0;
     transition: opacity 0.4s;
 }
 
 .ctaButton:hover {
     transform: translateY(-6px);
-    box-shadow: 0 20px 48px rgba(139, 92, 246, 0.5);
+    box-shadow: 0 20px 48px rgba(212, 163, 115, 0.5);
 }
 
 .ctaButton:hover::before {
@@ -205,9 +205,9 @@
 }
 
 .ctaButtonOutline:hover {
-    border-color: #8b5cf6;
-    background: #faf5ff;
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+    border-color: #d4a373;
+    background: #fffcf9;
+    box-shadow: 0 8px 24px rgba(212, 163, 115, 0.15);
     transform: translateY(-2px);
 }
 
@@ -306,7 +306,7 @@
     display: block;
     font-size: 56px;
     font-family: var(--font-heading);
-    background: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+    background: linear-gradient(135deg, #d4a373 0%, #b08d55 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -363,20 +363,20 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #8b5cf6;
+    color: #b08d55;
     font-weight: 600;
     font-size: 16px;
     text-decoration: none;
     transition: all 0.3s;
     padding: 12px 24px;
     border-radius: 100px;
-    background: #faf5ff;
+    background: #fffcf9;
 }
 
 .highlightLink:hover {
-    background: #f3e8ff;
+    background: #f7efe6;
     gap: 12px;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+    box-shadow: 0 4px 12px rgba(212, 163, 115, 0.15);
 }
 
 .imageWrapper {
@@ -449,7 +449,7 @@
 }
 
 .pricingLeft {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
     color: white;
     padding: 60px 40px;
     display: flex;
@@ -466,7 +466,7 @@
     right: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(212, 163, 115, 0.2) 0%, transparent 70%);
     animation: rotate 20s linear infinite;
 }
 
@@ -481,7 +481,7 @@
 .priceTag {
     font-size: 72px;
     font-family: var(--font-heading);
-    background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+    background: linear-gradient(135deg, #d4a373 0%, #e7d8cb 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -497,8 +497,8 @@
 .benefitItem { display: flex; gap: 15px; font-size: 16px; align-items: center; color: #444; }
 .checkCircle {
     width: 28px; height: 28px;
-    background: linear-gradient(135deg, #ddd6fe 0%, #e9d5ff 100%);
-    color: #7c3aed;
+    background: linear-gradient(135deg, #f7efe6 0%, #fff9f2 100%);
+    color: #b08d55;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 15px; flex-shrink: 0;
@@ -540,8 +540,8 @@
 
 .audienceItem:hover {
     transform: translateY(-12px);
-    box-shadow: 0 24px 48px rgba(139, 92, 246, 0.12);
-    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 24px 48px rgba(212, 163, 115, 0.12);
+    border-color: rgba(212, 163, 115, 0.3);
 }
 
 /* Gradient overlay on hover */
@@ -552,7 +552,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle at center, rgba(212, 163, 115, 0.08) 0%, transparent 70%);
     opacity: 0;
     transition: opacity 0.4s;
     pointer-events: none;
@@ -563,16 +563,32 @@
 }
 
 .audienceIcon {
-    font-size: 48px;
+    /* Updated for Lucide Icons */
     margin-bottom: 20px;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: grayscale(100%) opacity(0.8);
+    color: #b08d55; /* Default slightly muted gold */
+    /* background: #f5f3ff; */
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(212, 163, 115, 0.05);
+}
+
+.audienceIcon svg {
+    width: 42px;
+    height: 42px;
+    stroke: #d4a373; /* Main brand gold */
 }
 
 .audienceItem:hover .audienceIcon {
     transform: scale(1.1);
-    filter: grayscale(0%) opacity(1);
+    background: rgba(212, 163, 115, 0.15);
+}
+
+.audienceItem:hover .audienceIcon svg {
+    stroke: #b08d55; /* Darker gold on hover */
 }
 
 .audienceTitle {
@@ -584,7 +600,7 @@
 }
 
 .audienceLink {
-    color: #8b5cf6;
+    color: #b08d55;
     font-size: 14px;
     font-weight: 600;
     opacity: 0;
@@ -618,7 +634,7 @@
 
 /* --- CTA BOTTOM --- */
 .ctaBottom {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e3a8a 100%);
+    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
     color: white;
     text-align: center;
     padding: 140px 24px;
@@ -661,17 +677,17 @@
 
 .ctaBottom .ctaButton {
     background: white;
-    color: #1e1b4b;
+    color: #1a1a1a;
     padding: 20px 48px;
     font-size: 18px;
     position: relative;
     z-index: 2;
     transition: all 0.4s;
-    box-shadow: 0 16px 40px rgba(255,255,255,0.2);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.2);
 }
 
 .ctaBottom .ctaButton::before {
-    background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
 }
 
 .ctaBottom .ctaButton:hover {

@@ -1,6 +1,19 @@
 import Link from "next/link";
 import styles from "./page.module.css";
 import Footer from "../components/Footer";
+import { 
+  Scissors, 
+  Sparkles, 
+  Flower2, 
+  Hand, 
+  Dumbbell, 
+  Stethoscope, 
+  GraduationCap, 
+  PenTool, 
+  PawPrint,
+  User,
+  Zap
+} from "lucide-react";
 
 export const metadata = {
   title: "Pre firmy | Bukni Si",
@@ -45,7 +58,7 @@ export default function ForCompaniesPage() {
                 </div>
                 <div style={{ marginTop: '36px', display: 'flex', alignItems: 'center', gap: '15px', color: '#666', fontSize: '14px', animation: 'fadeInUp 0.8s ease-out 0.6s both' }}>
                     <div style={{ display: 'flex', fontSize: '16px' }}>⭐⭐⭐⭐⭐</div>
-                    <span style={{ fontWeight: 500 }}>Dôveruje nám viac ako <strong style={{color: '#8b5cf6'}}>100+ salónov</strong></span>
+                    <span style={{ fontWeight: 500 }}>Dôveruje nám viac ako <strong style={{color: '#d4a373'}}>100+ salónov</strong></span>
                 </div>
             </div>
             
@@ -128,9 +141,9 @@ export default function ForCompaniesPage() {
                             Klienti vidia len voľné termíny a okamžite dostanú potvrdenie.
                         </p>
                         <ul style={{listStyle: 'none', marginBottom: '30px', display: 'flex', flexDirection: 'column', gap: '12px'}}>
-                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#8b5cf6', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Synchronizácia s Google Kalendárom</li>
-                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#8b5cf6', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Nastavenie prestávok a smeny</li>
-                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#8b5cf6', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Rezervácie pre viacerých zamestnancov</li>
+                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#d4a373', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Synchronizácia s Google Kalendárom</li>
+                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#d4a373', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Nastavenie prestávok a smeny</li>
+                            <li style={{display: 'flex', gap: '12px', alignItems: 'center', fontSize: '17px'}}><span style={{color: '#d4a373', fontSize: '20px', fontWeight: 'bold'}}>✓</span> Rezervácie pre viacerých zamestnancov</li>
                         </ul>
                         <Link href="/create_customer" className={styles.highlightLink}>
                             Vyskúšať kalendár zadarmo →
@@ -196,7 +209,7 @@ export default function ForCompaniesPage() {
                      <p style={{marginTop: '32px', opacity: 0.9, lineHeight: '1.7', fontSize: '15px', position: 'relative', zIndex: 1}}>
                         Férová cena, ktorá sa vráti už pri jednej zachránenej rezervácii mesačne.
                      </p>
-                     <Link href="/create_customer" className={styles.ctaButton} style={{marginTop: '40px', background: 'white', color: '#1e1b4b', width: '100%', position: 'relative', zIndex: 1}}>
+                     <Link href="/create_customer" className={styles.ctaButton} style={{marginTop: '40px', background: 'white', color: '#1a1a1a', width: '100%', position: 'relative', zIndex: 1}}>
                         Začať 14 dní zadarmo
                      </Link>
                      <div style={{textAlign: 'center', marginTop: '16px', fontSize: '13px', opacity: 0.7, position: 'relative', zIndex: 1}}>Bez nutnosti karty · Zrušiteľné kedykoľvek</div>
@@ -226,16 +239,16 @@ export default function ForCompaniesPage() {
           </p>
           
           <div className={styles.audienceGrid}>
-            <AudienceItem title="Kaderníctva" icon="✂️" />
-            <AudienceItem title="Barber shopy" icon="💈" />
-            <AudienceItem title="Kozmetika" icon="💄" />
-            <AudienceItem title="Masáže" icon="💆‍♀️" />
-            <AudienceItem title="Nechty" icon="💅" />
-            <AudienceItem title="Tréneri" icon="💪" />
-            <AudienceItem title="Fyzio" icon="⚕️" />
-            <AudienceItem title="Vzdelávanie" icon="🎓" />
-            <AudienceItem title="Tetovanie" icon="🖊️" />
-            <AudienceItem title="Salóny pre psov" icon="🐕" />
+            <AudienceItem title="Kaderníctva" icon={<Scissors strokeWidth={1.5} />} />
+            <AudienceItem title="Barber shopy" icon={<Zap strokeWidth={1.5} />} />
+            <AudienceItem title="Kozmetika" icon={<Sparkles strokeWidth={1.5} />} />
+            <AudienceItem title="Masáže" icon={<Flower2 strokeWidth={1.5} />} />
+            <AudienceItem title="Nechty" icon={<Hand strokeWidth={1.5} />} />
+            <AudienceItem title="Tréneri" icon={<Dumbbell strokeWidth={1.5} />} />
+            <AudienceItem title="Fyzio" icon={<Stethoscope strokeWidth={1.5} />} />
+            <AudienceItem title="Vzdelávanie" icon={<GraduationCap strokeWidth={1.5} />} />
+            <AudienceItem title="Tetovanie" icon={<PenTool strokeWidth={1.5} />} />
+            <AudienceItem title="Salóny pre psov" icon={<PawPrint strokeWidth={1.5} />} />
           </div>
         </section>
 
@@ -244,7 +257,7 @@ export default function ForCompaniesPage() {
           <h2>Posuňte svoje podnikanie <br/> na vyšší level</h2>
           <p>Pridajte sa k moderným salónom, ktoré šetria čas a zarábajú viac.</p>
           <div style={{marginTop: '48px', display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap'}}>
-            <Link href="/create_customer" className={styles.ctaButton} style={{background: 'white', color: '#1e1b4b'}}>
+            <Link href="/create_customer" className={styles.ctaButton} style={{background: 'white', color: '#1a1a1a'}}>
                 Vyskúšať 14 dní zadarmo
             </Link>
             <Link href="#funkcie" className={styles.ctaButtonOutline} style={{borderColor: 'rgba(255,255,255,0.3)', color: 'white', background: 'rgba(255,255,255,0.1)'}}>
@@ -262,7 +275,7 @@ export default function ForCompaniesPage() {
   );
 }
 
-function AudienceItem({ title, icon }: { title: string, icon: string }) {
+function AudienceItem({ title, icon }: { title: string, icon: React.ReactNode }) {
     return (
         <div className={styles.audienceItem}>
             <span className={styles.audienceIcon}>{icon}</span>
