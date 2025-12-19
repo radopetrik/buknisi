@@ -153,4 +153,9 @@ Ak kliknes na nejake mesto tak znamena ze si si zmenil preferovane mesto tak nec
 V sekcii "profile" pridaj este userovy zoznam jeho "invoices". Cele to mozno vylepsi, popremyslaj nad layout
 
 
+Pre appku "web" V Sekcia 'Pre firmy' spranik ako keby separe web ktory vlastne ponuka customerovy sa zaregistrovat na web a vyuzivat vsetky sluzby. Nastuduj si db/schema.sql a pozri aj pages a zisti co vsetko ponukame (poriadne si to premysli a nacitaj) a sprav z toho sekcie podla screenhots. Farby a fonty pouzi tak ako v aktualnom projekte ale nech to vyzera inac kedze ke to ako keby cela sekcia iba pre firmy.
+
+cennik je zakladna cena mesacne 9.90 a potom cena za kazdeho staff usera 3.90 mesacne
+
+Prikladam konkurenciu ktora robi to iste pre ilustraciu. 
 

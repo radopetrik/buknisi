@@ -12,7 +12,7 @@ export default function Footer() {
             <Link href="/ochrana-osobnych-udajov">Zásady ochrany osobných údajov</Link>
             <Link href="/obchodne-podmienky">Obchodné podmienky</Link>
             <Link href="/#">Kariéra</Link>
-            <Link href="/create_customer">Pre firmy</Link>
+            <Link href="/pre-firmy">Pre firmy</Link>
             <Link href="/kontakt">Kontakt</Link>
           </div>
           <div className="app-row">

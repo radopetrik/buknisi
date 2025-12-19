@@ -23,7 +23,7 @@ export default function Header({ user, searchBar }: { user: User | null, searchB
             <>
               <Link href="/cities">Preskúmať salóny</Link>
               <Link href="/stiahnut-app">Stiahnuť appku</Link>
-              <Link href="/create_customer">Pre firmy</Link>
+              <Link href="/pre-firmy">Pre firmy</Link>
             </>
           )}
           {user ? (
