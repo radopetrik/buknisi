@@ -1,7 +1,11 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
+
+    "name": "Buknisi",
+    "slug": "buknisi",
+    "ios": {
+      "bundleIdentifier": "com.happycoder.buknisi"
+    },    
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -34,6 +38,5 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
   }
 }

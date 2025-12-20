@@ -166,3 +166,7 @@ pozri sa na "pre-firmy" v appke "web" a skus to vizualne zmodernizovat. ma to by
 
 appku ktoru mam v react + nuxt, je to katalog zo sluzbami a chcel by som 
 z toho spravit react native + expo a spravit z toho appku pre ios a android. Tak precitaj vsetko co vies ohladom projektu "web" + citaj db/schema.sql + agents/supabase.md a vytvor novu appku.
+
+
+appku ktoru mam v react + nuxt, je to "admin", je admin appka pre catalog sluzbami a chcel by som 
+z toho spravit react native + expo novu appku pre ios a android. Tak precitaj vsetko co vies ohladom projektu "admin" + citaj db/schema.sql + agents/supabase.md a vytvor novu appku. pozor projek "mobile" je appka pre zakaznikov, ja chcem vytvorit uplne novu appku. logiku a funkcionalitu cerpaj z "admin". appka "mobile" ta nema co zaujimat 
