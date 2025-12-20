@@ -1,11 +1,14 @@
-import { View, Text, Alert } from "react-native";
+import { View, Alert } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/lib/supabase";
-import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
+import { Input, InputField } from "@/components/ui/input";
+import { Button, ButtonText, ButtonSpinner } from "@/components/ui/button";
+import { FormControl, FormControlLabel, FormControlLabelText, FormControlError, FormControlErrorText } from "@/components/ui/form-control";
+import { Text } from "@/components/ui/text";
 import { Stack, useRouter } from "expo-router";
+
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
@@ -37,24 +40,32 @@ export default function LoginScreen() {
     <View className="flex-1 justify-center bg-gray-50 px-6">
       <Stack.Screen options={{ title: "Login", headerShown: false }} />
       <View className="mb-8 items-center">
-        <Text className="text-2xl font-bold text-gray-900">Welcome Back</Text>
-        <Text className="text-gray-500">Sign in to manage your business</Text>
+        <Text className="text-2xl font-bold text-typography-900">Welcome Back</Text>
+        <Text className="text-typography-500">Sign in to manage your business</Text>
       </View>
 
       <Controller
         control={control}
         name="email"
         render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="Email"
-            placeholder="name@example.com"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            error={errors.email?.message}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+          <FormControl isInvalid={!!errors.email} className="mb-4">
+            <FormControlLabel className="mb-1">
+              <FormControlLabelText>Email</FormControlLabelText>
+            </FormControlLabel>
+            <Input>
+              <InputField
+                placeholder="name@example.com"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+            </Input>
+            <FormControlError>
+              <FormControlErrorText>{errors.email?.message}</FormControlErrorText>
+            </FormControlError>
+          </FormControl>
         )}
       />
 
@@ -62,24 +73,34 @@ export default function LoginScreen() {
         control={control}
         name="password"
         render={({ field: { onChange, onBlur, value } }) => (
-          <Input
-            label="Password"
-            placeholder="Enter your password"
-            onBlur={onBlur}
-            onChangeText={onChange}
-            value={value}
-            error={errors.password?.message}
-            secureTextEntry
-          />
+          <FormControl isInvalid={!!errors.password} className="mb-4">
+            <FormControlLabel className="mb-1">
+              <FormControlLabelText>Password</FormControlLabelText>
+            </FormControlLabel>
+            <Input>
+              <InputField
+                placeholder="Enter your password"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry
+              />
+            </Input>
+            <FormControlError>
+              <FormControlErrorText>{errors.password?.message}</FormControlErrorText>
+            </FormControlError>
+          </FormControl>
         )}
       />
 
       <Button
         className="mt-4"
-        title="Sign In"
         onPress={handleSubmit(onSubmit)}
-        isLoading={isSubmitting}
-      />
+        isDisabled={isSubmitting}
+      >
+        {isSubmitting && <ButtonSpinner color="white" />}
+        <ButtonText>Sign In</ButtonText>
+      </Button>
     </View>
   );
 }

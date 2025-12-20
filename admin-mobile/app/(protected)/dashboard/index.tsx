@@ -1,23 +1,29 @@
-import { View, Text, ScrollView, RefreshControl, TouchableOpacity } from "react-native";
+import { ScrollView, RefreshControl } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { useCompany } from "@/hooks/useCompany";
 import { Stack } from "expo-router";
-import { ActivityIndicator } from "react-native";
 import { CreditCard, Calendar, Users, Star } from "lucide-react-native";
 import { format } from "date-fns";
 import { sk } from "date-fns/locale";
 
+import { Box } from "@/components/ui/box";
+import { Text } from "@/components/ui/text";
+import { HStack } from "@/components/ui/hstack";
+import { VStack } from "@/components/ui/vstack";
+import { Heading } from "@/components/ui/heading";
+import { Spinner } from "@/components/ui/spinner";
+
 function StatCard({ title, value, subtext, icon: Icon }: any) {
   return (
-    <View className="bg-white p-4 rounded-xl border border-gray-100 flex-1 mb-3 mx-1 shadow-sm">
-      <View className="flex-row justify-between items-start mb-2">
+    <Box className="bg-white p-4 rounded-xl border border-gray-100 flex-1 mb-3 mx-1 shadow-sm">
+      <HStack className="justify-between items-start mb-2">
         <Text className="text-sm font-medium text-gray-500">{title}</Text>
         <Icon size={16} color="#6b7280" />
-      </View>
-      <Text className="text-2xl font-bold text-gray-900">{value}</Text>
+      </HStack>
+      <Heading size="xl" className="font-bold text-gray-900">{value}</Heading>
       <Text className="text-xs text-gray-400 mt-1">{subtext}</Text>
-    </View>
+    </Box>
   );
 }
 
@@ -78,9 +84,9 @@ export default function DashboardScreen() {
 
   if (companyLoading || statsLoading) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" color="black" />
-      </View>
+      <Box className="flex-1 justify-center items-center">
+        <Spinner size="large" />
+      </Box>
     );
   }
 
@@ -92,43 +98,43 @@ export default function DashboardScreen() {
     >
       <Stack.Screen options={{ title: company?.name || "Dashboard", headerShadowVisible: false }} />
       
-      <View className="flex-row flex-wrap -mx-1 mb-4">
-        <View className="w-1/2">
+      <HStack className="flex-wrap -mx-1 mb-4">
+        <Box className="w-1/2">
             <StatCard 
                 title="Revenue" 
                 value={`€${stats?.revenue.toFixed(2)}`} 
                 subtext="This month"
                 icon={CreditCard}
             />
-        </View>
-        <View className="w-1/2">
+        </Box>
+        <Box className="w-1/2">
             <StatCard 
                 title="Upcoming" 
                 value={stats?.bookingsCount} 
                 subtext="Future bookings"
                 icon={Calendar}
             />
-        </View>
-        <View className="w-1/2">
+        </Box>
+        <Box className="w-1/2">
             <StatCard 
                 title="Unpaid" 
                 value={stats?.unpaidCount} 
                 subtext="Needs invoice"
                 icon={Star}
             />
-        </View>
-        <View className="w-1/2">
+        </Box>
+        <Box className="w-1/2">
             <StatCard 
                 title="Clients" 
                 value={stats?.clientsCount} 
                 subtext="Total database"
                 icon={Users}
             />
-        </View>
-      </View>
+        </Box>
+      </HStack>
 
-      <View className="mb-6">
-        <Text className="text-lg font-semibold mb-3 text-gray-900">Upcoming Bookings</Text>
+      <Box className="mb-6">
+        <Heading size="md" className="mb-3 text-gray-900">Upcoming Bookings</Heading>
         {stats?.upcomingBookings?.length === 0 ? (
            <Text className="text-gray-500">No upcoming bookings.</Text>
         ) : (
@@ -136,37 +142,37 @@ export default function DashboardScreen() {
              const client = Array.isArray(booking.clients) ? booking.clients[0] : booking.clients;
              const service = booking.booking_services?.[0]?.services?.name || "Service";
              return (
-               <View key={booking.id} className="bg-white p-4 rounded-lg mb-2 border border-gray-100 flex-row justify-between items-center">
-                 <View>
+               <Box key={booking.id} className="bg-white p-4 rounded-lg mb-2 border border-gray-100 flex-row justify-between items-center">
+                 <Box>
                    <Text className="font-medium text-gray-900">{client?.first_name} {client?.last_name}</Text>
                    <Text className="text-xs text-gray-500 mt-1">
                      {format(new Date(booking.date), "d. MMM", { locale: sk })} • {booking.time_from.slice(0, 5)}
                    </Text>
-                 </View>
+                 </Box>
                  <Text className="text-sm font-medium text-gray-600">{service}</Text>
-               </View>
+               </Box>
              );
           })
         )}
-      </View>
+      </Box>
 
-      <View className="mb-8">
-        <Text className="text-lg font-semibold mb-3 text-gray-900">Recent Sales</Text>
+      <Box className="mb-8">
+        <Heading size="md" className="mb-3 text-gray-900">Recent Sales</Heading>
         {stats?.recentInvoices?.map((invoice: any) => {
              const client = Array.isArray(invoice.clients) ? invoice.clients[0] : invoice.clients;
              return (
-               <View key={invoice.id} className="bg-white p-4 rounded-lg mb-2 border border-gray-100 flex-row justify-between items-center">
-                 <View>
+               <Box key={invoice.id} className="bg-white p-4 rounded-lg mb-2 border border-gray-100 flex-row justify-between items-center">
+                 <Box>
                    <Text className="font-medium text-gray-900">{client?.first_name} {client?.last_name || "Unknown"}</Text>
                    <Text className="text-xs text-gray-500 mt-1">
                      {format(new Date(invoice.created_at), "d. MMM HH:mm", { locale: sk })}
                    </Text>
-                 </View>
+                 </Box>
                  <Text className="text-sm font-bold text-gray-900">+€{Number(invoice.amount).toFixed(2)}</Text>
-               </View>
+               </Box>
              );
           })}
-      </View>
+      </Box>
     </ScrollView>
   );
 }

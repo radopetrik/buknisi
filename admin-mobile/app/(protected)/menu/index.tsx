@@ -1,6 +1,11 @@
-import { View, Text, Button, Alert } from "react-native";
+import { Alert } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
+
+import { Box } from "@/components/ui/box";
+import { Text } from "@/components/ui/text";
+import { Heading } from "@/components/ui/heading";
+import { Button, ButtonText } from "@/components/ui/button";
 
 export default function MenuScreen() {
   const router = useRouter();
@@ -15,9 +20,11 @@ export default function MenuScreen() {
   };
 
   return (
-    <View className="flex-1 justify-center items-center bg-white p-6">
-      <Text className="text-xl font-bold mb-8">Menu</Text>
-      <Button title="Sign Out" onPress={handleLogout} color="red" />
-    </View>
+    <Box className="flex-1 justify-center items-center bg-white p-6">
+      <Heading size="xl" className="font-bold mb-8">Menu</Heading>
+      <Button action="negative" onPress={handleLogout}>
+        <ButtonText>Sign Out</ButtonText>
+      </Button>
+    </Box>
   );
 }
