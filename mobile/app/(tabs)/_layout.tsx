@@ -1,16 +1,10 @@
 import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs } from 'expo-router';
+import { Search, Calendar, User } from 'lucide-react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
-}) {
-  return <FontAwesome size={24} style={{ marginBottom: -3 }} {...props} />;
-}
+import { Icon } from '@/components/ui/icon';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -29,21 +23,21 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Hľadať',
-          tabBarIcon: ({ color }) => <TabBarIcon name="search" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={Search} color={color} size="md" />,
         }}
       />
       <Tabs.Screen
         name="bookings"
         options={{
           title: 'Rezervácie',
-          tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={Calendar} color={color} size="md" />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profil',
-          tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
+          tabBarIcon: ({ color }) => <Icon as={User} color={color} size="md" />,
         }}
       />
     </Tabs>
