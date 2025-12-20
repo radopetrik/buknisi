@@ -1,11 +1,7 @@
 {
   "expo": {
-
     "name": "Buknisi",
     "slug": "buknisi",
-    "ios": {
-      "bundleIdentifier": "com.happycoder.buknisi"
-    },    
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -18,7 +14,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.happycoder.buknisi",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -38,5 +38,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "32bb7feb-4e5d-4ec0-a7cb-11421d9bdbaf"
+      }
+    }
   }
 }
