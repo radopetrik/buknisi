@@ -19,6 +19,9 @@ function RootLayoutNav() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setInitialized(true);
+    }).catch((error) => {
+      console.error("Error getting session:", error);
+      setInitialized(true);
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -32,9 +35,10 @@ function RootLayoutNav() {
     if (!initialized) return;
 
     const inAuthGroup = segments[0] === "(auth)";
+    const inProtectedGroup = segments[0] === "(protected)";
 
-    if (session && inAuthGroup) {
-      router.replace("/(protected)/dashboard");
+    if (session && !inProtectedGroup) {
+      router.replace("/(protected)/calendar");
     } else if (!session && !inAuthGroup) {
       router.replace("/(auth)/login");
     }

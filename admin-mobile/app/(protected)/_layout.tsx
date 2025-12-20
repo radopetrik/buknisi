@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Calendar, Users, Menu } from 'lucide-react-native';
+import { CreditCard, Calendar, Users, Menu } from 'lucide-react-native';
 
 export default function ProtectedLayout() {
   return (
@@ -11,30 +11,30 @@ export default function ProtectedLayout() {
       }}
     >
       <Tabs.Screen
-        name="dashboard"
+        name="calendar"
         options={{
-          title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => <LayoutDashboard size={size} color={color} />,
+          title: 'Kalendár',
+          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
         }}
       />
       <Tabs.Screen
-        name="calendar"
+        name="dashboard"
         options={{
-          title: 'Calendar',
-          tabBarIcon: ({ color, size }) => <Calendar size={size} color={color} />,
+          title: 'Pokladňa',
+          tabBarIcon: ({ color, size }) => <CreditCard size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="clients"
         options={{
-          title: 'Clients',
+          title: 'Zákazníci',
           tabBarIcon: ({ color, size }) => <Users size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="menu"
         options={{
-          title: 'Menu',
+          title: 'Viac',
           tabBarIcon: ({ color, size }) => <Menu size={size} color={color} />,
         }}
       />
