@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Search, Calendar, User } from 'lucide-react-native';
+import { Search, Calendar, User, Home } from 'lucide-react-native';
 
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -22,7 +22,14 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Hľadať',
+          title: 'Domov',
+          tabBarIcon: ({ color }) => <Icon as={Home} color={color} size="md" />,
+        }}
+      />
+      <Tabs.Screen
+        name="explore"
+        options={{
+          title: 'Prehliadať',
           tabBarIcon: ({ color }) => <Icon as={Search} color={color} size="md" />,
         }}
       />

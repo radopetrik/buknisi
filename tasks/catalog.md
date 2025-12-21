@@ -170,3 +170,10 @@ z toho spravit react native + expo a spravit z toho appku pre ios a android. Tak
 
 appku ktoru mam v react + nuxt, je to "admin", je admin appka pre catalog sluzbami a chcel by som 
 z toho spravit react native + expo novu appku pre ios a android. Tak precitaj vsetko co vies ohladom projektu "admin" + citaj db/schema.sql + agents/supabase.md a vytvor novu appku. pozor projek "mobile" je appka pre zakaznikov, ja chcem vytvorit uplne novu appku. logiku a funkcionalitu cerpaj z "admin". appka "mobile" ta nema co zaujimat 
+
+
+"I want to add [YOUR FEATURE HERE]. Please create an
+    OpenSpec  for this feature"
+
+
+Chcem zmenit hlavne menu. Pls. vytvor OpenSpec change proposal pre tuto funkciu
