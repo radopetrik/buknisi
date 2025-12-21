@@ -17,28 +17,28 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
 
-# Agent Instructions: Public Website
+# Agent Instructions: Admin Mobile App
 
 ## Scope
-- **Directory:** `/web`
-- **Context:** Public User Website
+- **Directory:** `/admin-mobile`
+- **Context:** Mobile App for Service Providers
 
 ## Core Constraints
 1. **Read Global Docs:**
    - Root `/AGENTS.md` (Monorepo context)
-   - `/agents/nextjs.md` (Next.js best practices)
    - `/agents/supabase.md` (Database usage)
+   - *Note: Next.js docs are NOT relevant here.*
 2. **Database:**
    - **Source of Truth:** `/db` folder at repo root.
    - **Modifications:** Check schema in `/db` before querying. Save migrations to `/db`.
 3. **Tech Stack:**
-   - **Framework:** Next.js 16 (App Router) + React 19.
-   - **Structure:** `app/` (Directly in root, NO `src` folder).
-   - **Styling:** CSS Modules / Standard CSS. **NO Tailwind**.
-   - **Auth:** Supabase Auth.
-   - **Libs:** date-fns, react-day-picker.
+   - **Framework:** Expo + React Native + TypeScript.
+   - **Routing:** Expo Router (`app/` directory).
+   - **Styling:** NativeWind (Tailwind v3 compatible).
+   - **Auth:** Supabase Auth (AsyncStorage).
+   - **Libs:** TanStack Query, React Hook Form, Zod, date-fns.
 
 ## Workflow
 - Focus on `app/` directory.
-- Use CSS Modules for styling.
+- Use NativeWind for styling.
 - Consult `/db` for data models.

@@ -17,11 +17,11 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 
 <!-- OPENSPEC:END -->
 
-# Agent Instructions: Public Website
+# Agent Instructions: Admin Web App
 
 ## Scope
-- **Directory:** `/web`
-- **Context:** Public User Website
+- **Directory:** `/admin`
+- **Context:** Web Admin Dashboard
 
 ## Core Constraints
 1. **Read Global Docs:**
@@ -33,12 +33,12 @@ Keep this managed block so 'openspec update' can refresh the instructions.
    - **Modifications:** Check schema in `/db` before querying. Save migrations to `/db`.
 3. **Tech Stack:**
    - **Framework:** Next.js 16 (App Router) + React 19.
-   - **Structure:** `app/` (Directly in root, NO `src` folder).
-   - **Styling:** CSS Modules / Standard CSS. **NO Tailwind**.
+   - **Structure:** `src/app` (Uses `src` folder).
+   - **Styling:** Tailwind CSS 4 + shadcn/ui.
    - **Auth:** Supabase Auth.
-   - **Libs:** date-fns, react-day-picker.
+   - **Libs:** React Hook Form, Zod, Recharts, date-fns.
 
 ## Workflow
-- Focus on `app/` directory.
-- Use CSS Modules for styling.
+- Focus on `src/` directory.
+- Use Tailwind 4 conventions.
 - Consult `/db` for data models.
