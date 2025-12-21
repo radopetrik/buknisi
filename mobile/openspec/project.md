@@ -1,31 +1,45 @@
 # Project Context
 
 ## Purpose
-[Describe your project's purpose and goals]
+Consumer-facing mobile application for Buknisi, allowing users to browse services, companies, and make bookings.
 
 ## Tech Stack
-- [List your primary technologies]
-- [e.g., TypeScript, React, Node.js]
+- **Framework:** Expo (SDK 54), React Native (0.81.5)
+- **Routing:** Expo Router (v6)
+- **Language:** TypeScript
+- **UI/Styling:** NativeWind v4 (Tailwind CSS v3), Gluestack UI
+- **State/Data:** Supabase Client
+- **Icons:** Lucide React Native
 
 ## Project Conventions
 
 ### Code Style
-[Describe your code style preferences, formatting rules, and naming conventions]
+- **Formatting:** Prettier (standard)
+- **Styling:** Utility-first using NativeWind. Custom theme colors defined in `tailwind.config.js` (primary: #d4a373, background: #fcfcfc, etc.).
+- **Imports:** Absolute imports using `@/` alias (e.g., `@/components/ui/...`).
 
 ### Architecture Patterns
-[Document your architectural decisions and patterns]
+- **Routing:** File-based routing in `app/` directory (Expo Router).
+- **Screens:** Located in `app/`. Grouped by feature/tabs.
+- **Components:** Reusable UI components in `components/ui/` (Gluestack/custom).
+- **Constants:** Theme and configuration in `constants/`.
 
 ### Testing Strategy
-[Explain your testing approach and requirements]
+- **Unit Tests:** `react-test-renderer` is present in devDependencies.
+- **Directories:** `__tests__` folders co-located with components.
 
 ### Git Workflow
-[Describe your branching strategy and commit conventions]
+- Standard feature branch workflow.
 
 ## Domain Context
-[Add domain-specific knowledge that AI assistants need to understand]
+- **Buknisi:** A booking platform.
+- **Entities:** Cities, Companies, Services, Bookings.
+- **User Roles:** End-users (Customers).
 
 ## Important Constraints
-[List any technical, business, or regulatory constraints]
+- **Platform:** iOS and Android (mobile).
+- **Navigation:** Deep linking supported via Expo Router.
 
 ## External Dependencies
-[Document key external services, APIs, or systems]
+- **Supabase:** Backend (Database & Auth).
+- **Expo:** Build and development ecosystem.
