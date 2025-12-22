@@ -178,4 +178,4 @@ z toho spravit react native + expo novu appku pre ios a android. Tak precitaj vs
 
 Chcem zmenit homepage. Pls. vytvor OpenSpec change proposal pre tuto funkciu. Prikladam aj screenshot co vlastne chcem 
 
-
+Chcem pridat novy field do db. Bude to "sub_category" co bude sub category pre hlavnu "category".vytvor OpenSpec change proposal
