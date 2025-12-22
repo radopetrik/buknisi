@@ -176,4 +176,6 @@ z toho spravit react native + expo novu appku pre ios a android. Tak precitaj vs
     OpenSpec  for this feature"
 
 
-Chcem zmenit hlavne menu. Pls. vytvor OpenSpec change proposal pre tuto funkciu
+Chcem zmenit homepage. Pls. vytvor OpenSpec change proposal pre tuto funkciu. Prikladam aj screenshot co vlastne chcem 
+
+
