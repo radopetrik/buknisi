@@ -161,6 +161,13 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
   );
   const [serviceAddonMap, setServiceAddonMap] = useState<Record<string, string[]>>(serviceAddonMapFromProps);
 
+  const subCategoryLabelById = useMemo(() => {
+    return initialData.subCategories.reduce<Record<string, string>>((acc, subCategory) => {
+      acc[subCategory.id] = subCategory.label;
+      return acc;
+    }, {});
+  }, [initialData.subCategories]);
+
   const categoryDescId = useId();
   const serviceDescId = useId();
   const addonDescId = useId();
@@ -458,6 +465,11 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                                 </span>
                               )}
                             </div>
+                            {service.sub_category_id ? (
+                              <div className="text-xs text-muted-foreground line-clamp-1">
+                                {subCategoryLabelById[service.sub_category_id] ?? "Neznáma kategória"}
+                              </div>
+                            ) : null}
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1.5">
                                 <Clock className="h-3.5 w-3.5" />
