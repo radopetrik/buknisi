@@ -16,6 +16,7 @@ const idSchema = z.object({
 
 const serviceSchema = z.object({
   id: z.string().uuid().optional(),
+  sub_category_id: z.string().uuid().nullable().optional(),
   name: z.string().min(1, "Name is required").max(160, "Keep it under 160 characters"),
   price: z.number().nonnegative({ message: "Price must be zero or higher" }),
   price_type: z.enum(priceTypes),
@@ -143,15 +144,17 @@ export async function createService(input: unknown) {
   }
   try {
     const { supabase, companyId } = await getScopedClient();
-    const payload = {
-      name: parsed.data.name.trim(),
-      price: parsed.data.price,
-      price_type: parsed.data.price_type,
-      duration: parsed.data.duration,
-      service_category_id: parsed.data.service_category_id ?? null,
-      is_mobile: parsed.data.is_mobile ?? false,
-      company_id: companyId,
-    };
+      const payload = {
+        name: parsed.data.name.trim(),
+        price: parsed.data.price,
+        price_type: parsed.data.price_type,
+        duration: parsed.data.duration,
+        sub_category_id: parsed.data.sub_category_id ?? null,
+        service_category_id: parsed.data.service_category_id ?? null,
+        is_mobile: parsed.data.is_mobile ?? false,
+        company_id: companyId,
+      };
+
     const { error } = await supabase.from("services").insert(payload);
     if (error) {
       return { success: false, message: error.message };
@@ -175,6 +178,7 @@ export async function updateService(input: unknown) {
       price: parsed.data.price,
       price_type: parsed.data.price_type,
       duration: parsed.data.duration,
+      sub_category_id: parsed.data.sub_category_id ?? null,
       service_category_id: parsed.data.service_category_id ?? null,
       is_mobile: parsed.data.is_mobile ?? false,
     };

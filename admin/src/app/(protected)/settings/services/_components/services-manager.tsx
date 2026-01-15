@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { type Resolver, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Check,
@@ -28,7 +28,6 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -44,12 +43,13 @@ import {
   updateCategory,
   updateService,
 } from "../actions";
-import { priceTypes, type Addon, type Service, type ServiceAddonLink, type ServiceCategory } from "../types";
+import { priceTypes, type Addon, type Service, type ServiceAddonLink, type ServiceCategory, type SubCategoryOption } from "../types";
 
 type ServicesManagerProps = {
   initialData: {
     services: Service[];
     categories: ServiceCategory[];
+    subCategories: SubCategoryOption[];
     addons: Addon[];
     serviceAddons: ServiceAddonLink[];
   };
@@ -64,6 +64,7 @@ type CategoryFormValues = z.infer<typeof categoryFormSchema>;
 
 const serviceFormSchema = z.object({
   id: z.string().uuid().optional(),
+  sub_category_id: z.string().uuid().optional().or(z.literal("")),
   name: z.string().min(1, "Name is required"),
   price: z.coerce.number().min(0, "Price must be zero or higher"),
   price_type: z.enum(priceTypes),
@@ -81,6 +82,7 @@ const serviceFormSchema = z.object({
 type ServiceFormValues = z.infer<typeof serviceFormSchema>;
 
 const defaultServiceValues: ServiceFormValues = {
+  sub_category_id: "",
   name: "",
   price: 0,
   price_type: "fixed",
@@ -144,12 +146,12 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
   });
 
   const serviceForm = useForm<ServiceFormValues>({
-    resolver: zodResolver(serviceFormSchema) as any,
+    resolver: zodResolver(serviceFormSchema) as Resolver<ServiceFormValues>,
     defaultValues: defaultServiceValues,
   });
 
   const addonForm = useForm<AddonFormValues>({
-    resolver: zodResolver(addonFormSchema) as any,
+    resolver: zodResolver(addonFormSchema) as Resolver<AddonFormValues>,
     defaultValues: defaultAddonValues,
   });
 
@@ -213,6 +215,7 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
     startServiceTransition(() => {
       const payload = {
         ...values,
+        sub_category_id: values.sub_category_id ? values.sub_category_id : null,
         service_category_id: values.service_category_id ? values.service_category_id : null,
         is_mobile: values.is_mobile ?? false,
       };
@@ -483,6 +486,7 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                               onClick={() => {
                                 serviceForm.reset({
                                   id: service.id,
+                                  sub_category_id: service.sub_category_id ?? "",
                                   name: service.name,
                                   price: service.price,
                                   price_type: service.price_type,
@@ -762,6 +766,29 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
             <form className="space-y-4" onSubmit={serviceForm.handleSubmit(handleServiceSubmit)}>
               <FormField
                 control={serviceForm.control}
+                name="sub_category_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Kategória</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
+                      >
+                        <option value="">Bez kategórie</option>
+                        {initialData.subCategories.map((subCategory) => (
+                          <option key={subCategory.id} value={subCategory.id}>
+                            {subCategory.label}
+                          </option>
+                        ))}
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={serviceForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -848,13 +875,13 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                   name="service_category_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Kategória</FormLabel>
+                      <FormLabel>Kategória služby</FormLabel>
                       <FormControl>
                         <select
                           {...field}
                           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70"
                         >
-                          <option value="">Bez kategórie</option>
+                          <option value="">Bez kategórie služby</option>
                           {initialData.categories.map((category) => (
                             <option key={category.id} value={category.id}>
                               {category.name}

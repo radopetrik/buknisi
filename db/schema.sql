@@ -699,3 +699,9 @@ CREATE TABLE IF NOT EXISTS company_extra_categories (
 
 CREATE INDEX IF NOT EXISTS idx_company_extra_categories_company ON company_extra_categories(company_id);
 CREATE INDEX IF NOT EXISTS idx_company_extra_categories_category ON company_extra_categories(category_id);
+
+-- 020_add_services_sub_category.sql
+ALTER TABLE services
+ADD COLUMN IF NOT EXISTS sub_category_id uuid REFERENCES sub_categories(id) ON DELETE SET NULL;
+
+CREATE INDEX IF NOT EXISTS idx_services_sub_category ON services(sub_category_id);
