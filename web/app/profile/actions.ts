@@ -14,6 +14,8 @@ export async function updateProfile(formData: FormData) {
   const first_name = formData.get('first_name') as string
   const last_name = formData.get('last_name') as string
   const phone = formData.get('phone') as string
+  const preferred_city_id_raw = formData.get('preferred_city_id')
+  const preferred_city_id = preferred_city_id_raw ? String(preferred_city_id_raw) : null
   
   const { error } = await supabase
     .from('profiles')
@@ -22,7 +24,8 @@ export async function updateProfile(formData: FormData) {
       first_name,
       last_name,
       phone,
-      email: user.email 
+      email: user.email,
+      preferred_city_id: preferred_city_id === '' ? null : preferred_city_id,
     })
 
   if (error) {

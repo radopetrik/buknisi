@@ -19,6 +19,11 @@ export default async function ProfilePage() {
     .eq('id', user.id)
     .single()
 
+  const { data: cities } = await supabase
+    .from('cities')
+    .select('id, name')
+    .order('name')
+
   // Fetch bookings with invoices
   const { data: bookings } = await supabase
     .from('bookings')
@@ -41,6 +46,7 @@ export default async function ProfilePage() {
       <ProfileView 
         user={user} 
         profile={profile} 
+        cities={cities || []}
         bookings={bookings || []} 
         updateProfileAction={updateProfile}
       />

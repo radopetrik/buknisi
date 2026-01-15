@@ -5,14 +5,17 @@ import Link from 'next/link'
 import { format, parseISO, startOfDay } from 'date-fns'
 import { sk } from 'date-fns/locale'
 
+type City = { id: string; name: string }
+
 type ProfileViewProps = {
   user: any
   profile: any
+  cities: City[]
   bookings: any[]
   updateProfileAction: (formData: FormData) => Promise<{ error?: string; success?: boolean }>
 }
 
-export default function ProfileView({ user, profile, bookings, updateProfileAction }: ProfileViewProps) {
+export default function ProfileView({ user, profile, cities, bookings, updateProfileAction }: ProfileViewProps) {
   const [activeTab, setActiveTab] = useState<'info' | 'bookings' | 'invoices'>('bookings')
   const [isPending, setIsPending] = useState(false)
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
@@ -105,6 +108,15 @@ export default function ProfileView({ user, profile, bookings, updateProfileActi
                         <div className="form-group">
                             <label>Email</label>
                             <input type="email" value={user.email} disabled className="input-disabled" />
+                        </div>
+                        <div className="form-group">
+                            <label>Preferované mesto</label>
+                            <select name="preferred_city_id" defaultValue={profile?.preferred_city_id || ''}>
+                                <option value="">—</option>
+                                {cities.map((city) => (
+                                    <option key={city.id} value={city.id}>{city.name}</option>
+                                ))}
+                            </select>
                         </div>
                         {message && (
                             <div style={{ 

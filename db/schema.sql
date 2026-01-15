@@ -272,8 +272,12 @@ CREATE TABLE IF NOT EXISTS profiles (
   first_name text,
   last_name text,
   phone text,
-  email text
+  email text,
+  preferred_city_id uuid REFERENCES public.cities(id)
 );
+
+CREATE INDEX IF NOT EXISTS idx_profiles_preferred_city_id
+  ON public.profiles(preferred_city_id);
 
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 

@@ -59,33 +59,81 @@ export default function SearchBar({ defaultCategory, defaultCity, defaultDate, d
 
   const [selectedItem, setSelectedItem] = useState<SearchResult | null>(null);
   const router = useRouter();
+
+  const supabase = createClient();
   
   const popoverRef = useRef<HTMLDivElement>(null);
 
   // Load state from cookies on mount if props are missing
   useEffect(() => {
-    // 1. Restore Date
-    if (!defaultDate) {
+    let cancelled = false;
+
+    async function load() {
+      // 1. Restore Date
+      if (!defaultDate) {
         const cDate = getCookie('bs_date');
         if (cDate) {
-            setRange({ from: new Date(cDate), to: undefined });
+          setRange({ from: new Date(cDate), to: undefined });
         }
-    }
-    // 2. Restore Times
-    if (!defaultTimeFrom) {
+      }
+
+      // 2. Restore Times
+      if (!defaultTimeFrom) {
         const cFrom = getCookie('bs_time_from');
         if (cFrom) setTimeFrom(cFrom);
-    }
-    if (!defaultTimeTo) {
+      }
+      if (!defaultTimeTo) {
         const cTo = getCookie('bs_time_to');
         if (cTo) setTimeTo(cTo);
+      }
+
+      // 3. Restore City Name (for CitySelector)
+      if (defaultCity) return;
+
+      const cCityName = getCookie('bs_city_name');
+      if (cCityName) {
+        setCookieCityName(cCityName);
+        return;
+      }
+
+      // 4. If no cookie and user is logged in, use profile.preferred_city_id
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user || cancelled) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('preferred_city_id')
+        .eq('id', user.id)
+        .single();
+
+      const preferredCityId = profile?.preferred_city_id;
+      if (!preferredCityId || cancelled) return;
+
+      const { data: preferredCity } = await supabase
+        .from('cities')
+        .select('id, name, slug')
+        .eq('id', preferredCityId)
+        .single();
+
+      if (!preferredCity || cancelled) return;
+
+      setCookieCityName(preferredCity.name);
+      setCookie('bs_city_name', preferredCity.name);
+      setCookie('user-city', preferredCity.slug);
+      setSelectedCity(preferredCity);
     }
-    // 3. Restore City Name (for CitySelector)
-    if (!defaultCity) {
-        const cCityName = getCookie('bs_city_name');
-        if (cCityName) setCookieCityName(cCityName);
-    }
-  }, [defaultDate, defaultTimeFrom, defaultTimeTo, defaultCity]);
+
+    load().catch(() => {
+      // ignore
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [defaultDate, defaultTimeFrom, defaultTimeTo, defaultCity, supabase]);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -98,7 +146,25 @@ export default function SearchBar({ defaultCategory, defaultCity, defaultDate, d
   const [autocompletePosition, setAutocompletePosition] = useState({ top: 0, left: 0, width: 0 });
   const searchInputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
+
+  const syncPreferredCity = async (city: City | null) => {
+    if (!city) return;
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ preferred_city_id: city.id })
+      .eq('id', user.id);
+
+    if (error) {
+      // ignore
+    }
+  };
 
   // State to ensure portal is only used on the client
   const [isClient, setIsClient] = useState(false);
@@ -255,7 +321,8 @@ export default function SearchBar({ defaultCategory, defaultCity, defaultDate, d
     // Handle City Persistence
     if (cityToUse) {
         setCookie('bs_city_name', cityToUse.name);
-        setCookie('user-city', cityToUse.slug); 
+        setCookie('user-city', cityToUse.slug);
+        void syncPreferredCity(cityToUse);
     }
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
@@ -505,7 +572,10 @@ export default function SearchBar({ defaultCategory, defaultCity, defaultDate, d
         <CitySelector 
             cities={cities} 
             defaultCity={defaultCity || cookieCityName} 
-            onSelect={(city) => setSelectedCity(city)}
+            onSelect={(city) => {
+              setSelectedCity(city)
+              void syncPreferredCity(city)
+            }}
         />
       </div>
       <div className="search-input-group" style={{ position: 'relative' }}>

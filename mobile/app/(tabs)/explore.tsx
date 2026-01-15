@@ -31,7 +31,25 @@ export default function ExploreScreen() {
       .limit(10);
 
     if (citiesData && citiesData.length > 0) {
-      const def = citiesData.find((c: any) => c.slug === 'bratislava') || citiesData[0];
+      let def = citiesData.find((c: any) => c.slug === 'bratislava') || citiesData[0];
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('preferred_city_id')
+          .eq('id', user.id)
+          .single();
+
+        const preferredCityId = profile?.preferred_city_id;
+        if (preferredCityId) {
+          def = citiesData.find((c: any) => c.id === preferredCityId) || def;
+        }
+      }
+
       setSelectedCity(def);
     }
     if (catsData) setCategories(catsData);
