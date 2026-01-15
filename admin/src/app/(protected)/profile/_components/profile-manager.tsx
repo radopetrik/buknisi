@@ -239,6 +239,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
   const [activeTab, setActiveTab] = useState<"overview" | "basic" | "amenities" | "hours" | "extras" | "photos">("overview");
   const [company, setCompany] = useState<CompanyProfile>(initialData.company);
   const [amenityState, setAmenityState] = useState<string[]>(initialData.selectedAmenityIds);
+  const [extraCategoryState, setExtraCategoryState] = useState<string[]>(initialData.selectedExtraCategoryIds);
   const [businessHoursState, setBusinessHoursState] = useState<Record<DayOfWeek, DayHoursState>>(
     () => prepareInitialDayState(initialData.businessHours),
   );
@@ -366,55 +367,88 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
 
   const handleOverviewSubmit = (values: CompanyFormValues) => {
     setOverviewMessage(null);
-    startOverviewTransition(() => {
-      const payload = {
-        name: values.name.trim(),
-        slug: values.slug.trim(),
-        description: toNullIfEmpty(values.description ?? null),
-        phone: toNullIfEmpty(values.phone ?? null),
-        contact_phone: toNullIfEmpty(values.contact_phone ?? null),
-        email: toNullIfEmpty(values.email ?? null),
-        facebook: toNullIfEmpty(values.facebook ?? null),
-        instagram: toNullIfEmpty(values.instagram ?? null),
-        website: toNullIfEmpty(values.website ?? null),
-        address_text: toNullIfEmpty(values.address_text ?? null),
-        city_id: toNullIfEmpty(values.city_id ?? null),
-        category_id: toNullIfEmpty(values.category_id ?? null),
-        is_mobile: values.is_mobile,
-      } as const;
 
-      supabase
-        .from("companies")
-        .update(payload)
-        .eq("id", company.id)
-        .select("id, name, slug, description, phone, contact_phone, email, facebook, instagram, website, address_text, city_id, category_id, is_mobile")
-        .single()
-        .then(({ data, error }) => {
-          if (error) {
-            setOverviewMessage({ text: error.message, type: "error" });
+    startOverviewTransition(() => {
+      void (async () => {
+        const mainCategoryId = toNullIfEmpty(values.category_id ?? null);
+        const payload = {
+          name: values.name.trim(),
+          slug: values.slug.trim(),
+          description: toNullIfEmpty(values.description ?? null),
+          phone: toNullIfEmpty(values.phone ?? null),
+          contact_phone: toNullIfEmpty(values.contact_phone ?? null),
+          email: toNullIfEmpty(values.email ?? null),
+          facebook: toNullIfEmpty(values.facebook ?? null),
+          instagram: toNullIfEmpty(values.instagram ?? null),
+          website: toNullIfEmpty(values.website ?? null),
+          address_text: toNullIfEmpty(values.address_text ?? null),
+          city_id: toNullIfEmpty(values.city_id ?? null),
+          category_id: mainCategoryId,
+          is_mobile: values.is_mobile,
+        } as const;
+
+        const normalizedExtraCategories = mainCategoryId
+          ? Array.from(new Set(extraCategoryState)).filter((categoryId) => categoryId && categoryId !== mainCategoryId)
+          : [];
+
+        const updateResult = await supabase
+          .from("companies")
+          .update(payload)
+          .eq("id", company.id)
+          .select(
+            "id, name, slug, description, phone, contact_phone, email, facebook, instagram, website, address_text, city_id, category_id, is_mobile",
+          )
+          .single();
+
+        if (updateResult.error) {
+          setOverviewMessage({ text: updateResult.error.message, type: "error" });
+          return;
+        }
+
+        const updatedCompany = updateResult.data;
+        if (!updatedCompany) {
+          setOverviewMessage({ text: "Nepodarilo sa uložiť profil.", type: "error" });
+          return;
+        }
+
+        const deleteResult = await supabase.from("company_extra_categories").delete().eq("company_id", company.id);
+        if (deleteResult.error) {
+          setOverviewMessage({ text: deleteResult.error.message, type: "error" });
+          return;
+        }
+
+        if (normalizedExtraCategories.length > 0) {
+          const insertResult = await supabase
+            .from("company_extra_categories")
+            .insert(normalizedExtraCategories.map((categoryId) => ({ company_id: company.id, category_id: categoryId })));
+
+          if (insertResult.error) {
+            setOverviewMessage({ text: insertResult.error.message, type: "error" });
             return;
           }
-          if (data) {
-            setCompany(data as CompanyProfile);
-            companyForm.reset({
-              name: data.name ?? "",
-              slug: data.slug ?? "",
-              description: toInputValue(data.description ?? ""),
-              phone: toInputValue(data.phone ?? ""),
-              contact_phone: toInputValue(data.contact_phone ?? ""),
-              email: toInputValue(data.email ?? ""),
-              facebook: toInputValue(data.facebook ?? ""),
-              instagram: toInputValue(data.instagram ?? ""),
-              website: toInputValue(data.website ?? ""),
-              address_text: toInputValue(data.address_text ?? ""),
-              city_id: toInputValue(data.city_id ?? ""),
-              category_id: toInputValue(data.category_id ?? ""),
-              is_mobile: data.is_mobile ?? false,
-            });
-            setOverviewMessage({ text: "Profil uložený", type: "success" });
-            router.refresh();
-          }
+        }
+
+        setCompany(updatedCompany as CompanyProfile);
+        setExtraCategoryState(normalizedExtraCategories);
+        companyForm.reset({
+          name: updatedCompany.name ?? "",
+          slug: updatedCompany.slug ?? "",
+          description: toInputValue(updatedCompany.description ?? ""),
+          phone: toInputValue(updatedCompany.phone ?? ""),
+          contact_phone: toInputValue(updatedCompany.contact_phone ?? ""),
+          email: toInputValue(updatedCompany.email ?? ""),
+          facebook: toInputValue(updatedCompany.facebook ?? ""),
+          instagram: toInputValue(updatedCompany.instagram ?? ""),
+          website: toInputValue(updatedCompany.website ?? ""),
+          address_text: toInputValue(updatedCompany.address_text ?? ""),
+          city_id: toInputValue(updatedCompany.city_id ?? ""),
+          category_id: toInputValue(updatedCompany.category_id ?? ""),
+          is_mobile: updatedCompany.is_mobile ?? false,
         });
+
+        setOverviewMessage({ text: "Profil uložený", type: "success" });
+        router.refresh();
+      })();
     });
   };
 
@@ -424,6 +458,15 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
         return prev.filter((id) => id !== amenityId);
       }
       return [...prev, amenityId];
+    });
+  };
+
+  const toggleExtraCategory = (categoryId: string) => {
+    setExtraCategoryState((prev) => {
+      if (prev.includes(categoryId)) {
+        return prev.filter((id) => id !== categoryId);
+      }
+      return [...prev, categoryId];
     });
   };
 
@@ -1063,7 +1106,7 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
       <div className="space-y-6">
         <Card className="bg-muted/50">
           <CardHeader>
-            <CardTitle className="text-base">Kategória</CardTitle>
+            <CardTitle className="text-base">Hlavná kategória</CardTitle>
             <CardDescription>
               Zaraďte vašu firmu správne, aby vás klienti našli.
             </CardDescription>
@@ -1105,6 +1148,43 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
                 </FormItem>
               )}
             />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-muted/50">
+          <CardHeader>
+            <CardTitle className="text-base">Extra kategórie</CardTitle>
+            <CardDescription>Vyberte ďalšie kategórie, v ktorých sa chcete zobrazovať.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-2">
+              {!overviewValues.category_id ? (
+                <p className="text-sm text-muted-foreground">Najprv vyberte hlavnú kategóriu.</p>
+              ) : initialData.categories.filter((category) => category.id !== overviewValues.category_id).length === 0 ? (
+                <p className="text-sm text-muted-foreground">Žiadne ďalšie kategórie na výber.</p>
+              ) : (
+                initialData.categories
+                  .filter((category) => category.id !== overviewValues.category_id)
+                  .map((category) => (
+                    <label
+                      key={category.id}
+                      className={cn(
+                        "flex cursor-pointer items-center justify-between rounded-md border p-3 transition-all hover:bg-background",
+                        extraCategoryState.includes(category.id) ? "border-primary bg-background ring-1 ring-primary" : "bg-card",
+                      )}
+                    >
+                      <span className="text-sm font-medium">{category.name}</span>
+                      <input
+                        type="checkbox"
+                        value={category.id}
+                        checked={extraCategoryState.includes(category.id)}
+                        onChange={() => toggleExtraCategory(category.id)}
+                        className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                      />
+                    </label>
+                  ))
+              )}
+            </div>
           </CardContent>
         </Card>
 

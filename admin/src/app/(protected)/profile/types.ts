@@ -73,6 +73,7 @@ export type CompanyProfileData = {
   cities: CityOption[];
   amenities: AmenityOption[];
   selectedAmenityIds: string[];
+  selectedExtraCategoryIds: string[];
   businessHours: BusinessHour[];
   businessHourExtras: BusinessHourExtra[];
   photos: CompanyPhoto[];

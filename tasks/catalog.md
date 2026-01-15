@@ -179,3 +179,39 @@ z toho spravit react native + expo novu appku pre ios a android. Tak precitaj vs
 Chcem zmenit homepage. Pls. vytvor OpenSpec change proposal pre tuto funkciu. Prikladam aj screenshot co vlastne chcem 
 
 Chcem pridat novy field do db. Bude to "sub_category" co bude sub category pre hlavnu "category".vytvor OpenSpec change proposal
+
+
+task sync_on_prem_slq treba fixnut bug riadok okolo 153 ak vm neobsahuje uuid tak by malo pouzit machine_id. vytvor OpenSpec change proposal
+
+
+
+
+Tieto path zmaz.
+
+- [city]/[category] (zmazat)
+- [city]/categories (zmazat)
+- cities (zmazat)
+
+Toto vytvor.
+- listing 
+To je vlastne tab explore. 
+Tu sa zobrazuju listing companies, pricom zaznamy sa filtruju podla.
+
+    - filtre 
+        city, category (tabulka categories), sub_category (tabulka sub_categories), current location.
+
+    Kazda company ma services a kazda service (tabulka ) ma "sub_category". Takze ak je filter "sub_category" tak podla toho sa zobrazia companies
+    
+    
+
+
+
+    - order
+        - ratings
+        - distance (ak je location)
+    - 
+
+
+Categorie
+ - service type 
+ - service type category

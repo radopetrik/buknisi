@@ -12,7 +12,17 @@ export default async function ProfilePage() {
 
   const supabase = await createClient();
 
-  const [companyResult, categoriesResult, citiesResult, amenitiesResult, companyAmenitiesResult, businessHoursResult, extrasResult, photosResult] = await Promise.all([
+  const [
+    companyResult,
+    categoriesResult,
+    citiesResult,
+    amenitiesResult,
+    companyAmenitiesResult,
+    companyExtraCategoriesResult,
+    businessHoursResult,
+    extrasResult,
+    photosResult,
+  ] = await Promise.all([
     supabase
       .from("companies")
       .select(
@@ -24,6 +34,7 @@ export default async function ProfilePage() {
     supabase.from("cities").select("id, name, slug").order("name", { ascending: true }),
     supabase.from("amenities").select("id, name, icon").order("name", { ascending: true }),
     supabase.from("company_amenities").select("amenity_id").eq("company_id", company.id),
+    supabase.from("company_extra_categories").select("category_id").eq("company_id", company.id),
     supabase
       .from("company_business_hours")
       .select("id, day_in_week, from_time, to_time, break_from_time, break_to_time")
@@ -50,6 +61,9 @@ export default async function ProfilePage() {
   }
   if (companyAmenitiesResult.error) {
     throw companyAmenitiesResult.error;
+  }
+  if (companyExtraCategoriesResult.error) {
+    throw companyExtraCategoriesResult.error;
   }
   if (businessHoursResult.error) {
     throw businessHoursResult.error;
@@ -90,6 +104,7 @@ export default async function ProfilePage() {
     cities: (citiesResult.data ?? []).map((city) => ({ id: city.id, name: city.name, slug: city.slug })),
     amenities: (amenitiesResult.data ?? []).map((amenity) => ({ id: amenity.id, name: amenity.name, icon: amenity.icon ?? null })),
     selectedAmenityIds: (companyAmenitiesResult.data ?? []).map((entry) => entry.amenity_id),
+    selectedExtraCategoryIds: (companyExtraCategoriesResult.data ?? []).map((entry) => entry.category_id),
     businessHours: (businessHoursResult.data ?? []).map((hour) => ({
       id: hour.id,
       day_in_week: hour.day_in_week as DayOfWeek,
