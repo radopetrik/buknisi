@@ -887,7 +887,7 @@ export function ServicesManager({ initialData }: ServicesManagerProps) {
                   name="service_category_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Kategória služby</FormLabel>
+                      <FormLabel>Vlastné kategórie</FormLabel>
                       <FormControl>
                         <select
                           {...field}
