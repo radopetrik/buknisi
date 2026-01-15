@@ -13,13 +13,14 @@ INSERT INTO public.cities (name, slug) VALUES
 ON CONFLICT (slug) DO NOTHING;
 
 -- Seed categories from image (Slovak)
-INSERT INTO public.categories (name, slug, ordering) VALUES
-('Kaderníctvo', 'kadernictvo', 10),
-('Barbershop', 'barbershop', 20),
-('Kozmetika', 'kozmetika', 30),
-('Manikúra a pedikúra', 'manikura-pedikura', 40),
-('Fyzioterapia', 'fyzioterapia', 50),
-('Obočie a mihalnice', 'obocie-a-mihalnice', 60),
-('Masáže', 'masaze', 70),
-('Služby pre zvieratá', 'sluzby-pre-zvierata', 80)
+-- image_url is optional (icons can be managed later)
+INSERT INTO public.categories (name, slug, ordering, image_url) VALUES
+('Kaderníctvo', 'kadernictvo', 10, NULL),
+('Barbershop', 'barbershop', 20, NULL),
+('Kozmetika', 'kozmetika', 30, NULL),
+('Manikúra a pedikúra', 'manikura-pedikura', 40, NULL),
+('Fyzioterapia', 'fyzioterapia', 50, NULL),
+('Obočie a mihalnice', 'obocie-a-mihalnice', 60, NULL),
+('Masáže', 'masaze', 70, NULL),
+('Služby pre zvieratá', 'sluzby-pre-zvierata', 80, NULL)
 ON CONFLICT (slug) DO NOTHING;

@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS categories (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE,
   slug text NOT NULL UNIQUE,
-  ordering integer NOT NULL DEFAULT 0
+  ordering integer NOT NULL DEFAULT 0,
+  image_url text
 );
 
 CREATE TABLE IF NOT EXISTS cities (

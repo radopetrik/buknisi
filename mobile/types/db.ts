@@ -15,18 +15,21 @@ export interface Database {
           name: string
           slug: string
           ordering: number
+          image_url: string | null
         }
         Insert: {
           id?: string
           name: string
           slug: string
           ordering?: number
+          image_url?: string | null
         }
         Update: {
           id?: string
           name?: string
           slug?: string
           ordering?: number
+          image_url?: string | null
         }
       }
       sub_categories: {
