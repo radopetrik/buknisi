@@ -840,368 +840,356 @@ export function ProfileManager({ initialData }: ProfileManagerProps) {
   };
 
   const renderBasicTab = () => (
-    <div className="grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Store className="h-5 w-5 text-primary" />
-              Základné informácie
-            </CardTitle>
-            <CardDescription>
-              Tieto údaje definujú vašu značku a viditeľnosť.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...companyForm}>
-              <form className="space-y-6" onSubmit={companyForm.handleSubmit(handleOverviewSubmit)}>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField
-                    control={companyForm.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Názov prevádzky</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Napr. Studio Belle" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={companyForm.control}
-                    name="slug"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Webová adresa (slug)</FormLabel>
-                        <div className="flex rounded-md shadow-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-                          <span className="flex select-none items-center rounded-l-md border border-r-0 bg-muted px-3 text-sm text-muted-foreground">
-                            buknisi.sk/
-                          </span>
-                          <FormControl>
-                            <Input
-                              placeholder="studio-belle"
-                              {...field}
-                              className="rounded-l-none"
-                            />
-                          </FormControl>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
+    <div className="grid gap-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Store className="h-5 w-5 text-primary" />
+            Základné informácie
+          </CardTitle>
+          <CardDescription>Tieto údaje definujú vašu značku a viditeľnosť.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...companyForm}>
+            <form className="space-y-6" onSubmit={companyForm.handleSubmit(handleOverviewSubmit)}>
+              <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={companyForm.control}
-                  name="description"
+                  name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>O nás</FormLabel>
+                      <FormLabel>Názov prevádzky</FormLabel>
                       <FormControl>
-                        <textarea
-                          {...field}
-                          rows={4}
-                          className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                          placeholder="Napíšte pútavý príbeh o vašej firme..."
-                        />
+                        <Input placeholder="Napr. Studio Belle" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={companyForm.control}
+                  name="slug"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Webová adresa (slug)</FormLabel>
+                      <div className="flex rounded-md shadow-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+                        <span className="flex select-none items-center rounded-l-md border border-r-0 bg-muted px-3 text-sm text-muted-foreground">
+                          buknisi.sk/
+                        </span>
+                        <FormControl>
+                          <Input placeholder="studio-belle" {...field} className="rounded-l-none" />
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                <Separator />
+              <FormField
+                control={companyForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>O nás</FormLabel>
+                    <FormControl>
+                      <textarea
+                        {...field}
+                        rows={4}
+                        className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Napíšte pútavý príbeh o vašej firme..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <div className="space-y-4">
-                  <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Phone className="h-4 w-4" /> Kontakt
-                  </h4>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={companyForm.control}
-                      name="phone"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Telefón (verejný)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="+421 9xx xxx xxx" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={companyForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email (verejný)</FormLabel>
-                          <FormControl>
-                            <Input placeholder="info@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={companyForm.control}
-                      name="website"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Webstránka</FormLabel>
-                          <FormControl>
-                            <Input placeholder="https://..." {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
+              <Separator />
 
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <MapPin className="h-4 w-4" /> Adresa a lokalita
-                  </h4>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={companyForm.control}
-                      name="address_text"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Ulica a číslo</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Hlavná 123" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={companyForm.control}
-                      name="city_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mesto</FormLabel>
-                          <FormControl>
-                            <select
-                              {...field}
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              <option value="">Vyberte mesto</option>
-                              {initialData.cities.map((city) => (
-                                <option key={city.id} value={city.id}>
-                                  {city.name}
-                                </option>
-                              ))}
-                            </select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              <div className="space-y-4">
+                <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Phone className="h-4 w-4" /> Kontakt
+                </h4>
+                <div className="grid gap-4 md:grid-cols-2">
                   <FormField
                     control={companyForm.control}
-                    name="is_mobile"
+                    name="phone"
                     render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Mobilná prevádzka
-                          </FormLabel>
-                          <CardDescription>
-                            Služby poskytujem priamo u klienta (nemám kamennú prevádzku).
-                          </CardDescription>
-                        </div>
+                      <FormItem>
+                        <FormLabel>Telefón (verejný)</FormLabel>
                         <FormControl>
-                          <input
-                            type="checkbox"
-                            checked={field.value}
-                            onChange={(e) => field.onChange(e.target.checked)}
-                            className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
-                          />
+                          <Input placeholder="+421 9xx xxx xxx" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={companyForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email (verejný)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="info@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={companyForm.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Webstránka</FormLabel>
+                        <FormControl>
+                          <Input placeholder="https://..." {...field} />
+                        </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+              </div>
 
-                <Separator />
+              <Separator />
 
-                <div className="space-y-4">
-                  <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Globe className="h-4 w-4" /> Sociálne siete
-                  </h4>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <FormField
-                      control={companyForm.control}
-                      name="facebook"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Facebook</FormLabel>
-                          <div className="relative">
-                            <Facebook className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <FormControl>
-                              <Input className="pl-9" placeholder="https://facebook.com/..." {...field} />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={companyForm.control}
-                      name="instagram"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Instagram</FormLabel>
-                          <div className="relative">
-                            <Instagram className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <FormControl>
-                              <Input className="pl-9" placeholder="https://instagram.com/..." {...field} />
-                            </FormControl>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+              <div className="space-y-4">
+                <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <MapPin className="h-4 w-4" /> Adresa a lokalita
+                </h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={companyForm.control}
+                    name="address_text"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ulica a číslo</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Hlavná 123" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={companyForm.control}
+                    name="city_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Mesto</FormLabel>
+                        <FormControl>
+                          <select
+                            {...field}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Vyberte mesto</option>
+                            {initialData.cities.map((city) => (
+                              <option key={city.id} value={city.id}>
+                                {city.name}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
+                <FormField
+                  control={companyForm.control}
+                  name="is_mobile"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Mobilná prevádzka</FormLabel>
+                        <CardDescription>Služby poskytujem priamo u klienta (nemám kamennú prevádzku).</CardDescription>
+                      </div>
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                          className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                <div className="flex flex-col gap-2 pt-4">
-                  {overviewMessage ? (
-                    <div
-                      className={cn(
-                        "flex items-center gap-2 rounded-md px-3 py-2 text-sm",
-                        overviewMessage.type === "success"
-                          ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
-                          : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400",
-                      )}
-                    >
-                      {overviewMessage.type === "success" ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <AlertTriangle className="h-4 w-4" />
-                      )}
-                      {overviewMessage.text}
-                    </div>
-                  ) : null}
-                  <div className="flex justify-end">
-                    <Button type="submit" disabled={isOverviewPending} size="lg">
-                      {isOverviewPending ? "Ukladám..." : "Uložiť zmeny"}
-                    </Button>
-                  </div>
+              <Separator />
+
+              <div className="space-y-4">
+                <h4 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Globe className="h-4 w-4" /> Sociálne siete
+                </h4>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField
+                    control={companyForm.control}
+                    name="facebook"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Facebook</FormLabel>
+                        <div className="relative">
+                          <Facebook className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <FormControl>
+                            <Input className="pl-9" placeholder="https://facebook.com/..." {...field} />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={companyForm.control}
+                    name="instagram"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Instagram</FormLabel>
+                        <div className="relative">
+                          <Instagram className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <FormControl>
+                            <Input className="pl-9" placeholder="https://instagram.com/..." {...field} />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
 
-      <div className="space-y-6">
-        <Card className="bg-muted/50">
-          <CardHeader>
-            <CardTitle className="text-base">Hlavná kategória</CardTitle>
-            <CardDescription>
-              Zaraďte vašu firmu správne, aby vás klienti našli.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <FormField
-              control={companyForm.control}
-              name="category_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <div className="grid gap-2">
-                      {initialData.categories.map((category) => (
-                        <label
-                          key={category.id}
-                          className={cn(
-                            "flex cursor-pointer items-center justify-between rounded-md border p-3 transition-all hover:bg-background",
-                            field.value === category.id
-                              ? "border-primary bg-background ring-1 ring-primary"
-                              : "bg-card"
-                          )}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">{category.name}</span>
-                          </div>
-                          <input
-                            type="radio"
-                            name="category"
-                            value={category.id}
-                            checked={field.value === category.id}
-                            onChange={() => field.onChange(category.id)}
-                            className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
-                          />
-                        </label>
-                      ))}
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+              <Separator />
 
-        <Card className="bg-muted/50">
-          <CardHeader>
-            <CardTitle className="text-base">Extra kategórie</CardTitle>
-            <CardDescription>Vyberte ďalšie kategórie, v ktorých sa chcete zobrazovať.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-2">
-              {!overviewValues.category_id ? (
-                <p className="text-sm text-muted-foreground">Najprv vyberte hlavnú kategóriu.</p>
-              ) : initialData.categories.filter((category) => category.id !== overviewValues.category_id).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Žiadne ďalšie kategórie na výber.</p>
-              ) : (
-                initialData.categories
-                  .filter((category) => category.id !== overviewValues.category_id)
-                  .map((category) => (
-                    <label
-                      key={category.id}
-                      className={cn(
-                        "flex cursor-pointer items-center justify-between rounded-md border p-3 transition-all hover:bg-background",
-                        extraCategoryState.includes(category.id) ? "border-primary bg-background ring-1 ring-primary" : "bg-card",
-                      )}
-                    >
-                      <span className="text-sm font-medium">{category.name}</span>
-                      <input
-                        type="checkbox"
-                        value={category.id}
-                        checked={extraCategoryState.includes(category.id)}
-                        onChange={() => toggleExtraCategory(category.id)}
-                        className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+              <div className="space-y-6">
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <Card className="bg-muted/50">
+                    <CardHeader>
+                      <CardTitle className="text-base">Hlavná kategória</CardTitle>
+                      <CardDescription>Zaraďte vašu firmu správne, aby vás klienti našli.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <FormField
+                        control={companyForm.control}
+                        name="category_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="grid gap-2">
+                                {initialData.categories.map((category) => (
+                                  <label
+                                    key={category.id}
+                                    className={cn(
+                                      "flex cursor-pointer items-center justify-between rounded-md border p-3 transition-all hover:bg-background",
+                                      field.value === category.id
+                                        ? "border-primary bg-background ring-1 ring-primary"
+                                        : "bg-card",
+                                    )}
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-medium">{category.name}</span>
+                                    </div>
+                                    <input
+                                      type="radio"
+                                      name="category"
+                                      value={category.id}
+                                      checked={field.value === category.id}
+                                      onChange={() => field.onChange(category.id)}
+                                      className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                                    />
+                                  </label>
+                                ))}
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                    </label>
-                  ))
-              )}
-            </div>
-          </CardContent>
-        </Card>
+                    </CardContent>
+                  </Card>
 
-        <Card className="bg-blue-50/50 dark:bg-blue-950/10 border-blue-100 dark:border-blue-900/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-blue-700 dark:text-blue-400">
-              <Info className="h-4 w-4" /> Tip pre lepší profil
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-blue-600/80 dark:text-blue-400/80">
-            <p>
-              Vyplňte všetky kontaktné údaje vrátane sociálnych sietí.
-              Profily s kompletnými informáciami majú o <strong>40% viac rezervácií</strong>.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+                  <Card className="bg-muted/50">
+                    <CardHeader>
+                      <CardTitle className="text-base">Extra kategórie</CardTitle>
+                      <CardDescription>Vyberte ďalšie kategórie, v ktorých sa chcete zobrazovať.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-2">
+                        {!overviewValues.category_id ? (
+                          <p className="text-sm text-muted-foreground">Najprv vyberte hlavnú kategóriu.</p>
+                        ) : initialData.categories.filter((category) => category.id !== overviewValues.category_id).length === 0 ? (
+                          <p className="text-sm text-muted-foreground">Žiadne ďalšie kategórie na výber.</p>
+                        ) : (
+                          initialData.categories
+                            .filter((category) => category.id !== overviewValues.category_id)
+                            .map((category) => (
+                              <label
+                                key={category.id}
+                                className={cn(
+                                  "flex cursor-pointer items-center justify-between rounded-md border p-3 transition-all hover:bg-background",
+                                  extraCategoryState.includes(category.id)
+                                    ? "border-primary bg-background ring-1 ring-primary"
+                                    : "bg-card",
+                                )}
+                              >
+                                <span className="text-sm font-medium">{category.name}</span>
+                                <input
+                                  type="checkbox"
+                                  value={category.id}
+                                  checked={extraCategoryState.includes(category.id)}
+                                  onChange={() => toggleExtraCategory(category.id)}
+                                  className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
+                                />
+                              </label>
+                            ))
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card className="bg-blue-50/50 border-blue-100 dark:bg-blue-950/10 dark:border-blue-900/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base text-blue-700 dark:text-blue-400">
+                      <Info className="h-4 w-4" /> Tip pre lepší profil
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-sm text-blue-600/80 dark:text-blue-400/80">
+                    <p>
+                      Vyplňte všetky kontaktné údaje vrátane sociálnych sietí. Profily s kompletnými informáciami majú o{" "}
+                      <strong>40% viac rezervácií</strong>.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="flex flex-col gap-2 pt-4">
+                {overviewMessage ? (
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 rounded-md px-3 py-2 text-sm",
+                      overviewMessage.type === "success"
+                        ? "bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400"
+                        : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400",
+                    )}
+                  >
+                    {overviewMessage.type === "success" ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                    {overviewMessage.text}
+                  </div>
+                ) : null}
+                <div className="flex justify-end">
+                  <Button type="submit" disabled={isOverviewPending} size="lg">
+                    {isOverviewPending ? "Ukladám..." : "Uložiť zmeny"}
+                  </Button>
+                </div>
+              </div>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </div>
   );
 
