@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, Stack, router } from 'expo-router';
+import { Link, Stack, router, useFocusEffect } from 'expo-router';
 import { Calendar, ChevronDown, Clock, Search, X } from 'lucide-react-native';
 import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, isSameDay, startOfMonth } from 'date-fns';
 import { sk } from 'date-fns/locale';
@@ -17,6 +17,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function SearchScreen() {
   const [selectedCity, setSelectedCity] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string; slug: string } | null>(null);
 
   // Search State
   const [query, setQuery] = useState('');
@@ -32,9 +33,11 @@ export default function SearchScreen() {
   // Calendar View State
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  useEffect(() => {
-    fetchCities();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCities();
+    }, []),
+  );
 
   // Debounced Search
   useEffect(() => {
@@ -129,10 +132,29 @@ export default function SearchScreen() {
       return;
     }
 
+    // Category: only select, do not navigate yet
+    setSelectedCategory({ id: String(item.id), name: item.name, slug: item.slug });
+  };
+
+  const handleSearch = () => {
+    const params: any = {};
+    if (dateRange.from) params.date = format(dateRange.from, 'yyyy-MM-dd');
+    if (timeFrom) params.timeFrom = timeFrom;
+    if (timeTo) params.timeTo = timeTo;
+
     const citySlug = selectedCity?.slug || 'bratislava';
+
+    if (selectedCategory) {
+      router.push({
+        pathname: '/[city]/[category]',
+        params: { city: citySlug, category: selectedCategory.slug, ...params },
+      });
+      return;
+    }
+
     router.push({
-      pathname: '/[city]/[category]',
-      params: { city: citySlug, category: item.slug, ...params },
+      pathname: '/[city]',
+      params: { city: citySlug, ...params },
     });
   };
 
@@ -176,7 +198,7 @@ export default function SearchScreen() {
         {/* Lokalita */}
         <Box className="mb-6">
           <Text className="text-text-muted text-xs uppercase font-bold tracking-widest">Lokalita</Text>
-          <Link href="/cities" asChild>
+          <Link href={{ pathname: '/cities', params: { returnTo: '/search' } }} asChild>
             <Pressable className="flex-row items-center mt-1">
               <Heading className="text-xl font-bold text-text-main mr-2">
                 {selectedCity?.name || 'Vybrať mesto'}
@@ -216,6 +238,17 @@ export default function SearchScreen() {
               )}
             </Input>
           </Box>
+
+          {selectedCategory && (
+            <Box className="mb-3">
+              <Box className="flex-row items-center self-start bg-gray-100 rounded-full px-3 py-2">
+                <Text className="text-sm font-medium text-text-main mr-2">{selectedCategory.name}</Text>
+                <Pressable onPress={() => setSelectedCategory(null)} className="p-1">
+                  <Icon as={X} size="xs" className="text-gray-500" />
+                </Pressable>
+              </Box>
+            </Box>
+          )}
 
           <Pressable className="flex-row items-center" onPress={() => setShowDateModal(true)}>
             <Icon as={Calendar} size="sm" className="text-gray-400 mr-3" />
@@ -282,6 +315,12 @@ export default function SearchScreen() {
           )}
         </Box>
       </ScrollView>
+
+      <Box className="p-4 pt-0">
+        <Pressable className="bg-primary py-4 rounded-xl items-center shadow-md" onPress={handleSearch}>
+          <Text className="text-white font-bold text-lg">Vyhľadávať</Text>
+        </Pressable>
+      </Box>
 
       {/* Date Filter Modal */}
       <Modal

@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Stack, router } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function CitiesScreen() {
+  const { returnTo } = useLocalSearchParams();
   const [cities, setCities] = useState<any[]>([]);
 
   useEffect(() => {
@@ -32,6 +33,11 @@ export default function CitiesScreen() {
     } catch {
       // ignore
     } finally {
+      if (typeof returnTo === 'string' && returnTo.length > 0) {
+        router.back();
+        return;
+      }
+
       router.push(`/${city.slug}`);
     }
   }
