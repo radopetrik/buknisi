@@ -511,13 +511,20 @@ export default function BookingScreen() {
             {/* Bottom CTA */}
             <View className="p-4 bg-white border-t border-gray-100">
                 {step === 1 && (
-                    <TouchableOpacity
-                        className={`p-4 rounded-full items-center ${services.length === 0 ? 'bg-gray-300' : 'bg-primary'}`}
-                        disabled={services.length === 0}
-                        onPress={() => setStep(2)}
-                    >
-                        <Text className="text-white font-bold text-lg">Pokračovať</Text>
-                    </TouchableOpacity>
+                    <>
+                        <View className="flex-row items-center justify-between mb-3">
+                            <Text className={`text-lg font-semibold ${services.length === 0 ? 'text-gray-400' : 'text-text-muted'}`}>Spolu</Text>
+                            <Text className={`text-2xl font-extrabold ${services.length === 0 ? 'text-gray-400' : 'text-text-main'}`}>{totalPrice}€ • {totalDuration} min</Text>
+                        </View>
+
+                        <TouchableOpacity
+                            className={`p-4 rounded-full items-center ${services.length === 0 ? 'bg-gray-300' : 'bg-primary'}`}
+                            disabled={services.length === 0}
+                            onPress={() => setStep(2)}
+                        >
+                            <Text className="text-white font-bold text-lg">Pokračovať</Text>
+                        </TouchableOpacity>
+                    </>
                 )}
 
                 {step === 2 && (
