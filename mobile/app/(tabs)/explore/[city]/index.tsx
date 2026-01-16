@@ -1,11 +1,44 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, TextInput, ActivityIndicator } from 'react-native';
-import { Stack, useLocalSearchParams, Link, router } from 'expo-router';
-import { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  TextInput,
+  ActivityIndicator,
+  BackHandler,
+} from 'react-native';
+import { Stack, useLocalSearchParams, Link, router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function CityScreen() {
   const { city: citySlug } = useLocalSearchParams();
+
+  const goBackOrHome = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.navigate('/(tabs)');
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (router.canGoBack()) {
+          return false;
+        }
+
+        router.navigate('/(tabs)');
+        return true;
+      });
+
+      return () => subscription.remove();
+    }, []),
+  );
   const [city, setCity] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
@@ -63,7 +96,17 @@ export default function CityScreen() {
 
   return (
     <View className="flex-1 bg-background">
-      <Stack.Screen options={{ title: city.name, headerBackTitle: 'Mestá' }} />
+      <Stack.Screen
+        options={{
+          title: city.name,
+          headerLeft: () => (
+            <TouchableOpacity onPress={goBackOrHome} className="flex-row items-center">
+              <FontAwesome name="chevron-left" size={16} color="#d4a373" style={{ marginRight: 6 }} />
+              <Text className="text-primary font-semibold">Späť</Text>
+            </TouchableOpacity>
+          ),
+        }}
+      />
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
         
         {/* Search Box */}

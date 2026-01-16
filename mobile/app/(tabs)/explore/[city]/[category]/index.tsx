@@ -7,9 +7,10 @@ import {
   ActivityIndicator,
   Modal,
   Alert,
+  BackHandler,
 } from 'react-native';
-import { Stack, useLocalSearchParams, Link, router } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { Stack, useLocalSearchParams, Link, router, useFocusEffect } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchInputTrigger } from '@/components/search/SearchInputTrigger';
@@ -20,6 +21,30 @@ export default function CategoryListingScreen() {
     category: categorySlug,
     sub_category: subCategorySlug,
   } = useLocalSearchParams();
+
+  const goBackOrHome = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.navigate('/(tabs)');
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        if (router.canGoBack()) {
+          return false;
+        }
+
+        router.navigate('/(tabs)');
+        return true;
+      });
+
+      return () => subscription.remove();
+    }, []),
+  );
 
   const [data, setData] = useState<{
     city: any;
@@ -172,21 +197,26 @@ export default function CategoryListingScreen() {
   return (
     <View className="flex-1 bg-background">
       <Stack.Screen
-        options={{
-          headerTitle: () => (
-            <TouchableOpacity
-              onPress={() => setCategoryModalOpen(true)}
-              className="flex-row items-center"
-            >
-              <Text className="text-base font-bold text-primary underline mr-2">
-                {data.category.name}
-              </Text>
-              <FontAwesome name="chevron-down" size={14} color="#d4a373" />
-            </TouchableOpacity>
-          ),
-          headerBackTitle: 'Späť',
-        }}
-      />
+         options={{
+           headerLeft: () => (
+             <TouchableOpacity onPress={goBackOrHome} className="flex-row items-center">
+               <FontAwesome name="chevron-left" size={16} color="#d4a373" style={{ marginRight: 6 }} />
+               <Text className="text-primary font-semibold">Späť</Text>
+             </TouchableOpacity>
+           ),
+           headerTitle: () => (
+             <TouchableOpacity
+               onPress={() => setCategoryModalOpen(true)}
+               className="flex-row items-center"
+             >
+               <Text className="text-base font-bold text-primary underline mr-2">
+                 {data.category.name}
+               </Text>
+               <FontAwesome name="chevron-down" size={14} color="#d4a373" />
+             </TouchableOpacity>
+           ),
+         }}
+       />
 
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
         {/* Search Trigger */}
