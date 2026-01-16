@@ -111,19 +111,7 @@ export default function ExploreScreen() {
 
         {/* Categories */}
         <Box className="mb-8">
-          <Box className="flex-row flex-wrap items-baseline mb-4">
-            <Heading className="text-lg font-bold text-text-main">Kategórie v meste</Heading>
-            <Pressable
-              onPress={() => setCityModalOpen(true)}
-              className="flex-row items-center ml-2"
-              disabled={savingCity}
-            >
-              <Text className="text-lg font-bold text-primary underline mr-1">
-                {savingCity ? 'Ukladám...' : selectedCity?.name || 'Vybrať'}
-              </Text>
-              <Icon as={ChevronDown} size="sm" className="text-primary" />
-            </Pressable>
-          </Box>
+          <Heading className="text-lg font-bold text-text-main mb-4">Služby</Heading>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}

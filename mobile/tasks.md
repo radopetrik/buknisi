@@ -50,3 +50,8 @@ Appka "mobile". Sekcia Prehliadat vyhodit Location
 Appka "mobile". Search page. Pridat button "Vyhladavat". Field city nech moze vybrat city ale po kliku sa iba vyberie city. Pri search ak user klikne na kategoriu tak sa neodkaze na na list ale ostane na search a vyberie sa kagoria. Ak sa klikne na butto vyhladavat tak sa odkaze na spravne page
 
 Appka mobile, sekcia "Prehladavat (explore)". Ako je nadpis kategorie tak pridat aj nazov mesta. Napr. kategorie v meste xyz. Pricom mesto bude klikacie a bude sa dat zmenit na klik. vybehne nejake modal kde sa to zmeni. Ak sa zmeni mesto tak sa zmeni aj prefered_city v profile. 
+
+
+Appka mobile, sekcia "Prehladavat (explore)". Ako sa zobrazuju kategorie "Services" tak miesto toho zobrazovat "sub_categories". Odkaz ostava ako je (kategoria sa vytiahne z sub_categorie). posle sa ale novy parameter "sub_category".
+Tento novy parameter sa pouzije na page city->category. Na city->category Bude zobrazovat companies  ktore maju service so sub-categoriou vybranou (ak nebude vybrana tak ignorovat). Takisto na page city->category pridaj sub-categories tak ako su v explore s tym rozdielom ze budu orderovane podla categorie ktora je vybrana. Na tej istej stranke by som ako je hlavicka a je nazov vybranej kategorie tak aby sa dalo kliknut a zmenit vybranu kategoriu. Vyhodit mesto za kageoriou.
+Hned pod zoznam "sub_categorii" ako je nadpis "<cat name> v meste <city> tak cat name nahradit sub_category a ak nieje vybrana zobrazit iba Mesto <city>. Mesto nech je klikacie tak ako v expore a da sa zmenit. 
