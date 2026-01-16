@@ -49,6 +49,7 @@ function getCategoryIcon(slug: string): LucideIcon | null {
 export function CategoryRail() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [failedImagesById, setFailedImagesById] = useState<Record<string, boolean>>({});
+  const [preferredCitySlug, setPreferredCitySlug] = useState('bratislava');
 
   const categoriesByRow = useMemo(() => {
     const rows: Category[][] = [];
@@ -65,6 +66,45 @@ export function CategoryRail() {
     }
 
     fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    async function fetchPreferredCitySlug() {
+      try {
+        let citySlug = 'bratislava';
+
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('preferred_city_id')
+            .eq('id', user.id)
+            .single();
+
+          const preferredCityId = profile?.preferred_city_id;
+          if (preferredCityId) {
+            const { data: city } = await supabase
+              .from('cities')
+              .select('slug')
+              .eq('id', preferredCityId)
+              .single();
+
+            if (city?.slug) {
+              citySlug = city.slug;
+            }
+          }
+        }
+
+        setPreferredCitySlug(citySlug);
+      } catch {
+        // ignore and keep default
+      }
+    }
+
+    fetchPreferredCitySlug();
   }, []);
 
   if (categories.length === 0) {
@@ -87,8 +127,11 @@ export function CategoryRail() {
                   className="items-center"
                   onPress={() =>
                     router.push({
-                      pathname: '/(tabs)/explore',
-                      params: { category: category.slug },
+                      pathname: '/explore/[city]/[category]',
+                      params: {
+                        city: preferredCitySlug,
+                        category: category.slug,
+                      },
                     })
                   }
                 >

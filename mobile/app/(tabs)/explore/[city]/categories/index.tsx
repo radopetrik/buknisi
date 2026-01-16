@@ -45,7 +45,7 @@ export default function CityCategoriesScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="flex-row flex-wrap gap-3">
             {categories.map((cat) => (
-                <Link key={cat.id} href={`/${city.slug}/${cat.slug}`} asChild>
+                <Link key={cat.id} href={`/explore/${city.slug}/${cat.slug}`} asChild>
                     <TouchableOpacity className="bg-white px-5 py-4 rounded-xl border border-gray-100 shadow-sm flex-grow">
                         <Text className="font-semibold text-text-main text-center">{cat.name}</Text>
                     </TouchableOpacity>

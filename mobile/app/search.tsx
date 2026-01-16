@@ -187,14 +187,14 @@ export default function SearchScreen() {
 
     if (selectedCategory) {
       router.push({
-        pathname: '/[city]/[category]',
+        pathname: '/explore/[city]/[category]',
         params: { city: citySlug, category: selectedCategory.slug, ...params },
       });
       return;
     }
 
     router.push({
-      pathname: '/[city]',
+      pathname: '/explore/[city]',
       params: { city: citySlug, ...params },
     });
   };

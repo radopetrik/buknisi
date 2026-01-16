@@ -130,7 +130,7 @@ export default function ExploreScreen() {
                   const categorySlug = subCat.category?.slug;
 
                   if (categorySlug) {
-                    router.push(`/${citySlug}/${categorySlug}?sub_category=${subCat.slug}`);
+                    router.push(`/explore/${citySlug}/${categorySlug}?sub_category=${subCat.slug}`);
                   }
                 }}
                 className="mr-3 bg-white px-4 py-3 rounded-full border border-gray-100 shadow-sm"

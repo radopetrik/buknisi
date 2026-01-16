@@ -42,7 +42,7 @@ export function CityGrid() {
         <View key={rowIndex} style={{ flexDirection: 'row', marginBottom: 12 }}>
           {row.map((city) => (
             <View key={city.id} style={{ width: '50%', paddingHorizontal: 6 }}>
-              <Pressable onPress={() => router.push(`/${city.slug}`)}>
+              <Pressable onPress={() => router.push(`/explore/${city.slug}`)}>
                 <Box className="bg-white rounded-xl px-4 py-3 border border-border">
                   <Text className="text-text-main font-semibold text-center" numberOfLines={1}>
                     {city.name}

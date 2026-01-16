@@ -137,7 +137,7 @@ export default function CategoryListingScreen() {
         ? `?sub_category=${encodeURIComponent(data.subCategory.slug)}`
         : '';
 
-      router.push(`/${city.slug}/${data.category.slug}${subCategoryPart}`);
+      router.push(`/explore/${city.slug}/${data.category.slug}${subCategoryPart}`);
       setCityModalOpen(false);
     } finally {
       setSavingCity(false);
@@ -147,7 +147,7 @@ export default function CategoryListingScreen() {
   function handleSelectCategory(category: any) {
     if (!data?.city) return;
 
-    router.push(`/${data.city.slug}/${category.slug}`);
+    router.push(`/explore/${data.city.slug}/${category.slug}`);
     setCategoryModalOpen(false);
   }
 
@@ -203,7 +203,7 @@ export default function CategoryListingScreen() {
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
           >
             <TouchableOpacity
-              onPress={() => router.push(`/${data.city.slug}/${data.category.slug}`)}
+              onPress={() => router.push(`/explore/${data.city.slug}/${data.category.slug}`)}
               className={`mr-3 px-4 py-3 rounded-full border shadow-sm ${
                 !selectedSubCategorySlug
                   ? 'bg-primary border-primary'
@@ -227,7 +227,7 @@ export default function CategoryListingScreen() {
                   key={subCat.id}
                   onPress={() =>
                     router.push(
-                      `/${data.city.slug}/${data.category.slug}?sub_category=${encodeURIComponent(
+                      `/explore/${data.city.slug}/${data.category.slug}?sub_category=${encodeURIComponent(
                         subCat.slug
                       )}`
                     )

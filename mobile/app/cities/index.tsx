@@ -38,7 +38,7 @@ export default function CitiesScreen() {
         return;
       }
 
-      router.push(`/${city.slug}`);
+      router.push(`/explore/${city.slug}`);
     }
   }
 

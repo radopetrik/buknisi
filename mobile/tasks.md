@@ -55,3 +55,14 @@ Appka mobile, sekcia "Prehladavat (explore)". Ako je nadpis kategorie tak pridat
 Appka mobile, sekcia "Prehladavat (explore)". Ako sa zobrazuju kategorie "Services" tak miesto toho zobrazovat "sub_categories". Odkaz ostava ako je (kategoria sa vytiahne z sub_categorie). posle sa ale novy parameter "sub_category".
 Tento novy parameter sa pouzije na page city->category. Na city->category Bude zobrazovat companies  ktore maju service so sub-categoriou vybranou (ak nebude vybrana tak ignorovat). Takisto na page city->category pridaj sub-categories tak ako su v explore s tym rozdielom ze budu orderovane podla categorie ktora je vybrana. Na tej istej stranke by som ako je hlavicka a je nazov vybranej kategorie tak aby sa dalo kliknut a zmenit vybranu kategoriu. Vyhodit mesto za kageoriou.
 Hned pod zoznam "sub_categorii" ako je nadpis "<cat name> v meste <city> tak cat name nahradit sub_category a ak nieje vybrana zobrazit iba Mesto <city>. Mesto nech je klikacie tak ako v expore a da sa zmenit. 
+
+Appka mobile, page city->category, nech sa na nej zobrazuje menu (spodne tabs). Nepidavat nic do tabs iba nech sa na tej page zobrazi spodne menu a ze som v "explore"
+
+
+Dalsia uloha, z page "home" ako su kategorie tak nech je odklik na "city-category" 
+
+
+Appka mobile, Search page, pridaj do vyhladavania "Co hladame" aj moznost vyhladat sub_category. Potom zmen, ze ak je vybrana category alebo sub_category tak ta to hodi na city->category, po kliknuti na search. Taktiez povolit vo vyhladavani pridat iba jednu polozku.
+
+Sprav search nech je taky modal lebo nieje zapleny tak moze byt modal. Pozri kde vsade sa pouziva a zmen to.
+

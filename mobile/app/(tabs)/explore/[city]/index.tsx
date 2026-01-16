@@ -86,7 +86,7 @@ export default function CityScreen() {
         <View className="mb-8">
             <View className="flex-row justify-between items-center mb-4">
                 <Text className="text-lg font-bold text-text-main">Kategórie</Text>
-                <Link href={`/${city.slug}/categories`} asChild>
+                <Link href={`/explore/${city.slug}/categories`} asChild>
                     <TouchableOpacity>
                         <Text className="text-sm text-primary font-semibold">Všetky</Text>
                     </TouchableOpacity>
@@ -101,7 +101,7 @@ export default function CityScreen() {
                 {categories.map((cat) => (
                     <TouchableOpacity 
                         key={cat.id} 
-                        onPress={() => router.push(`/${city.slug}/${cat.slug}`)}
+                        onPress={() => router.push(`/explore/${city.slug}/${cat.slug}`)}
                         className="mr-3 bg-white px-4 py-3 rounded-full border border-gray-100 shadow-sm"
                     >
                         <Text className="font-semibold text-text-main">{cat.name}</Text>
