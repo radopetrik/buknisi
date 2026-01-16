@@ -66,3 +66,10 @@ Appka mobile, Search page, pridaj do vyhladavania "Co hladame" aj moznost vyhlad
 
 Sprav search nech je taky modal lebo nieje zapleny tak moze byt modal. Pozri kde vsade sa pouziva a zmen to.
 
+----
+Appka admin:
+
+1. Calendar
+
+2. 
+
