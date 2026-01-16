@@ -15,7 +15,7 @@ import { SearchInputTrigger } from '@/components/search/SearchInputTrigger';
 
 export default function ExploreScreen() {
   const [cities, setCities] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [subCategories, setSubCategories] = useState<any[]>([]);
   const [companies, setCompanies] = useState<any[]>([]);
   const [selectedCity, setSelectedCity] = useState<any>(null);
 
@@ -37,9 +37,13 @@ export default function ExploreScreen() {
   }
 
   async function fetchData() {
-    const [{ data: citiesData }, { data: catsData }] = await Promise.all([
+    const [{ data: citiesData }, { data: subCatsData }] = await Promise.all([
       supabase.from('cities').select('*').order('name'),
-      supabase.from('categories').select('*').order('ordering'),
+      supabase
+        .from('sub_categories')
+        .select('*, category:categories(id, name, slug, ordering)')
+        .order('ordering', { foreignTable: 'category' })
+        .order('ordering'),
     ]);
 
     if (citiesData && citiesData.length > 0) {
@@ -70,7 +74,7 @@ export default function ExploreScreen() {
       await fetchCompanies();
     }
 
-    if (catsData) setCategories(catsData);
+    if (subCatsData) setSubCategories(subCatsData);
   }
 
   async function handleSelectCity(city: any) {
@@ -118,13 +122,20 @@ export default function ExploreScreen() {
             className="mx-[-16px]"
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
           >
-            {categories.map((cat) => (
+            {subCategories.map((subCat) => (
               <Pressable
-                key={cat.id}
-                onPress={() => router.push(`/${selectedCity?.slug || 'bratislava'}/${cat.slug}`)}
+                key={subCat.id}
+                onPress={() => {
+                  const citySlug = selectedCity?.slug || 'bratislava';
+                  const categorySlug = subCat.category?.slug;
+
+                  if (categorySlug) {
+                    router.push(`/${citySlug}/${categorySlug}?sub_category=${subCat.slug}`);
+                  }
+                }}
                 className="mr-3 bg-white px-4 py-3 rounded-full border border-gray-100 shadow-sm"
               >
-                <Text className="font-semibold text-text-main">{cat.name}</Text>
+                <Text className="font-semibold text-text-main">{subCat.name}</Text>
               </Pressable>
             ))}
           </ScrollView>
