@@ -45,7 +45,7 @@ export default function CalendarScreen() {
 
   return (
     <Box className="flex-1 bg-gray-50">
-      <Stack.Screen options={{ title: "Calendar" }} />
+      <Stack.Screen options={{ headerTitle: "Kalendár" }} />
       
       {/* Week Strip */}
       <Box className="bg-white pb-4 pt-2 shadow-sm z-10">

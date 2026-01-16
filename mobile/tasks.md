@@ -70,6 +70,12 @@ Sprav search nech je taky modal lebo nieje zapleny tak moze byt modal. Pozri kde
 Appka admin:
 
 1. Calendar
+- appka mobile-admin, page callendar. Na tejto page chcem dosiahnut tuto funkcionalitu. Ako prve uvidi prihlaseny user svoje rezervacie v zozname nejak odelene po dnoch v nadpise, ale stale scrolujes v nekonecnom zozname do buducnosti. Dalej bude mozne vidiet calendar ako -> agenda, day, week, nonth a filtrovat podla staff (vsetko alebo iba vybrany staff).
+
+-  appka mobile-admin, page callendar. pridat moznost pridat novy booking. chcel by som dat do stredu medzy ikonky velke "+" ikonu ked sa klikne tak sa otvori modal na pridat objednavky. Co ma obsahovat ten form mozes pozriet na appke "admin" v sekcii ->calendar -> novy booking
+
+
+appka mobile-admin. Odober dashboard a pridaj novu page "billing". Funkcionalitu sprav podla appky "admin" -> protected -> billing. 
 
 2. 
 

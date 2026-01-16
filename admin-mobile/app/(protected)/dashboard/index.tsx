@@ -96,7 +96,7 @@ export default function DashboardScreen() {
       contentContainerStyle={{ padding: 16 }}
       refreshControl={<RefreshControl refreshing={statsLoading} onRefresh={refetch} />}
     >
-      <Stack.Screen options={{ title: company?.name || "Dashboard", headerShadowVisible: false }} />
+      <Stack.Screen options={{ headerTitle: company?.name || "Dashboard", headerShadowVisible: false }} />
       
       <HStack className="flex-wrap -mx-1 mb-4">
         <Box className="w-1/2">

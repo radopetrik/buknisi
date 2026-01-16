@@ -42,7 +42,7 @@ export default function ClientsScreen() {
 
   return (
     <Box className="flex-1 bg-gray-50">
-      <Stack.Screen options={{ title: "Clients" }} />
+      <Stack.Screen options={{ headerTitle: "Klienti" }} />
       
       <Box className="p-4 bg-white border-b border-gray-200">
         <Input className="bg-gray-100 rounded-lg h-10 border-0">
