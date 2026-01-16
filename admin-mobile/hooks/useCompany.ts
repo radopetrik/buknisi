@@ -1,28 +1,47 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { isInvalidRefreshTokenError, supabase } from "@/lib/supabase";
 
 export function useCompany() {
   return useQuery({
     queryKey: ["company"],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user");
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
 
-      const { data: companyUser } = await supabase
-        .from("company_users")
-        .select("company_id")
-        .eq("user_id", user.id)
-        .single();
+        if (error) {
+          if (isInvalidRefreshTokenError(error)) {
+            await supabase.auth.signOut({ scope: "local" });
+          }
+          throw error;
+        }
 
-      if (!companyUser) throw new Error("No company found");
+        if (!user) throw new Error("No user");
 
-      const { data: company } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("id", companyUser.company_id)
-        .single();
+        const { data: companyUser } = await supabase
+          .from("company_users")
+          .select("company_id")
+          .eq("user_id", user.id)
+          .single();
 
-      return company;
+        if (!companyUser) throw new Error("No company found");
+
+        const { data: company } = await supabase
+          .from("companies")
+          .select("*")
+          .eq("id", companyUser.company_id)
+          .single();
+
+        return company;
+      } catch (error) {
+        if (isInvalidRefreshTokenError(error)) {
+          await supabase.auth.signOut({ scope: "local" });
+        }
+
+        throw error;
+      }
     },
   });
 }

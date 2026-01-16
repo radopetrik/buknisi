@@ -22,3 +22,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 });
+
+export function isInvalidRefreshTokenError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+
+  const maybeMessage = "message" in error ? (error as { message?: unknown }).message : undefined;
+  if (typeof maybeMessage !== "string") return false;
+
+  return maybeMessage.includes("Invalid Refresh Token");
+}

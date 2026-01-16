@@ -1,7 +1,7 @@
 import { Alert, Pressable, ScrollView } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
-import { Users, Star, User, Settings, LogOut, ChevronRight } from "lucide-react-native";
+import { Users, Star, User, Settings, ChevronRight } from "lucide-react-native";
 
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
@@ -16,11 +16,20 @@ export default function MenuScreen() {
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) {
-        Alert.alert("Error", error.message);
-    } else {
-        router.replace("/(auth)/login");
+
+    if (!error) {
+      router.replace("/(auth)/login");
+      return;
     }
+
+    // If refresh token is already invalid/revoked, fall back to local sign-out.
+    if (error.message.includes("Invalid Refresh Token")) {
+      await supabase.auth.signOut({ scope: "local" });
+      router.replace("/(auth)/login");
+      return;
+    }
+
+    Alert.alert("Error", error.message);
   };
 
   const menuItems = [
