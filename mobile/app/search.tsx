@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Modal, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, Stack, router, useFocusEffect } from 'expo-router';
@@ -15,12 +15,19 @@ import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
 import { supabase } from '@/lib/supabase';
 
+function normalizeForSearch(value: string) {
+  if (!value) return '';
+  const normalized = typeof value.normalize === 'function' ? value.normalize('NFD') : value;
+  return normalized.replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+}
+
 export default function SearchScreen() {
   const [selectedCity, setSelectedCity] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<{ id: string; name: string; slug: string } | null>(null);
 
   // Search State
   const [query, setQuery] = useState('');
+  const allCategoriesRef = useRef<any[]>([]);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
 
@@ -41,50 +48,84 @@ export default function SearchScreen() {
 
   // Debounced Search
   useEffect(() => {
+    let cancelled = false;
+
     const timer = setTimeout(async () => {
       if (query.length < 2) {
-        setSearchResults([]);
+        if (!cancelled) setSearchResults([]);
         return;
       }
 
-      const { data: comps } = await supabase
-        .from('companies')
-        .select(
-          `
-            id,
-            name,
-            slug,
-            categories (slug),
-            cities (slug),
-            photos (url)
-          `,
-        )
-        .ilike('name', `%${query}%`)
-        .limit(3);
+      const normalizedQuery = normalizeForSearch(query);
 
-      const { data: cats } = await supabase
-        .from('categories')
-        .select('id, name, slug')
-        .ilike('name', `%${query}%`)
-        .limit(3);
+      let companyMatches: any[] = [];
+
+      const { data: companyData, error: companyError } = await supabase.rpc('search_companies', { term: query });
+
+      if (companyError) {
+        const { data } = await supabase
+          .from('companies')
+          .select(
+            `
+              id,
+              name,
+              slug,
+              categories (slug),
+              cities (slug),
+              photos (url)
+            `,
+          )
+          .ilike('name', `%${query}%`)
+          .limit(3);
+
+        companyMatches =
+          data?.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            type: 'company' as const,
+            categorySlug: c.categories?.slug,
+            citySlug: c.cities?.slug,
+            photoUrl: c.photos?.[0]?.url,
+          })) || [];
+      } else {
+        companyMatches =
+          companyData?.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            type: 'company' as const,
+            categorySlug: c.category_slug,
+            citySlug: c.city_slug,
+            photoUrl: c.photo_url,
+          })) || [];
+      }
+
+      let categories = allCategoriesRef.current;
+      if (categories.length === 0) {
+        const { data } = await supabase.from('categories').select('id, name, slug');
+        categories = data || [];
+        allCategoriesRef.current = categories;
+      }
+
+      const categoryMatches = categories
+        .filter((c: any) => normalizeForSearch(c.name).includes(normalizedQuery))
+        .slice(0, 3);
+
+      if (cancelled) return;
 
       const combined = [
-        ...(comps?.map((c: any) => ({
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          type: 'company' as const,
-          categorySlug: c.categories?.slug,
-          citySlug: c.cities?.slug,
-          photoUrl: c.photos?.[0]?.url,
-        })) || []),
-        ...(cats?.map((c: any) => ({ ...c, type: 'category' as const })) || []),
+        ...companyMatches,
+        ...(categoryMatches.map((c: any) => ({ ...c, type: 'category' as const })) || []),
       ];
 
       setSearchResults(combined);
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query]);
 
   async function fetchCities() {
