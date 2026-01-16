@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Link, router } from 'expo-router';
-import { Bell, ChevronDown, Star } from 'lucide-react-native';
+import { Star } from 'lucide-react-native';
 
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
@@ -59,22 +59,6 @@ export default function ExploreScreen() {
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-background">
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
-        {/* Header / City Selector */}
-        <Box className="flex-row justify-between items-center mb-6">
-          <Box>
-            <Link href="/cities" asChild>
-              <Pressable className="flex-row items-center mt-1">
-                <Heading className="text-xl font-bold text-text-main mr-2">
-                  {selectedCity?.name || 'Vybrať mesto'}
-                </Heading>
-                <Icon as={ChevronDown} size="sm" className="text-primary" />
-              </Pressable>
-            </Link>
-          </Box>
-          <Box className="w-10 h-10 bg-gray-100 rounded-full items-center justify-center">
-            <Icon as={Bell} size="sm" className="text-text-main" />
-          </Box>
-        </Box>
 
         {/* Search Trigger */}
         <Box className="mb-8">
