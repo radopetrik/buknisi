@@ -17,6 +17,7 @@
     "@gluestack-ui/nativewind-utils": "^1.0.28",
     "@gluestack-ui/utils": "^3.0.13",
     "@hookform/resolvers": "^5.2.2",
+    "@howljs/calendar-kit": "^2.5.6",
     "@legendapp/motion": "^2.5.3",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
