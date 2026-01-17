@@ -1,4 +1,4 @@
-import { Alert, ScrollView, View } from "react-native";
+import { Alert, Image, ImageBackground, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -9,7 +9,6 @@ import { Stack, useRouter } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/lib/supabase";
-import { Box } from "@/components/ui/box";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import {
   FormControl,
@@ -45,12 +44,15 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 type StepKey = "account" | "address" | "category" | "city";
 
-const steps: { key: StepKey; title: string }[] = [
-  { key: "account", title: "Účet" },
-  { key: "address", title: "Adresa" },
-  { key: "category", title: "Kategória" },
-  { key: "city", title: "Mesto" },
+const steps: { key: StepKey; title: string; subtitle: string }[] = [
+  { key: "account", title: "Účet", subtitle: "Základné údaje" },
+  { key: "address", title: "Adresa", subtitle: "Kde vás nájdu" },
+  { key: "category", title: "Kategória", subtitle: "Čomu sa venujete" },
+  { key: "city", title: "Mesto", subtitle: "Lokalita" },
 ];
+
+const AUTH_BG_URI =
+  "https://images.unsplash.com/photo-1632345031435-8727f6897d53?q=80&w=2070&auto=format&fit=crop";
 
 function buildUniqueSlug(companyName: string) {
   const base = slugify(companyName, { lower: true, strict: true, trim: true }) || "firma";
@@ -218,188 +220,271 @@ export default function RegisterCompanyScreen() {
   const selectedCity = lookups.cities.find((c) => c.id === selectedCityId);
   const selectedCategory = lookups.categories.find((c) => c.id === selectedCategoryId);
 
+  const cardClass = "rounded-2xl bg-white/95 p-6 border border-white/30";
+
   return (
-    <View style={{ paddingTop: insets.top }} className="flex-1 bg-gray-50">
+    <ImageBackground source={{ uri: AUTH_BG_URI }} resizeMode="cover" className="flex-1">
       <Stack.Screen options={{ title: "Registrácia firmy", headerShown: false }} />
 
-      <ScrollView contentContainerStyle={{ padding: 24 }} keyboardShouldPersistTaps="handled">
-        <View className="mb-6 items-center">
-          <Text className="text-2xl font-bold text-typography-900">Registrácia firmy</Text>
-          <Text className="text-typography-500 text-center mt-1">
-            Krok {stepIndex + 1}/{steps.length} • {currentStep.title}
-          </Text>
-        </View>
+      <View className="absolute inset-0 bg-black/40" />
 
-        <VStack className="gap-4">
-          {currentStep.key === "account" ? (
-            <>
-              <Controller
-                control={control}
-                name="companyName"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <FormControl isInvalid={!!errors.companyName}>
-                    <FormControlLabel className="mb-1">
-                      <FormControlLabelText>Názov firmy</FormControlLabelText>
-                    </FormControlLabel>
-                    <Input>
-                      <InputField placeholder="Napr. Salón Krása" onBlur={onBlur} onChangeText={onChange} value={value} />
-                    </Input>
-                    <FormControlError>
-                      <FormControlErrorText>{errors.companyName?.message}</FormControlErrorText>
-                    </FormControlError>
-                  </FormControl>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <FormControl isInvalid={!!errors.email}>
-                    <FormControlLabel className="mb-1">
-                      <FormControlLabelText>Email (login)</FormControlLabelText>
-                    </FormControlLabel>
-                    <Input>
-                      <InputField
-                        placeholder="vas@email.com"
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        autoCapitalize="none"
-                        keyboardType="email-address"
-                      />
-                    </Input>
-                    <FormControlError>
-                      <FormControlErrorText>{errors.email?.message}</FormControlErrorText>
-                    </FormControlError>
-                  </FormControl>
-                )}
-              />
-
-              <Controller
-                control={control}
-                name="password"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <FormControl isInvalid={!!errors.password}>
-                    <FormControlLabel className="mb-1">
-                      <FormControlLabelText>Heslo</FormControlLabelText>
-                    </FormControlLabel>
-                    <Input>
-                      <InputField
-                        placeholder="Min. 6 znakov"
-                        onBlur={onBlur}
-                        onChangeText={onChange}
-                        value={value}
-                        secureTextEntry
-                      />
-                    </Input>
-                    <FormControlError>
-                      <FormControlErrorText>{errors.password?.message}</FormControlErrorText>
-                    </FormControlError>
-                  </FormControl>
-                )}
-              />
-            </>
-          ) : null}
-
-          {currentStep.key === "address" ? (
-            <Controller
-              control={control}
-              name="address"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <FormControl isInvalid={!!errors.address}>
-                  <FormControlLabel className="mb-1">
-                    <FormControlLabelText>Adresa</FormControlLabelText>
-                  </FormControlLabel>
-                  <Input>
-                    <InputField placeholder="Ulica a číslo" onBlur={onBlur} onChangeText={onChange} value={value} />
-                  </Input>
-                  <FormControlError>
-                    <FormControlErrorText>{errors.address?.message}</FormControlErrorText>
-                  </FormControlError>
-                </FormControl>
-              )}
+      <View style={{ paddingTop: insets.top }} className="flex-1">
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="items-center mb-6">
+            <Image
+              source={require("../../assets/images/logo_buknisi.png")}
+              accessibilityLabel="Buknisi"
+              style={{ height: 56, width: 220 }}
+              resizeMode="contain"
             />
-          ) : null}
 
-          {currentStep.key === "category" ? (
-            <Box className="bg-white rounded-xl border border-gray-100 p-4">
-              <Text className="text-base font-semibold text-gray-900">Kategória</Text>
-              <Text className="text-sm text-gray-500 mt-1">Vybratá: {selectedCategory?.name ?? "—"}</Text>
+            <Text className="mt-5 text-2xl font-bold text-white">Registrácia firmy</Text>
+            <Text className="mt-1 text-white/80 text-center">
+              Krok {stepIndex + 1}/{steps.length} • {currentStep.title} • {currentStep.subtitle}
+            </Text>
 
-              <VStack className="gap-2 mt-3">
-                {lookups.categories.map((category) => {
-                  const selected = category.id === selectedCategoryId;
-                  return (
-                    <Pressable
-                      key={category.id}
-                      onPress={() => setValue("categoryId", category.id, { shouldValidate: true })}
-                      className={
-                        selected
-                          ? "px-3 py-3 rounded border border-gray-900 bg-gray-900"
-                          : "px-3 py-3 rounded border border-gray-200 bg-white"
-                      }
-                    >
-                      <Text className={selected ? "text-white" : "text-gray-900"}>{category.name}</Text>
-                    </Pressable>
-                  );
-                })}
-              </VStack>
+            <View className="flex-row gap-2 mt-4">
+              {steps.map((s, idx) => {
+                const active = idx === stepIndex;
+                const done = idx < stepIndex;
+                return (
+                  <View
+                    key={s.key}
+                    className={
+                      done
+                        ? "h-2.5 w-2.5 rounded-full bg-white"
+                        : active
+                          ? "h-2.5 w-2.5 rounded-full bg-white border-2 border-white/60"
+                          : "h-2.5 w-2.5 rounded-full bg-white/35"
+                    }
+                  />
+                );
+              })}
+            </View>
+          </View>
 
-              {errors.categoryId?.message ? <Text className="text-red-600 mt-2">{errors.categoryId.message}</Text> : null}
-            </Box>
-          ) : null}
+          <VStack className="gap-4">
+            {currentStep.key === "account" ? (
+              <View className={cardClass}>
+                <VStack className="gap-4">
+                  <Controller
+                    control={control}
+                    name="companyName"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <FormControl isInvalid={!!errors.companyName}>
+                        <FormControlLabel className="mb-1">
+                          <FormControlLabelText>Názov firmy</FormControlLabelText>
+                        </FormControlLabel>
+                        <Input>
+                          <InputField
+                            placeholder="Napr. Salón Krása"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                          />
+                        </Input>
+                        <FormControlError>
+                          <FormControlErrorText>{errors.companyName?.message}</FormControlErrorText>
+                        </FormControlError>
+                      </FormControl>
+                    )}
+                  />
 
-          {currentStep.key === "city" ? (
-            <Box className="bg-white rounded-xl border border-gray-100 p-4">
-              <Text className="text-base font-semibold text-gray-900">Mesto</Text>
-              <Text className="text-sm text-gray-500 mt-1">Vybraté: {selectedCity?.name ?? "—"}</Text>
+                  <Controller
+                    control={control}
+                    name="email"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <FormControl isInvalid={!!errors.email}>
+                        <FormControlLabel className="mb-1">
+                          <FormControlLabelText>Email (login)</FormControlLabelText>
+                        </FormControlLabel>
+                        <Input>
+                          <InputField
+                            placeholder="vas@email.com"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                          />
+                        </Input>
+                        <FormControlError>
+                          <FormControlErrorText>{errors.email?.message}</FormControlErrorText>
+                        </FormControlError>
+                      </FormControl>
+                    )}
+                  />
 
-              <VStack className="gap-2 mt-3">
-                {lookups.cities.map((city) => {
-                  const selected = city.id === selectedCityId;
-                  return (
-                    <Pressable
-                      key={city.id}
-                      onPress={() => setValue("cityId", city.id, { shouldValidate: true })}
-                      className={
-                        selected
-                          ? "px-3 py-3 rounded border border-gray-900 bg-gray-900"
-                          : "px-3 py-3 rounded border border-gray-200 bg-white"
-                      }
-                    >
-                      <Text className={selected ? "text-white" : "text-gray-900"}>{city.name}</Text>
-                    </Pressable>
-                  );
-                })}
-              </VStack>
+                  <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <FormControl isInvalid={!!errors.password}>
+                        <FormControlLabel className="mb-1">
+                          <FormControlLabelText>Heslo</FormControlLabelText>
+                        </FormControlLabel>
+                        <Input>
+                          <InputField
+                            placeholder="Min. 6 znakov"
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                            secureTextEntry
+                          />
+                        </Input>
+                        <FormControlError>
+                          <FormControlErrorText>{errors.password?.message}</FormControlErrorText>
+                        </FormControlError>
+                      </FormControl>
+                    )}
+                  />
+                </VStack>
+              </View>
+            ) : null}
 
-              {errors.cityId?.message ? <Text className="text-red-600 mt-2">{errors.cityId.message}</Text> : null}
-            </Box>
-          ) : null}
+            {currentStep.key === "address" ? (
+              <View className={cardClass}>
+                <Controller
+                  control={control}
+                  name="address"
+                  render={({ field: { onChange, onBlur, value } }) => (
+                    <FormControl isInvalid={!!errors.address}>
+                      <FormControlLabel className="mb-1">
+                        <FormControlLabelText>Adresa</FormControlLabelText>
+                      </FormControlLabel>
+                      <Input>
+                        <InputField
+                          placeholder="Ulica a číslo"
+                          onBlur={onBlur}
+                          onChangeText={onChange}
+                          value={value}
+                        />
+                      </Input>
+                      <FormControlError>
+                        <FormControlErrorText>{errors.address?.message}</FormControlErrorText>
+                      </FormControlError>
+                    </FormControl>
+                  )}
+                />
+              </View>
+            ) : null}
 
-          {stepIndex < steps.length - 1 ? (
-            <Button className="mt-2" onPress={handleNext} isDisabled={isSubmitting}>
-              <ButtonText>Pokračovať</ButtonText>
-            </Button>
-          ) : (
-            <Button className="mt-2" onPress={handleSubmit(onSubmit)} isDisabled={isSubmitting}>
-              {isSubmitting ? <ButtonSpinner color="white" /> : null}
-              <ButtonText>{isSubmitting ? "Vytváram..." : "Vytvoriť účet a firmu"}</ButtonText>
-            </Button>
-          )}
+            {currentStep.key === "category" ? (
+              <View className={cardClass}>
+                <Text className="text-base font-semibold text-typography-900">Kategória</Text>
+                <Text className="text-sm text-typography-500 mt-1">
+                  Vybratá: {selectedCategory?.name ?? "—"}
+                </Text>
 
-          {stepIndex > 0 ? (
-            <Pressable onPress={handleBack} className="py-2">
-              <Text className="text-center text-gray-600">Späť</Text>
-            </Pressable>
-          ) : (
-            <Pressable onPress={() => router.back()} className="py-2">
-              <Text className="text-center text-gray-600">Späť na prihlásenie</Text>
-            </Pressable>
-          )}
-        </VStack>
-      </ScrollView>
-    </View>
+                <VStack className="gap-2 mt-4">
+                  {lookups.categories.map((category) => {
+                    const selected = category.id === selectedCategoryId;
+                    return (
+                      <Pressable
+                        key={category.id}
+                        onPress={() => setValue("categoryId", category.id, { shouldValidate: true })}
+                        className={
+                          selected
+                            ? "px-4 py-3.5 rounded-xl border border-primary-500 bg-primary-500"
+                            : "px-4 py-3.5 rounded-xl border border-typography-200 bg-white"
+                        }
+                      >
+                        <Text className={selected ? "text-white font-semibold" : "text-typography-900"}>
+                          {category.name}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </VStack>
+
+                {errors.categoryId?.message ? (
+                  <Text className="text-sm text-error-600 mt-3">{errors.categoryId.message}</Text>
+                ) : null}
+              </View>
+            ) : null}
+
+            {currentStep.key === "city" ? (
+              <View className={cardClass}>
+                <Text className="text-base font-semibold text-typography-900">Mesto</Text>
+                <Text className="text-sm text-typography-500 mt-1">
+                  Vybraté: {selectedCity?.name ?? "—"}
+                </Text>
+
+                <VStack className="gap-2 mt-4">
+                  {lookups.cities.map((city) => {
+                    const selected = city.id === selectedCityId;
+                    return (
+                      <Pressable
+                        key={city.id}
+                        onPress={() => setValue("cityId", city.id, { shouldValidate: true })}
+                        className={
+                          selected
+                            ? "px-4 py-3.5 rounded-xl border border-primary-500 bg-primary-500"
+                            : "px-4 py-3.5 rounded-xl border border-typography-200 bg-white"
+                        }
+                      >
+                        <Text className={selected ? "text-white font-semibold" : "text-typography-900"}>
+                          {city.name}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </VStack>
+
+                {errors.cityId?.message ? (
+                  <Text className="text-sm text-error-600 mt-3">{errors.cityId.message}</Text>
+                ) : null}
+              </View>
+            ) : null}
+
+            <View className="mt-2">
+              {stepIndex < steps.length - 1 ? (
+                <Button onPress={handleNext} isDisabled={isSubmitting}>
+                  <ButtonText>Pokračovať</ButtonText>
+                </Button>
+              ) : (
+                <Button onPress={handleSubmit(onSubmit)} isDisabled={isSubmitting}>
+                  {isSubmitting ? <ButtonSpinner color="white" /> : null}
+                  <ButtonText>{isSubmitting ? "Vytváram..." : "Vytvoriť účet a firmu"}</ButtonText>
+                </Button>
+              )}
+
+              {stepIndex > 0 ? (
+                <Button
+                  className="mt-3"
+                  variant="outline"
+                  action="secondary"
+                  onPress={handleBack}
+                  isDisabled={isSubmitting}
+                >
+                  <ButtonText>Späť</ButtonText>
+                </Button>
+              ) : (
+                <Button
+                  className="mt-3"
+                  variant="outline"
+                  action="secondary"
+                  onPress={() => router.back()}
+                  isDisabled={isSubmitting}
+                >
+                  <ButtonText>Späť na prihlásenie</ButtonText>
+                </Button>
+              )}
+
+              <Pressable
+                onPress={() => router.push("/(auth)/login")}
+                className="py-4 items-center"
+              >
+                <Text className="text-white/80 text-sm">Už máte účet? Prihlásiť sa</Text>
+              </Pressable>
+            </View>
+          </VStack>
+        </ScrollView>
+      </View>
+    </ImageBackground>
   );
 }
