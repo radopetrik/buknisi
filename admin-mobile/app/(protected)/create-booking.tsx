@@ -75,6 +75,18 @@ export default function CreateActionsSheet() {
                   variant="outline"
                   action="secondary"
                   className="w-full"
+                  onPress={() => {
+                    setOpen(false);
+                    router.replace("/(protected)/clients/new");
+                  }}
+                >
+                  <ButtonText>Nový klient</ButtonText>
+                </Button>
+
+                <Button
+                  variant="outline"
+                  action="secondary"
+                  className="w-full"
                   onPress={closeAndGoBack}
                 >
                   <ButtonText>Zrušiť</ButtonText>

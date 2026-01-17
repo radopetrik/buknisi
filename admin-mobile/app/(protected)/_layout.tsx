@@ -106,7 +106,7 @@ export default function ProtectedLayout() {
       />
 
       <Tabs.Screen
-        name="clients/index"
+        name="clients"
         options={{
           title: 'Klienti',
           tabBarLabel: 'Klienti',
