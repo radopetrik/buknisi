@@ -16,7 +16,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
-import { fetchStaffDetail, staffRoleLabel, staffRoles, updateStaff, type StaffRole } from "./_lib";
+import { fetchStaffDetail, staffRoleLabel, staffRoles, updateStaff, type StaffRole } from "@/lib/staff";
 
 export default function EditStaffScreen() {
   const insets = useSafeAreaInsets();

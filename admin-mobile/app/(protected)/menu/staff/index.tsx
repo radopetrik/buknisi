@@ -15,7 +15,7 @@ import { Pressable } from "@/components/ui/pressable";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 
-import { fetchStaffList, staffRoleLabel, type StaffRow } from "./_lib";
+import { fetchStaffList, staffRoleLabel, type StaffRow } from "@/lib/staff";
 
 function foldForSearch(value: string) {
   return value

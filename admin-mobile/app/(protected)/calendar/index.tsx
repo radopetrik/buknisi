@@ -41,7 +41,7 @@ import {
   CreateBookingModal,
   type ClientOption,
   type ServiceOption,
-} from "./_components/create-booking-modal";
+} from "@/components/calendar/create-booking-modal";
 
 type ViewMode = "agenda" | "day" | "week" | "month";
 

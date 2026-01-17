@@ -15,7 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
-import { fetchServices, fetchStaffServiceIds, saveStaffServices } from "./_lib";
+import { fetchServices, fetchStaffServiceIds, saveStaffServices } from "@/lib/staff";
 
 export default function StaffServicesScreen() {
   const insets = useSafeAreaInsets();

@@ -23,7 +23,7 @@ import {
   staffRoleLabel,
   staffRoles,
   type StaffRole,
-} from "./_lib";
+} from "@/lib/staff";
 
 export default function NewStaffScreen() {
   const insets = useSafeAreaInsets();

@@ -21,7 +21,7 @@ import {
   fetchStaffWorkingHours,
   saveStaffWorkingHours,
   type DayOfWeek,
-} from "./_lib";
+} from "@/lib/staff";
 
 type DayState = {
   enabled: boolean;

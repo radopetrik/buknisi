@@ -84,4 +84,6 @@ appka mobile-admin - viac (staff) pridaj fukcionalitu podla appky "admin" -> sta
 
 appka mobile-admin - viac -> page profile - sprav skopiruj funkcionalitu z appky "admin" -> profile
 
+appka mobile-admin, sekcia viac -> nastavenia (settings) sprav podla appky "admin" sekcia -> settings
+
 

@@ -23,7 +23,7 @@ import {
   timeOffReasonLabel,
   timeOffReasons,
   type TimeOffReason,
-} from "./_lib";
+} from "@/lib/staff";
 
 export default function StaffTimeOffScreen() {
   const insets = useSafeAreaInsets();
