@@ -86,4 +86,9 @@ appka mobile-admin - viac -> page profile - sprav skopiruj funkcionalitu z appky
 
 appka mobile-admin, sekcia viac -> nastavenia (settings) sprav podla appky "admin" sekcia -> settings
 
+appka mobile-admin, sekcia viac -> hodnotenia (ratins) sprav podla appky "admin" sekcia -> ratings
+
+appka mobile-admin - login page. ako prve to preloz do slovencitny. A chcem pridat moznost registracie ale firmy. A to podla appky "web" -> create_customer.
+Tu to ale rozdel na viacero krokov a pridaj aj veci zo viac -> profile a to zakla + hodiny + fotky s moznostou preskoci krok alebo sa vratit.
+
 
