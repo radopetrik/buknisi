@@ -80,5 +80,8 @@ appka mobile-admin. Odober dashboard a pridaj novu page "billing". Funkcionalitu
 appka mobile-admin - pridaj do sekcie "pokladna" co je asi dasboard tak premenut na billings a zmen komplet obsah tabu podla "admin"-> billings. "Pridat platbu" akciu by som dal na "+" button v spodnom menu ale kedze tam uz je namapovane new booking tak by som otvoril modal kde ti da na vyber new booking ale new platba
 
 
-2. 
+appka mobile-admin - viac (staff) pridaj fukcionalitu podla appky "admin" -> staff  
+
+appka mobile-admin - viac -> page profile - sprav skopiruj funkcionalitu z appky "admin" -> profile
+
 
