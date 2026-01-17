@@ -49,6 +49,7 @@ export default function ProtectedLayout() {
         tabBarInactiveTintColor: '#9ca3af',
         headerShown: false,
         tabBarButton: HapticTab,
+        tabBarShowLabel: false,
         tabBarLabelPosition: 'below-icon',
         tabBarLabelStyle: {
           fontSize: 11,
