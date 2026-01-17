@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Alert, Pressable, ScrollView } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "expo-router";
@@ -10,9 +11,35 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Divider } from "@/components/ui/divider";
+import { useCompany } from "@/hooks/useCompany";
 
 export default function MenuScreen() {
   const router = useRouter();
+  const [userLabel, setUserLabel] = useState<string | null>(null);
+  const { data: company, isLoading: companyLoading } = useCompany();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadUser = async () => {
+      const { data, error } = await supabase.auth.getUser();
+      if (cancelled) return;
+
+      if (error || !data.user) {
+        setUserLabel(null);
+        return;
+      }
+
+      const label = data.user.email ?? data.user.phone ?? data.user.id;
+      setUserLabel(label);
+    };
+
+    loadUser();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -81,6 +108,18 @@ export default function MenuScreen() {
             </Box>
           ))}
         </VStack>
+
+        <Box className="bg-white rounded-xl border border-gray-100 p-4 mb-3">
+          <Text className="text-sm text-gray-500">Prihlásená firma</Text>
+          <Text className="text-base text-gray-900 font-medium mt-1">
+            {company?.name ?? (companyLoading ? "Načítavam..." : "—")}
+          </Text>
+
+          <Text className="text-sm text-gray-500 mt-3">Prihlásený používateľ</Text>
+          <Text className="text-base text-gray-900 font-medium mt-1">
+            {userLabel ?? "—"}
+          </Text>
+        </Box>
 
         <Button 
           action="negative" 
