@@ -7,7 +7,7 @@ export default function MenuLayout() {
       <Stack.Screen name="staff" options={{ headerShown: false }} />
       <Stack.Screen name="ratings" options={{ title: 'Hodnotenia' }} />
       <Stack.Screen name="profile" options={{ title: 'Profil' }} />
-      <Stack.Screen name="settings" options={{ title: 'Nastavenia' }} />
+      <Stack.Screen name="settings" options={{ headerShown: false }} />
     </Stack>
   );
 }
