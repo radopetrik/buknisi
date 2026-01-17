@@ -77,5 +77,8 @@ Appka admin:
 
 appka mobile-admin. Odober dashboard a pridaj novu page "billing". Funkcionalitu sprav podla appky "admin" -> protected -> billing. 
 
+appka mobile-admin - pridaj do sekcie "pokladna" co je asi dasboard tak premenut na billings a zmen komplet obsah tabu podla "admin"-> billings. "Pridat platbu" akciu by som dal na "+" button v spodnom menu ale kedze tam uz je namapovane new booking tak by som otvoril modal kde ti da na vyber new booking ale new platba
+
+
 2. 
 
