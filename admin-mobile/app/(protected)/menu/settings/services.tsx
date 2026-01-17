@@ -1,4 +1,5 @@
 import { Alert, Modal, Pressable, RefreshControl, ScrollView, View } from "react-native";
+import { useRouter } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,9 +14,11 @@ import {
   X,
 } from "lucide-react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useCompany } from "@/hooks/useCompany";
 
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Divider } from "@/components/ui/divider";
@@ -26,7 +29,6 @@ import {
   FormControlLabel,
   FormControlLabelText,
 } from "@/components/ui/form-control";
-import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Input, InputField } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -137,6 +139,8 @@ function TabButton(props: { active: boolean; label: string; onPress: () => void 
 }
 
 export default function SettingsServicesScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
   const queryClient = useQueryClient();
   const { data: company } = useCompany();
 
@@ -471,20 +475,9 @@ export default function SettingsServicesScreen() {
 
   return (
     <Box className="flex-1 bg-gray-50">
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-        refreshControl={<RefreshControl refreshing={servicesQuery.isFetching} onRefresh={refresh} />}
-      >
-        <HStack className="items-start justify-between mb-6">
-          <Box className="flex-1 pr-4">
-            <Heading size="xl" className="font-bold">
-              Služby
-            </Heading>
-            <Text className="text-sm text-gray-600 mt-1">
-              Spravujte služby, kategórie a doplnky.
-            </Text>
-          </Box>
+      <Box style={{ paddingTop: insets.top }} className="bg-white border-b border-gray-200 px-4 py-3">
+        <HStack className="items-center justify-between">
+          <HeaderBackButton label="Služby" onPress={() => router.back()} />
 
           <Pressable
             onPress={() => {
@@ -504,6 +497,14 @@ export default function SettingsServicesScreen() {
             <Text className="text-sm font-semibold text-white ml-2">Pridať</Text>
           </Pressable>
         </HStack>
+      </Box>
+
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        refreshControl={<RefreshControl refreshing={servicesQuery.isFetching} onRefresh={refresh} />}
+      >
+        <Text className="text-sm text-gray-600 mb-4">Spravujte služby, kategórie a doplnky.</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
           <HStack className="gap-2">

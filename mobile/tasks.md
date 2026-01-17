@@ -93,3 +93,8 @@ Tu to ale rozdel na viacero krokov + v polke by dalo ze vytvorit company fyzicky
 
 
 appka mobile-admin - jedna polka back button je pekna ale neda sa kliknut na label iba na sipku a su tam potom take ine back buttons ako tieto a tie treba zmenit aby boli vsetky rovnake
+
+
+appka mobile-admin - page viac -> ako je odhlasit tak nad nim pridaj info o tom kto je prihlaseny
+
+appka mobile-admin - login page + registacia firmy. Pri login pridaj odkaz na reset hesla zatial nikam neveduci, pridaj logo z appky "mobile" aj obrazok na pozadie z appky "admin" -> login. Odkaz registracia firmy daj nejak ako button alebo nejak inak vyraznejsie, krajsie, modernejsie. Prejdi registraciu form aj login page a nejak skrasli

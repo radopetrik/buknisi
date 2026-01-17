@@ -2,13 +2,14 @@ import { Alert, ScrollView, Linking, Image } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ChevronLeft, ExternalLink, Image as ImageIcon, Trash2 } from "lucide-react-native";
+import { ExternalLink, Image as ImageIcon, Trash2 } from "lucide-react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import * as ImagePicker from "expo-image-picker";
 
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/lib/supabase";
 
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
@@ -902,12 +903,7 @@ export default function ProfileScreen() {
 
         <Box className="bg-white border-b border-gray-200 px-4 py-3">
           <HStack className="items-center justify-between">
-            <HStack className="items-center">
-              <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-                <ChevronLeft size={22} color="#111827" />
-              </Pressable>
-              <Text className="text-base font-semibold text-gray-900">Profil</Text>
-            </HStack>
+            <HeaderBackButton label="Profil" onPress={() => router.back()} />
           </HStack>
         </Box>
 
@@ -925,12 +921,7 @@ export default function ProfileScreen() {
 
         <Box className="bg-white border-b border-gray-200 px-4 py-3">
           <HStack className="items-center justify-between">
-            <HStack className="items-center">
-              <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-                <ChevronLeft size={22} color="#111827" />
-              </Pressable>
-              <Text className="text-base font-semibold text-gray-900">Profil</Text>
-            </HStack>
+            <HeaderBackButton label="Profil" onPress={() => router.back()} />
           </HStack>
         </Box>
 
@@ -1612,12 +1603,7 @@ export default function ProfileScreen() {
 
       <Box className="bg-white border-b border-gray-200 px-4 py-3">
         <HStack className="items-center justify-between">
-          <HStack className="items-center">
-            <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-              <ChevronLeft size={22} color="#111827" />
-            </Pressable>
-            <Text className="text-base font-semibold text-gray-900">Profil</Text>
-          </HStack>
+            <HeaderBackButton label="Profil" onPress={() => router.back()} />
         </HStack>
       </Box>
 

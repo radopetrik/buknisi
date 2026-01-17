@@ -2,7 +2,7 @@ import { ScrollView } from "react-native";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, CreditCard, Pencil, Phone } from "lucide-react-native";
+import { CreditCard, Pencil, Phone } from "lucide-react-native";
 import * as Linking from "expo-linking";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { format } from "date-fns";
@@ -11,6 +11,7 @@ import { sk } from "date-fns/locale";
 import { supabase } from "@/lib/supabase";
 import { useCompany } from "@/hooks/useCompany";
 
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
@@ -142,21 +143,14 @@ export default function ClientDetailScreen() {
 
       <Box className="bg-white border-b border-gray-200 px-4 py-3">
         <HStack className="items-center justify-between">
-          <HStack className="items-center">
-            <Pressable
-              onPress={() => {
-                // In Tabs, back navigation can sometimes jump to the default tab.
-                // Prefer deterministic navigation back to the clients list.
-                router.replace("/(protected)/clients");
-              }}
-              className="p-2 -ml-2"
-            >
-              <ChevronLeft size={22} color="#111827" />
-            </Pressable>
-            <Text className="text-base font-semibold text-gray-900" numberOfLines={1}>
-              {headerTitle}
-            </Text>
-          </HStack>
+          <HeaderBackButton
+            label={headerTitle}
+            onPress={() => {
+              // In Tabs, back navigation can sometimes jump to the default tab.
+              // Prefer deterministic navigation back to the clients list.
+              router.replace("/(protected)/clients");
+            }}
+          />
 
           <HStack className="items-center">
             <Pressable

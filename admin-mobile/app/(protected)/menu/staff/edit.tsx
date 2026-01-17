@@ -2,11 +2,11 @@ import { ScrollView } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ChevronLeft } from "lucide-react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useCompany } from "@/hooks/useCompany";
 
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
@@ -77,12 +77,7 @@ export default function EditStaffScreen() {
 
       <Box className="bg-white border-b border-gray-200 px-4 py-3">
         <HStack className="items-center justify-between">
-          <HStack className="items-center">
-            <Pressable onPress={goBack} className="p-2 -ml-2">
-              <ChevronLeft size={22} color="#111827" />
-            </Pressable>
-            <Text className="text-base font-semibold text-gray-900">Upraviť profil</Text>
-          </HStack>
+          <HeaderBackButton label="Upraviť profil" onPress={goBack} />
         </HStack>
       </Box>
 

@@ -1,10 +1,11 @@
 import { Pressable, ScrollView } from "react-native";
-import { useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
 import { Briefcase, Calendar, ChevronRight, CreditCard } from "lucide-react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
-import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
@@ -32,17 +33,21 @@ const categories = [
 
 export default function SettingsScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   return (
     <Box className="flex-1 bg-gray-50">
+      <Stack.Screen options={{ headerShown: false }} />
+
+      <Box style={{ paddingTop: insets.top }} className="bg-white border-b border-gray-200 px-4 py-3">
+        <HStack className="items-center justify-between">
+          <HeaderBackButton label="Nastavenia" onPress={() => router.back()} />
+        </HStack>
+      </Box>
+
       <ScrollView className="flex-1 p-4">
         <Box className="mb-6">
-          <Heading size="xl" className="font-bold">
-            Nastavenia
-          </Heading>
-          <Text className="text-sm text-gray-600 mt-1">
-            Spravujte preferencie a konfiguráciu svojho účtu.
-          </Text>
+          <Text className="text-sm text-gray-600 mt-1">Spravujte preferencie a konfiguráciu svojho účtu.</Text>
         </Box>
 
         <VStack className="bg-white rounded-xl overflow-hidden border border-gray-100">

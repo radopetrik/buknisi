@@ -2,12 +2,13 @@ import { Alert, FlatList, RefreshControl } from "react-native";
 import { useMemo, useState } from "react";
 import { Stack, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Star, Trash2, ChevronLeft, User as UserIcon } from "lucide-react-native";
+import { Star, Trash2, User as UserIcon } from "lucide-react-native";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/lib/supabase";
 
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
@@ -159,12 +160,7 @@ export default function RatingsScreen() {
 
       <Box className="bg-white border-b border-gray-200 px-4 py-3">
         <HStack className="items-center justify-between">
-          <HStack className="items-center">
-            <Pressable onPress={() => router.back()} className="p-2 -ml-2">
-              <ChevronLeft size={22} color="#111827" />
-            </Pressable>
-            <Text className="text-base font-semibold text-gray-900">Hodnotenia</Text>
-          </HStack>
+          <HeaderBackButton label="Hodnotenia" onPress={() => router.back()} />
         </HStack>
       </Box>
 

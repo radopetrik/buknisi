@@ -7,6 +7,8 @@ import * as ImagePicker from "expo-image-picker";
 
 import { supabase } from "@/lib/supabase";
 import { useCompany } from "@/hooks/useCompany";
+
+import { HeaderBackButton } from "@/components/header-back-button";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
@@ -279,9 +281,10 @@ export default function OnboardingPhotosScreen() {
 
       <Box style={{ paddingTop: insets.top }} className="bg-white border-b border-gray-200 px-4 py-3">
         <HStack className="items-center justify-between">
-          <Pressable onPress={() => router.replace({ pathname: "/(protected)/onboarding/hours", params: { companyId } })} className="px-3 py-2">
-            <Text className="text-gray-600">Späť</Text>
-          </Pressable>
+          <HeaderBackButton
+            label="Späť"
+            onPress={() => router.replace({ pathname: "/(protected)/onboarding/hours", params: { companyId } })}
+          />
           <Text className="text-base font-semibold text-gray-900">Fotky (3/3)</Text>
           <Pressable onPress={finish} className="px-3 py-2">
             <Text className="text-gray-600">Dokončiť</Text>
