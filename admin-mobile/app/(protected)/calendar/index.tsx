@@ -68,6 +68,7 @@ type BookingRow = {
 type AgendaSection = { title: string; date: string; data: BookingRow[] };
 
 const AGENDA_PAGE_DAYS = 14;
+const AGENDA_MAX_PAGES = 8;
 
 function dateToDateString(date: Date) {
   return format(date, "yyyy-MM-dd");
@@ -281,6 +282,8 @@ export default function CalendarScreen() {
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(new Date()));
   const [filter, setFilter] = useState<BookingsFilter>({ type: "mine" });
 
+  const agendaInitialFromDate = useMemo(() => dateToDateString(new Date()), []);
+
   const calendarRef = useRef<CalendarKitHandle>(null);
 
   const { data: authUser } = useQuery({
@@ -303,8 +306,8 @@ export default function CalendarScreen() {
 
   const agendaQuery = useInfiniteQuery({
     queryKey: ["agenda", company?.id, authUser?.id, filter],
-    enabled: !!company?.id,
-    initialPageParam: dateToDateString(new Date()),
+    enabled: !!company?.id && viewMode === "agenda",
+    initialPageParam: agendaInitialFromDate,
     queryFn: async ({ pageParam }) => {
       const fromDate = pageParam;
       const toDateExclusive = dateToDateString(
@@ -324,7 +327,10 @@ export default function CalendarScreen() {
         nextFromDate: toDateExclusive,
       };
     },
-    getNextPageParam: (lastPage) => lastPage.nextFromDate,
+    getNextPageParam: (lastPage, allPages) => {
+      if (allPages.length >= AGENDA_MAX_PAGES) return undefined;
+      return lastPage.nextFromDate;
+    },
   });
 
   const agendaBookings = useMemo(() => {
@@ -516,7 +522,11 @@ export default function CalendarScreen() {
               onRefresh={() => agendaQuery.refetch()}
             />
           }
-          onEndReached={() => agendaQuery.fetchNextPage()}
+          onEndReached={() => {
+            if (agendaQuery.hasNextPage && !agendaQuery.isFetchingNextPage) {
+              agendaQuery.fetchNextPage();
+            }
+          }}
           onEndReachedThreshold={0.3}
           ListEmptyComponent={
             <Box className="items-center justify-center py-10 bg-white rounded-xl border border-dashed border-gray-300 mt-4">
