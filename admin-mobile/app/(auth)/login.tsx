@@ -1,4 +1,5 @@
 import { View, Alert } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -7,18 +8,20 @@ import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText, ButtonSpinner } from "@/components/ui/button";
 import { FormControl, FormControlLabel, FormControlLabelText, FormControlError, FormControlErrorText } from "@/components/ui/form-control";
 import { Text } from "@/components/ui/text";
+import { Pressable } from "@/components/ui/pressable";
 import { Stack, useRouter } from "expo-router";
 
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().email("Zadajte platný email"),
+  password: z.string().min(6, "Heslo musí mať aspoň 6 znakov"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -30,18 +33,18 @@ export default function LoginScreen() {
     });
 
     if (error) {
-      Alert.alert("Login Failed", error.message);
+      Alert.alert("Prihlásenie zlyhalo", error.message);
     } else {
-        router.replace("/(protected)/dashboard");
+      router.replace("/(protected)/calendar");
     }
   };
 
   return (
-    <View className="flex-1 justify-center bg-gray-50 px-6">
-      <Stack.Screen options={{ title: "Login", headerShown: false }} />
+    <View style={{ paddingTop: insets.top }} className="flex-1 justify-center bg-gray-50 px-6">
+      <Stack.Screen options={{ title: "Prihlásenie", headerShown: false }} />
       <View className="mb-8 items-center">
-        <Text className="text-2xl font-bold text-typography-900">Welcome Back</Text>
-        <Text className="text-typography-500">Sign in to manage your business</Text>
+        <Text className="text-2xl font-bold text-typography-900">Vitajte späť</Text>
+        <Text className="text-typography-500">Prihláste sa pre správu vašej firmy</Text>
       </View>
 
       <Controller
@@ -75,11 +78,11 @@ export default function LoginScreen() {
         render={({ field: { onChange, onBlur, value } }) => (
           <FormControl isInvalid={!!errors.password} className="mb-4">
             <FormControlLabel className="mb-1">
-              <FormControlLabelText>Password</FormControlLabelText>
+              <FormControlLabelText>Heslo</FormControlLabelText>
             </FormControlLabel>
             <Input>
               <InputField
-                placeholder="Enter your password"
+                placeholder="Zadajte heslo"
                 onBlur={onBlur}
                 onChangeText={onChange}
                 value={value}
@@ -99,8 +102,16 @@ export default function LoginScreen() {
         isDisabled={isSubmitting}
       >
         {isSubmitting && <ButtonSpinner color="white" />}
-        <ButtonText>Sign In</ButtonText>
+        <ButtonText>Prihlásiť sa</ButtonText>
       </Button>
+
+      <View className="mt-6 items-center">
+        <Pressable onPress={() => router.push("/(auth)/register")} className="px-3 py-2">
+          <Text className="text-typography-600">
+            Nemáte účet? <Text className="text-typography-900 font-semibold">Zaregistrovať firmu</Text>
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }

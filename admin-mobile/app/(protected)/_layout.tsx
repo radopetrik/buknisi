@@ -136,6 +136,16 @@ export default function ProtectedLayout() {
           ),
         }}
       />
+
+      {/* Hidden flow (wizard) */}
+      <Tabs.Screen
+        name="onboarding"
+        options={{
+          href: null,
+          headerShown: false,
+          tabBarStyle: { display: 'none' },
+        }}
+      />
     </Tabs>
   );
 }

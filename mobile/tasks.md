@@ -89,6 +89,7 @@ appka mobile-admin, sekcia viac -> nastavenia (settings) sprav podla appky "admi
 appka mobile-admin, sekcia viac -> hodnotenia (ratins) sprav podla appky "admin" sekcia -> ratings
 
 appka mobile-admin - login page. ako prve to preloz do slovencitny. A chcem pridat moznost registracie ale firmy. A to podla appky "web" -> create_customer.
-Tu to ale rozdel na viacero krokov a pridaj aj veci zo viac -> profile a to zakla + hodiny + fotky s moznostou preskoci krok alebo sa vratit.
+Tu to ale rozdel na viacero krokov + v polke by dalo ze vytvorit company fyzicky, usera by prihlasilo a potom by este pokracoval wizard so vecami v veci zo viac -> profile a to zakla + hodiny + fotky s moznostou preskoci krok alebo sa vratit do zaklad
 
 
+appka mobile-admin - jedna polka back button je pekna ale neda sa kliknut na label iba na sipku a su tam potom take ine back buttons ako tieto a tie treba zmenit aby boli vsetky rovnake
