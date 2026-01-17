@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   CalendarBody,
   CalendarContainer,
@@ -7,7 +7,7 @@ import {
   type EventItem,
   type ResourceItem,
 } from "@howljs/calendar-kit";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import {
   addDays,
   addMonths,
@@ -24,7 +24,7 @@ import {
 } from "date-fns";
 import { sk } from "date-fns/locale";
 import { Clock, ChevronLeft, ChevronRight } from "lucide-react-native";
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { RefreshControl, ScrollView, SectionList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -36,6 +36,12 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useCompany } from "@/hooks/useCompany";
 import { supabase } from "@/lib/supabase";
+
+import {
+  CreateBookingModal,
+  type ClientOption,
+  type ServiceOption,
+} from "./_components/create-booking-modal";
 
 type ViewMode = "agenda" | "day" | "week" | "month";
 
@@ -104,6 +110,79 @@ async function fetchStaff(companyId: string) {
 
   if (error) throw error;
   return (data ?? []) as StaffRow[];
+}
+
+async function fetchClients(companyId: string) {
+  const { data, error } = await supabase
+    .from("clients")
+    .select("id, first_name, last_name, phone, email")
+    .eq("company_id", companyId)
+    .order("last_name", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []) as ClientOption[];
+}
+
+async function fetchServicesWithAddons(companyId: string) {
+  const { data: servicesData, error: servicesError } = await supabase
+    .from("services")
+    .select("id, name, price, duration")
+    .eq("company_id", companyId)
+    .order("name", { ascending: true });
+
+  if (servicesError) throw servicesError;
+
+  const serviceIds = (servicesData ?? []).map((s) => s.id);
+
+  const [addonsRes, serviceAddonsRes] = await Promise.all([
+    supabase
+      .from("addons")
+      .select("id, name, price, duration, company_id")
+      .eq("company_id", companyId)
+      .order("name", { ascending: true }),
+    serviceIds.length
+      ? supabase.from("service_addons").select("service_id, addon_id").in("service_id", serviceIds)
+      : Promise.resolve({ data: [], error: null } as any),
+  ]);
+
+  if (addonsRes.error) throw addonsRes.error;
+  if (serviceAddonsRes.error) throw serviceAddonsRes.error;
+
+  const addonsMap = new Map(
+    (addonsRes.data ?? []).map((addon: any) => [
+      addon.id,
+      {
+        id: addon.id,
+        name: addon.name,
+        price: Number(addon.price ?? 0),
+        duration: addon.duration ?? 0,
+      },
+    ])
+  );
+
+  const serviceAddonMap = new Map<string, string[]>();
+  (serviceAddonsRes.data ?? []).forEach((row: any) => {
+    const arr = serviceAddonMap.get(row.service_id) ?? [];
+    arr.push(row.addon_id);
+    serviceAddonMap.set(row.service_id, arr);
+  });
+
+  const mapped: ServiceOption[] = (servicesData ?? []).map((service: any) => {
+    const addonIds = serviceAddonMap.get(service.id) ?? [];
+    const addons = addonIds
+      .map((addonId) => addonsMap.get(addonId) ?? null)
+      .filter(Boolean) as ServiceOption["addons"];
+
+    return {
+      id: service.id,
+      name: service.name,
+      price: Number(service.price ?? 0),
+      duration: service.duration ?? 0,
+      addons,
+    } satisfies ServiceOption;
+  });
+
+  return mapped;
 }
 
 async function fetchBookingsRange(params: {
@@ -276,6 +355,11 @@ function buildAgendaSections(bookings: BookingRow[]) {
 export default function CalendarScreen() {
   const insets = useSafeAreaInsets();
   const { data: company } = useCompany();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  const params = useLocalSearchParams<{ create?: string }>();
+
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const [viewMode, setViewMode] = useState<ViewMode>("agenda");
   const [selectedDate, setSelectedDate] = useState(() => new Date());
@@ -303,6 +387,44 @@ export default function CalendarScreen() {
     enabled: !!company?.id,
     queryFn: () => fetchStaff(company!.id),
   });
+
+  const { data: services, isLoading: isServicesLoading } = useQuery({
+    queryKey: ["services", company?.id],
+    enabled: !!company?.id,
+    queryFn: () => fetchServicesWithAddons(company!.id),
+  });
+
+  const { data: clients, isLoading: isClientsLoading } = useQuery({
+    queryKey: ["clients", company?.id],
+    enabled: !!company?.id,
+    queryFn: () => fetchClients(company!.id),
+  });
+
+  const canCreateBooking =
+    !!company?.id &&
+    (staff?.length ?? 0) > 0 &&
+    (services?.length ?? 0) > 0 &&
+    !isStaffLoading &&
+    !isServicesLoading &&
+    !isClientsLoading;
+
+  const openCreateBooking = useCallback(() => {
+    if (!canCreateBooking) return;
+    setCreateModalOpen(true);
+  }, [canCreateBooking]);
+
+  const createParam = Array.isArray(params.create)
+    ? params.create[0]
+    : params.create;
+
+  useEffect(() => {
+    if (createParam !== "1") return;
+    if (!canCreateBooking) return;
+
+    openCreateBooking();
+    // Clear the param so it doesn't reopen later.
+    router.setParams({ create: "" });
+  }, [canCreateBooking, createParam, openCreateBooking, router]);
 
   const agendaQuery = useInfiniteQuery({
     queryKey: ["agenda", company?.id, authUser?.id, filter],
@@ -676,6 +798,22 @@ export default function CalendarScreen() {
           </CalendarContainer>
         </Box>
       ) : null}
+
+      <CreateBookingModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        companyId={company?.id ?? ""}
+        userId={authUser?.id ?? null}
+        defaultDate={dateToDateString(selectedDate)}
+        staff={staff ?? []}
+        services={services ?? []}
+        clients={clients ?? []}
+        onCreated={() => {
+          queryClient.invalidateQueries({ queryKey: ["agenda"] });
+          queryClient.invalidateQueries({ queryKey: ["timelineBookings"] });
+          queryClient.invalidateQueries({ queryKey: ["monthDaysWithBookings"] });
+        }}
+      />
     </Box>
   );
 }

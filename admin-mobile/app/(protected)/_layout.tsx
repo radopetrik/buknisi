@@ -1,8 +1,45 @@
 import { Tabs } from 'expo-router';
-import { I18nManager } from 'react-native';
+import { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
+import { PlatformPressable } from '@react-navigation/elements';
+import * as Haptics from 'expo-haptics';
+import { Plus } from 'lucide-react-native';
+import { I18nManager, View } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+
+function CreateBookingTabButton(props: BottomTabBarButtonProps) {
+  return (
+    <PlatformPressable
+      {...props}
+      onPressIn={(ev) => {
+        if (process.env.EXPO_OS === 'ios') {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
+        props.onPressIn?.(ev);
+      }}
+      style={[props.style, { top: -12 }]}
+    >
+      <View
+        style={{
+          width: 54,
+          height: 54,
+          borderRadius: 27,
+          backgroundColor: '#111827',
+          alignItems: 'center',
+          justifyContent: 'center',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 6 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 6,
+        }}
+      >
+        <Plus color="#ffffff" size={28} />
+      </View>
+    </PlatformPressable>
+  );
+}
 
 export default function ProtectedLayout() {
   return (
@@ -57,6 +94,17 @@ export default function ProtectedLayout() {
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="create-booking"
+        options={{
+          title: '',
+          tabBarLabel: '',
+          tabBarButton: CreateBookingTabButton,
+          tabBarIcon: () => null,
+        }}
+      />
+
       <Tabs.Screen
         name="clients/index"
         options={{
