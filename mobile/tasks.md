@@ -110,3 +110,11 @@ appka mobile, ked som v city->category a zmenim "category" alebo "sub-category" 
 appka mobile - v profile pridat moznost registracie. pridat do formu aj moznost reset hesla zatial iba nez akcii pridaj 
 
 appka "mobile" -> search co je home/explore/explore-category/ je ten isty a ten chcem 1) aby sa otvaral ako modalne okno 2) aby sa zkraslil obsah. search nech je ako prve a hned focus nanho a nech je take viditelnejsie potom cas a potom lokalika
+
+
+appke "mobile" -> explore->city->category nech header "category" ako sa meni nech ke vecie. minimalne take velke ako je mesto
+
+appke "mobile" -> v company detail pridat moznost ratingu ale iba prihlasenym userom, tak to tam napisat
+
+appke "mobile" -> explore->city->category hned nad zoznamom companies by som chcel pridat sorting moznost podla "rating". mozno ako ikonky na pravu stranku v riadku kde je nadpis
+

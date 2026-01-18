@@ -28,6 +28,7 @@ export default function SearchScreen() {
   // Search State
   const [query, setQuery] = useState('');
   const allCategoriesRef = useRef<any[]>([]);
+  const searchInputRef = useRef<TextInput>(null);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
 
@@ -43,6 +44,12 @@ export default function SearchScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchCities();
+
+      const timer = setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 50);
+
+      return () => clearTimeout(timer);
     }, []),
   );
 
@@ -153,6 +160,18 @@ export default function SearchScreen() {
     }
   }
 
+  const navigateFromModal = (target: Parameters<typeof router.push>[0]) => {
+    if (router.canGoBack()) {
+      router.dismiss();
+      requestAnimationFrame(() => {
+        router.push(target);
+      });
+      return;
+    }
+
+    router.push(target);
+  };
+
   const handleSelectResult = (item: any) => {
     setQuery('');
     setShowResults(false);
@@ -164,7 +183,7 @@ export default function SearchScreen() {
     if (timeTo) params.timeTo = timeTo;
 
     if (item.type === 'company') {
-      router.push({
+      navigateFromModal({
         pathname: '/company/[slug]',
         params: { slug: item.slug, ...params },
       });
@@ -184,14 +203,14 @@ export default function SearchScreen() {
     const citySlug = selectedCity?.slug || 'bratislava';
 
     if (selectedCategory) {
-      router.push({
+      navigateFromModal({
         pathname: '/explore/[city]/[category]',
         params: { city: citySlug, category: selectedCategory.slug, ...params },
       });
       return;
     }
 
-    router.push({
+    navigateFromModal({
       pathname: '/explore/[city]',
       params: { city: citySlug, ...params },
     });
@@ -230,35 +249,46 @@ export default function SearchScreen() {
     return 'Kedykoľvek';
   };
 
+  const getTimeDisplay = () => {
+    if (timeFrom || timeTo) {
+      return `${timeFrom || '--:--'} - ${timeTo || '--:--'}`;
+    }
+    return 'Čas nevybraný';
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }} className="bg-background">
-      <Stack.Screen options={{ title: 'Search', headerBackTitle: 'Späť' }} />
-      <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* Lokalita */}
-        <Box className="mb-6">
-          <Text className="text-text-muted text-xs uppercase font-bold tracking-widest">Lokalita</Text>
-          <Link href={{ pathname: '/cities', params: { returnTo: '/search' } }} asChild>
-            <Pressable className="flex-row items-center mt-1">
-              <Heading className="text-xl font-bold text-text-main mr-2">
-                {selectedCity?.name || 'Vybrať mesto'}
-              </Heading>
-              <Icon as={ChevronDown} size="sm" className="text-primary" />
+      <Stack.Screen
+        options={{
+          title: 'Vyhľadávanie',
+          headerBackTitle: 'Späť',
+          headerRight: () => (
+            <Pressable
+              onPress={() => router.dismiss()}
+              className="w-10 h-10 items-center justify-center rounded-full bg-gray-100"
+            >
+              <Icon as={X} size="sm" className="text-text-main" />
             </Pressable>
-          </Link>
-        </Box>
-
-        {/* Search Card: čo hľadáte + kedy */}
-        <Box className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8 p-4 z-10">
-          <Box className="border-b border-gray-100 pb-3 mb-3">
-            <Input variant="outline" size="md" className="border-0 focus:border-0 h-auto p-0">
-              <InputSlot className="mr-3">
+          ),
+        }}
+      />
+      <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        {/* Search */}
+        <Box className="bg-white rounded-2xl shadow-md border border-primary/20 mb-6 p-4 relative z-20">
+          <Text className="text-text-muted text-xs uppercase font-bold tracking-widest">Vyhľadávanie</Text>
+          <Box className="mt-3">
+            <Input variant="outline" size="lg" className="bg-gray-50 border border-primary/30 h-14 rounded-xl">
+              <InputSlot className="pl-3">
                 <InputIcon as={Search} className="text-gray-400" />
               </InputSlot>
               <InputField
-                placeholder="Čo hľadáte? (napr. Barber)"
-                className="text-base text-text-main p-0"
+                ref={searchInputRef}
+                placeholder="Čo hľadáte? (napr. Kaderník)"
+                className="text-base text-text-main"
                 placeholderTextColor="#999"
                 value={query}
+                autoFocus
+                returnKeyType="search"
                 onChangeText={(text) => {
                   setQuery(text);
                   setShowResults(true);
@@ -271,6 +301,7 @@ export default function SearchScreen() {
                     setQuery('');
                     setSearchResults([]);
                   }}
+                  className="pr-3"
                 >
                   <Icon as={X} size="sm" className="text-gray-400" />
                 </Pressable>
@@ -279,7 +310,7 @@ export default function SearchScreen() {
           </Box>
 
           {selectedCategory && (
-            <Box className="mb-3">
+            <Box className="mt-3">
               <Box className="flex-row items-center self-start bg-gray-100 rounded-full px-3 py-2">
                 <Text className="text-sm font-medium text-text-main mr-2">{selectedCategory.name}</Text>
                 <Pressable onPress={() => setSelectedCategory(null)} className="p-1">
@@ -289,10 +320,65 @@ export default function SearchScreen() {
             </Box>
           )}
 
-          <Pressable className="flex-row items-center" onPress={() => setShowDateModal(true)}>
+          {/* Search Results Dropdown */}
+          {showResults && searchResults.length > 0 && (
+            <View className="absolute top-[100%] left-0 right-0 bg-gray-50 rounded-2xl shadow-xl border border-gray-200 z-[999] mt-3 p-2">
+              <ScrollView className="bg-white rounded-xl overflow-hidden max-h-80">
+                {searchResults.some((r) => r.type === 'company') && (
+                  <Box>
+                    <Text className="px-5 py-3 text-xs font-bold text-gray-400 uppercase bg-gray-50">Salóny</Text>
+                    {searchResults
+                      .filter((r) => r.type === 'company')
+                      .map((item) => (
+                        <Pressable
+                          key={item.id}
+                          className="px-5 py-4 flex-row items-center border-b border-gray-100 active:bg-gray-50"
+                          onPress={() => handleSelectResult(item)}
+                        >
+                          {item.photoUrl && (
+                            <Image
+                              source={{ uri: item.photoUrl }}
+                              className="w-11 h-11 rounded-lg mr-3 bg-gray-200"
+                              alt={item.name}
+                            />
+                          )}
+                          <Text className="text-base font-semibold text-text-main">{item.name}</Text>
+                        </Pressable>
+                      ))}
+                  </Box>
+                )}
+
+                {searchResults.some((r) => r.type === 'category') && (
+                  <Box>
+                    <Text className="px-5 py-3 text-xs font-bold text-gray-400 uppercase bg-gray-50">Kategórie</Text>
+                    {searchResults
+                      .filter((r) => r.type === 'category')
+                      .map((item) => (
+                        <Pressable
+                          key={item.id}
+                          className="px-5 py-4 border-b border-gray-100 active:bg-gray-50"
+                          onPress={() => handleSelectResult(item)}
+                        >
+                          <Text className="text-base font-semibold text-text-main">{item.name}</Text>
+                        </Pressable>
+                      ))}
+                  </Box>
+                )}
+              </ScrollView>
+            </View>
+          )}
+        </Box>
+
+        {/* Time */}
+        <Box className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 p-4">
+          <Text className="text-text-muted text-xs uppercase font-bold tracking-widest">Kedy</Text>
+          <Pressable className="flex-row items-center mt-2" onPress={() => setShowDateModal(true)}>
             <Icon as={Calendar} size="sm" className="text-gray-400 mr-3" />
-            <Text className="text-base text-text-muted flex-1">{getDateDisplay()}</Text>
-            {dateRange.from && (
+            <Box className="flex-1">
+              <Text className="text-base text-text-main">{getDateDisplay()}</Text>
+              <Text className="text-sm text-text-muted">{getTimeDisplay()}</Text>
+            </Box>
+            {(dateRange.from || timeFrom || timeTo) && (
               <Pressable
                 onPress={(e) => {
                   e.stopPropagation();
@@ -306,52 +392,19 @@ export default function SearchScreen() {
               </Pressable>
             )}
           </Pressable>
+        </Box>
 
-          {/* Search Results Dropdown */}
-          {showResults && searchResults.length > 0 && (
-            <View className="absolute top-[100%] left-0 right-0 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden mt-2">
-              {searchResults.some((r) => r.type === 'company') && (
-                <Box>
-                  <Text className="px-4 py-2 text-xs font-bold text-gray-400 uppercase bg-gray-50">Salóny</Text>
-                  {searchResults
-                    .filter((r) => r.type === 'company')
-                    .map((item) => (
-                      <Pressable
-                        key={item.id}
-                        className="px-4 py-3 flex-row items-center border-b border-gray-50 active:bg-gray-50"
-                        onPress={() => handleSelectResult(item)}
-                      >
-                        {item.photoUrl && (
-                          <Image
-                            source={{ uri: item.photoUrl }}
-                            className="w-8 h-8 rounded mr-3 bg-gray-200"
-                            alt={item.name}
-                          />
-                        )}
-                        <Text className="text-sm font-medium text-text-main">{item.name}</Text>
-                      </Pressable>
-                    ))}
-                </Box>
-              )}
-
-              {searchResults.some((r) => r.type === 'category') && (
-                <Box>
-                  <Text className="px-4 py-2 text-xs font-bold text-gray-400 uppercase bg-gray-50">Kategórie</Text>
-                  {searchResults
-                    .filter((r) => r.type === 'category')
-                    .map((item) => (
-                      <Pressable
-                        key={item.id}
-                        className="px-4 py-3 border-b border-gray-50 active:bg-gray-50"
-                        onPress={() => handleSelectResult(item)}
-                      >
-                        <Text className="text-sm font-medium text-text-main">{item.name}</Text>
-                      </Pressable>
-                    ))}
-                </Box>
-              )}
-            </View>
-          )}
+        {/* Lokalita */}
+        <Box className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-6 p-4">
+          <Text className="text-text-muted text-xs uppercase font-bold tracking-widest">Lokalita</Text>
+          <Link href={{ pathname: '/cities', params: { returnTo: '/search' } }} asChild>
+            <Pressable className="flex-row items-center mt-2">
+              <Heading className="text-xl font-bold text-text-main mr-2">
+                {selectedCity?.name || 'Vybrať mesto'}
+              </Heading>
+              <Icon as={ChevronDown} size="sm" className="text-primary" />
+            </Pressable>
+          </Link>
         </Box>
       </ScrollView>
 
