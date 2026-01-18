@@ -1,8 +1,8 @@
-import { View, Text, SectionList, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, SectionList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getUserOrNull, supabase } from '@/lib/supabase';
 import { useState, useCallback } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, router } from 'expo-router';
 import { format, isFuture, isPast } from 'date-fns';
 import { sk } from 'date-fns/locale';
 
@@ -34,15 +34,20 @@ export default function BookingsScreen() {
     const [sections, setSections] = useState<BookingSection[]>([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
+    const [needsAuth, setNeedsAuth] = useState(false);
 
     const fetchBookings = async () => {
         try {
             const user = await getUserOrNull();
             if (!user) {
+                setNeedsAuth(true);
                 setSections([]);
                 setLoading(false);
+                setRefreshing(false);
                 return;
             }
+
+            setNeedsAuth(false);
 
             const { data, error } = await supabase
                 .from('bookings')
@@ -179,6 +184,29 @@ export default function BookingsScreen() {
              <View className="flex-1 items-center justify-center bg-background">
                 <ActivityIndicator color="#d4a373" />
             </View>
+        );
+    }
+
+    if (needsAuth) {
+        return (
+            <SafeAreaView className="flex-1 bg-background items-center justify-center px-6" edges={['top']}>
+                <Text className="text-2xl font-bold text-text-main text-center mb-3">Rezervácie pre prihlásených</Text>
+                <Text className="text-gray-500 text-center mb-6">
+                    Na zobrazenie rezervácií sa musíte prihlásiť alebo registrovať.
+                </Text>
+                <TouchableOpacity
+                    className="w-full bg-primary py-4 rounded-full items-center mb-3"
+                    onPress={() => router.push('/(tabs)/profile')}
+                >
+                    <Text className="text-white font-bold">Prihlásiť sa</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    className="w-full bg-white border border-gray-200 py-4 rounded-full items-center"
+                    onPress={() => router.push('/register')}
+                >
+                    <Text className="text-text-main font-bold">Registrácia</Text>
+                </TouchableOpacity>
+            </SafeAreaView>
         );
     }
 
