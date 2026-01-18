@@ -105,3 +105,6 @@ byt este booking akceptovana staffom. nato by som chcel pridat novy field do db.
 pozri sa na appku "mobile" na home ci to nevies spravit krajsie modernejsie, mi to pride take divne.    
 
 appka mobile, ked som v city->category a zmenim "category" alebo "sub-category" alebo "city" tak nech ostanem na page a nech sa zmeni iba zoznam firiem popripade zoznam sub_category ked sa update category
+
+
+appka mobile - v profile pridat moznost registracie. pridat do formu aj moznost reset hesla zatial iba nez akcii pridaj 

@@ -23,6 +23,22 @@ export default function CategoryListingScreen() {
     sub_category: subCategorySlug,
   } = useLocalSearchParams();
 
+  const [selectedCitySlug, setSelectedCitySlug] = useState<string | null>(
+    typeof citySlug === 'string' ? citySlug : null
+  );
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>(
+    typeof categorySlug === 'string' ? categorySlug : null
+  );
+  const [selectedSubCategorySlug, setSelectedSubCategorySlug] = useState<string | null>(
+    typeof subCategorySlug === 'string' ? subCategorySlug : null
+  );
+
+  useEffect(() => {
+    setSelectedCitySlug(typeof citySlug === 'string' ? citySlug : null);
+    setSelectedCategorySlug(typeof categorySlug === 'string' ? categorySlug : null);
+    setSelectedSubCategorySlug(typeof subCategorySlug === 'string' ? subCategorySlug : null);
+  }, [citySlug, categorySlug, subCategorySlug]);
+
   const goBackOrHome = useCallback(() => {
     if (router.canGoBack()) {
       router.back();
@@ -65,17 +81,23 @@ export default function CategoryListingScreen() {
   const [savingCity, setSavingCity] = useState(false);
 
   useEffect(() => {
-    if (citySlug && categorySlug) fetchData();
-  }, [citySlug, categorySlug, subCategorySlug]);
+    if (selectedCitySlug && selectedCategorySlug) {
+      fetchData(selectedCitySlug, selectedCategorySlug, selectedSubCategorySlug);
+    }
+  }, [selectedCitySlug, selectedCategorySlug, selectedSubCategorySlug]);
 
-  async function fetchData() {
+  async function fetchData(
+    citySlugValue: string,
+    categorySlugValue: string,
+    subCategorySlugValue: string | null
+  ) {
     setLoading(true);
 
     try {
       const [{ data: city }, { data: category }, { data: citiesData }, { data: catsData }] =
         await Promise.all([
-          supabase.from('cities').select('*').eq('slug', citySlug).single(),
-          supabase.from('categories').select('*').eq('slug', categorySlug).single(),
+          supabase.from('cities').select('*').eq('slug', citySlugValue).single(),
+          supabase.from('categories').select('*').eq('slug', categorySlugValue).single(),
           supabase.from('cities').select('*').order('name'),
           supabase.from('categories').select('*').order('ordering'),
         ]);
@@ -95,15 +117,17 @@ export default function CategoryListingScreen() {
         .order('ordering');
 
       let selectedSubCategory: any | null = null;
-      if (typeof subCategorySlug === 'string' && subCategorySlug.length > 0) {
+      if (typeof subCategorySlugValue === 'string' && subCategorySlugValue.length > 0) {
         const { data: maybeSubCategory } = await supabase
           .from('sub_categories')
           .select('*')
-          .eq('slug', subCategorySlug)
+          .eq('slug', subCategorySlugValue)
           .single();
 
         if (maybeSubCategory && maybeSubCategory.category_id === category.id) {
           selectedSubCategory = maybeSubCategory;
+        } else {
+          setSelectedSubCategorySlug(null);
         }
       }
 
@@ -157,11 +181,7 @@ export default function CategoryListingScreen() {
         }
       }
 
-      const subCategoryPart = data.subCategory?.slug
-        ? `?sub_category=${encodeURIComponent(data.subCategory.slug)}`
-        : '';
-
-      router.push(`/explore/${city.slug}/${data.category.slug}${subCategoryPart}`);
+      setSelectedCitySlug(city.slug);
       setCityModalOpen(false);
     } finally {
       setSavingCity(false);
@@ -171,12 +191,13 @@ export default function CategoryListingScreen() {
   function handleSelectCategory(category: any) {
     if (!data?.city) return;
 
-    router.push(`/explore/${data.city.slug}/${category.slug}`);
+    setSelectedCategorySlug(category.slug);
+    setSelectedSubCategorySlug(null);
     setCategoryModalOpen(false);
   }
 
   const headerTitle = data?.category?.name ?? 'Kategórie';
-  const selectedSubCategorySlug = data?.subCategory?.slug;
+  const activeSubCategorySlug = selectedSubCategorySlug ?? data?.subCategory?.slug;
 
   const content = (() => {
     if (loading) {
@@ -212,16 +233,16 @@ export default function CategoryListingScreen() {
             contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 10 }}
           >
             <TouchableOpacity
-              onPress={() => router.push(`/explore/${data.city.slug}/${data.category.slug}`)}
+              onPress={() => setSelectedSubCategorySlug(null)}
               className={`mr-3 px-4 py-3 rounded-full border shadow-sm ${
-                !selectedSubCategorySlug
+                !activeSubCategorySlug
                   ? 'bg-primary border-primary'
                   : 'bg-white border-gray-100'
               }`}
             >
               <Text
                 className={`font-semibold ${
-                  !selectedSubCategorySlug ? 'text-white' : 'text-text-main'
+                  !activeSubCategorySlug ? 'text-white' : 'text-text-main'
                 }`}
               >
                 Všetky
@@ -229,18 +250,12 @@ export default function CategoryListingScreen() {
             </TouchableOpacity>
 
             {data.subCategories.map((subCat) => {
-              const selected = selectedSubCategorySlug === subCat.slug;
+              const selected = activeSubCategorySlug === subCat.slug;
 
               return (
                 <TouchableOpacity
                   key={subCat.id}
-                  onPress={() =>
-                    router.push(
-                      `/explore/${data.city.slug}/${data.category.slug}?sub_category=${encodeURIComponent(
-                        subCat.slug
-                      )}`
-                    )
-                  }
+                  onPress={() => setSelectedSubCategorySlug(subCat.slug)}
                   className={`mr-3 px-4 py-3 rounded-full border shadow-sm ${
                     selected ? 'bg-primary border-primary' : 'bg-white border-gray-100'
                   }`}
@@ -323,12 +338,12 @@ export default function CategoryListingScreen() {
                           </Text>
                         </View>
                         <View className="flex-row items-center">
-                          {service.price && (
+                          {service.price !== null && service.price !== undefined && (
                             <Text className="text-text-main font-bold text-sm mr-3">
                               {service.price}€
                             </Text>
                           )}
-                          {service.duration_minutes && (
+                          {service.duration_minutes !== null && service.duration_minutes !== undefined && (
                             <Text className="text-text-muted text-xs">{service.duration_minutes}min</Text>
                           )}
                         </View>
