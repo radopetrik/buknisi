@@ -4,7 +4,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  TextInput,
   ActivityIndicator,
   BackHandler,
 } from 'react-native';
@@ -12,6 +11,7 @@ import { Stack, useLocalSearchParams, Link, router, useFocusEffect } from 'expo-
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { SearchInputTrigger } from '@/components/search/SearchInputTrigger';
 
 export default function CityScreen() {
   const { city: citySlug } = useLocalSearchParams();
@@ -109,20 +109,9 @@ export default function CityScreen() {
       />
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
         
-        {/* Search Box */}
-        <View className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-8">
-            <View className="flex-row items-center border-b border-gray-100 pb-3 mb-3">
-                <FontAwesome name="search" size={16} color="#999" style={{marginRight: 10}} />
-                <TextInput 
-                    placeholder={`Hľadať v ${city.name}...`} 
-                    className="flex-1 text-base text-text-main"
-                    placeholderTextColor="#999"
-                />
-            </View>
-            <View className="flex-row items-center">
-                 <FontAwesome name="calendar" size={16} color="#999" style={{marginRight: 10}} />
-                 <Text className="text-base text-text-muted flex-1">Kedykoľvek</Text>
-            </View>
+        {/* Search Trigger */}
+        <View className="mb-8">
+          <SearchInputTrigger placeholder="Čo hľadáte?" />
         </View>
 
         {/* Categories */}
