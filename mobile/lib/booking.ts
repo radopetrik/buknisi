@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { getUserOrNull, supabase } from './supabase';
 import { addMinutes, format, parse, isBefore, isAfter, isEqual } from 'date-fns';
 
 export type BookingServiceAddonItem = {
@@ -136,7 +136,7 @@ export async function createBooking(payload: {
     note?: string;
     services: BookingServiceItem[];
 }) {
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = await getUserOrNull();
 
     if (!user) {
         return { error: 'Not authenticated' };

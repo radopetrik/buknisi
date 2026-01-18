@@ -47,9 +47,16 @@ export default function RootLayout() {
 }
 
 import { GluestackUIProvider } from '@/components/ui/gluestack-ui-provider';
+import { cleanupInvalidSession } from '@/lib/supabase';
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    cleanupInvalidSession().catch(() => {
+      // ignore
+    });
+  }, []);
 
   return (
     <GluestackUIProvider>

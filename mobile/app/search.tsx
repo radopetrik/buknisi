@@ -13,7 +13,7 @@ import { Image } from '@/components/ui/image';
 import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 import { Pressable } from '@/components/ui/pressable';
 import { Text } from '@/components/ui/text';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 
 function normalizeForSearch(value: string) {
   if (!value) return '';
@@ -134,9 +134,7 @@ export default function SearchScreen() {
     if (citiesData && citiesData.length > 0) {
       let def = citiesData.find((c: any) => c.slug === 'bratislava') || citiesData[0];
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await getUserOrNull();
 
       if (user) {
         const { data: profile } = await supabase

@@ -32,3 +32,58 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,
   },
 })
+
+function isInvalidRefreshTokenError(error: unknown) {
+  if (!error || typeof error !== 'object') return false
+
+  const maybeError = error as { name?: unknown; message?: unknown }
+  const name = typeof maybeError.name === 'string' ? maybeError.name : ''
+  const message = typeof maybeError.message === 'string' ? maybeError.message : ''
+
+  return name === 'AuthApiError' && message.includes('Invalid Refresh Token')
+}
+
+async function signOutLocalSafely() {
+  try {
+    await supabase.auth.signOut({ scope: 'local' })
+  } catch {
+    // ignore
+  }
+}
+
+export async function cleanupInvalidSession() {
+  try {
+    const { error } = await supabase.auth.getSession()
+    if (error && isInvalidRefreshTokenError(error)) {
+      await signOutLocalSafely()
+    }
+  } catch (error) {
+    if (isInvalidRefreshTokenError(error)) {
+      await signOutLocalSafely()
+    }
+  }
+}
+
+export async function getUserOrNull() {
+  try {
+    const { data, error } = await supabase.auth.getUser()
+
+    if (error) {
+      if (isInvalidRefreshTokenError(error)) {
+        await signOutLocalSafely()
+        return null
+      }
+
+      return null
+    }
+
+    return data.user
+  } catch (error) {
+    if (isInvalidRefreshTokenError(error)) {
+      await signOutLocalSafely()
+      return null
+    }
+
+    return null
+  }
+}

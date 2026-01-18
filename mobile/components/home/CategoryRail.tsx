@@ -7,7 +7,7 @@ import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
 import { Image } from '@/components/ui/image';
 import { Pressable } from '@/components/ui/pressable';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 
 type Category = {
@@ -73,9 +73,7 @@ export function CategoryRail() {
       try {
         let citySlug = 'bratislava';
 
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+        const user = await getUserOrNull();
 
         if (user) {
           const { data: profile } = await supabase

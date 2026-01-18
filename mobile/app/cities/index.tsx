@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 export default function CitiesScreen() {
@@ -16,9 +16,7 @@ export default function CitiesScreen() {
 
   async function handleSelectCity(city: any) {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await getUserOrNull();
 
       if (user) {
         const { error } = await supabase

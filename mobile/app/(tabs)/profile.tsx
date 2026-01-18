@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -15,8 +15,8 @@ export default function ProfileScreen() {
   const [savingCity, setSavingCity] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-    
+    getUserOrNull().then((user) => setUser(user));
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });

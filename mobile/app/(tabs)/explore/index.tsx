@@ -1,7 +1,7 @@
 import { Alert, Modal, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import { Link, router } from 'expo-router';
 import { ChevronDown, Star, X } from 'lucide-react-native';
 
@@ -51,9 +51,7 @@ export default function ExploreScreen() {
 
       let def = citiesData.find((c: any) => c.slug === 'bratislava') || citiesData[0];
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await getUserOrNull();
 
       if (user) {
         const { data: profile } = await supabase
@@ -81,9 +79,7 @@ export default function ExploreScreen() {
     setSavingCity(true);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await getUserOrNull();
 
       if (user) {
         const { error } = await supabase

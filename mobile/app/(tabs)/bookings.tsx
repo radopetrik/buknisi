@@ -1,6 +1,6 @@
 import { View, Text, SectionList, ActivityIndicator, RefreshControl } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from 'expo-router';
 import { format, isFuture, isPast } from 'date-fns';
@@ -37,7 +37,7 @@ export default function BookingsScreen() {
 
     const fetchBookings = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const user = await getUserOrNull();
             if (!user) {
                 setSections([]);
                 setLoading(false);

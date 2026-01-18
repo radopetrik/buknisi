@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Stack, useLocalSearchParams, Link, router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchInputTrigger } from '@/components/search/SearchInputTrigger';
 
@@ -143,9 +143,7 @@ export default function CategoryListingScreen() {
     setSavingCity(true);
 
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const user = await getUserOrNull();
 
       if (user) {
         const { error } = await supabase
