@@ -79,6 +79,7 @@ export default function CategoryListingScreen() {
   const [cityModalOpen, setCityModalOpen] = useState(false);
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [savingCity, setSavingCity] = useState(false);
+  const [ratingSortDirection, setRatingSortDirection] = useState<'desc' | 'asc' | null>(null);
 
   useEffect(() => {
     if (selectedCitySlug && selectedCategorySlug) {
@@ -196,8 +197,35 @@ export default function CategoryListingScreen() {
     setCategoryModalOpen(false);
   }
 
+  function handleToggleRatingSort() {
+    setRatingSortDirection((prev) => {
+      if (prev === 'desc') return 'asc';
+      if (prev === 'asc') return null;
+      return 'desc';
+    });
+  }
+
   const headerTitle = data?.category?.name ?? 'Kategórie';
   const activeSubCategorySlug = selectedSubCategorySlug ?? data?.subCategory?.slug;
+  const ratingSortIcon =
+    ratingSortDirection === 'asc'
+      ? 'sort-amount-asc'
+      : ratingSortDirection === 'desc'
+        ? 'sort-amount-desc'
+        : 'sort';
+  const ratingSortColor = ratingSortDirection ? '#d4a373' : '#9ca3af';
+  const companiesToRender = (() => {
+    if (!data?.companies) return [];
+    if (!ratingSortDirection) return data.companies;
+
+    return [...data.companies].sort((first, second) => {
+      const firstRating = Number(first.rating || 0);
+      const secondRating = Number(second.rating || 0);
+      return ratingSortDirection === 'asc'
+        ? firstRating - secondRating
+        : secondRating - firstRating;
+    });
+  })();
 
   const content = (() => {
     if (loading) {
@@ -272,31 +300,43 @@ export default function CategoryListingScreen() {
         </View>
 
         {/* Title */}
-        <View className="flex-row flex-wrap items-baseline mb-4">
-          {data.subCategory ? (
-            <Text className="text-xl font-bold text-text-main">{data.subCategory.name} v meste</Text>
-          ) : (
-            <Text className="text-xl font-bold text-text-main">Mesto</Text>
-          )}
+        <View className="flex-row items-center justify-between mb-4">
+          <View className="flex-row flex-wrap items-baseline flex-1 pr-3">
+            {data.subCategory ? (
+              <Text className="text-xl font-bold text-text-main">
+                {data.subCategory.name} v meste
+              </Text>
+            ) : (
+              <Text className="text-xl font-bold text-text-main">Mesto</Text>
+            )}
+
+            <TouchableOpacity
+              onPress={() => setCityModalOpen(true)}
+              className="flex-row items-center ml-2"
+              disabled={savingCity}
+            >
+              <Text className="text-xl font-bold text-primary underline mr-2">
+                {savingCity ? 'Ukladám...' : data.city.name}
+              </Text>
+              <FontAwesome name="chevron-down" size={14} color="#d4a373" />
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity
-            onPress={() => setCityModalOpen(true)}
-            className="flex-row items-center ml-2"
-            disabled={savingCity}
+            onPress={handleToggleRatingSort}
+            className="flex-row items-center bg-white border border-gray-100 rounded-full px-3 py-2 shadow-sm"
           >
-            <Text className="text-xl font-bold text-primary underline mr-2">
-              {savingCity ? 'Ukladám...' : data.city.name}
-            </Text>
-            <FontAwesome name="chevron-down" size={14} color="#d4a373" />
+            <FontAwesome name="star" size={14} color={ratingSortColor} />
+            <FontAwesome name={ratingSortIcon} size={14} color={ratingSortColor} style={{ marginLeft: 6 }} />
           </TouchableOpacity>
         </View>
 
-        {data.companies.length === 0 ? (
+        {companiesToRender.length === 0 ? (
           <Text className="text-text-muted mt-4 text-center">
             V tejto kategórii zatiaľ nie sú žiadne podniky.
           </Text>
         ) : (
-          data.companies.map((comp) => (
+          companiesToRender.map((comp) => (
             <Link key={comp.id} href={`/company/${comp.slug}`} asChild>
               <TouchableOpacity className="bg-white rounded-2xl mb-6 shadow-sm border border-gray-100 overflow-hidden">
                 {/* Image */}
