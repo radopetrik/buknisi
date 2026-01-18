@@ -9,16 +9,18 @@ import { CategoryRail } from '@/components/home/CategoryRail';
 
 export default function HomeScreen() {
   return (
-    <Box className="flex-1 bg-background">
-      <SafeAreaView edges={['top']} className="flex-1 bg-background">
-        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          <Box className="bg-background pt-2 pb-8">
-            <Box className="px-4 mb-4">
+    <Box className="flex-1 bg-white">
+      {/* SafeAreaView bg matches the header color (black) */}
+      <SafeAreaView edges={['top']} className="flex-1 bg-black">
+        <ScrollView className="flex-1 bg-white" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
+          {/* Header Section Background */}
+          <Box className="bg-white">
+            <Box className="mb-4">
               <HomeHeader />
             </Box>
 
-            <Box className="px-4 mb-4 mt-2">
-              <Text className="text-text-main text-xl font-bold">Kategórie</Text>
+            <Box className="px-6 mb-5 mt-2">
+              <Text className="text-text-main text-xl font-bold tracking-tight">Čo si chcete rezervovať?</Text>
             </Box>
             <CategoryRail />
           </Box>

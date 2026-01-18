@@ -119,4 +119,4 @@ appke "mobile" -> v company detail pridat moznost ratingu ale iba prihlasenym us
 appke "mobile" -> explore->city->category hned nad zoznamom companies by som chcel pridat sorting moznost podla "rating". mozno ako ikonky na pravu stranku v riadku kde je nadpis
 
 
-appke "mobile", sekcia home -> skus sa inpirovat tymto obrazkom. 
+appke "mobile", sekcia home -> skus sa inpirovat tymto obrazkom. pouzi aj nejake obrazky ilustracne alebo mozno aj nie necham na tebe
