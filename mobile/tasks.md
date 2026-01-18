@@ -98,3 +98,8 @@ appka mobile-admin - jedna polka back button je pekna ale neda sa kliknut na lab
 appka mobile-admin - page viac -> ako je odhlasit tak nad nim pridaj info o tom kto je prihlaseny
 
 appka mobile-admin - login page + registacia firmy. Pri login pridaj odkaz na reset hesla zatial nikam neveduci, pridaj logo z appky "mobile" aj obrazok na pozadie z appky "admin" -> login. Odkaz registracia firmy daj nejak ako button alebo nejak inak vyraznejsie, krajsie, modernejsie. Prejdi registraciu form aj login page a nejak skrasli
+
+chcel by som pridat novy field do databazi tabulka bookings. lebo chcem pridat novy flow. ak je booking z appkies "web" alebo "mobile" tak musi 
+byt este booking akceptovana staffom. nato by som chcel pridat novy field do db. Tiez tym padom treba zmenit ui v "admin" a "mobile-admin" appkach kde bude mozne akceptovat booking. nech sa to robi v oboch pripadoch v calendari. bude musiet byt nejaka nova sekcia kde budu cakajuce bookings ktore moze user potvrdit. a tie nech sa nezobrazuju v kalendari pokilal nesu potvrdene. Zaroveb bude treba zabezpecit aby sa v appkach "web" a "mobile" ak ide booking stavil flag ze caka na potvrdenie.
+
+pozri sa na appku "mobile" na home ci to nevies spravit viac pro take divne mi to pride.    
