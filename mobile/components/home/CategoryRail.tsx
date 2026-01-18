@@ -133,7 +133,7 @@ export function CategoryRail() {
                     })
                   }
                 >
-                  <Box className="rounded-full overflow-hidden w-[72px] h-[72px] items-center justify-center bg-white border border-border">
+                  <Box className="rounded-3xl overflow-hidden w-[72px] h-[72px] items-center justify-center bg-accent-pink shadow-sm">
                     {showImage ? (
                       <Box className="w-full h-full items-center justify-center bg-white">
                         <Image
@@ -152,14 +152,14 @@ export function CategoryRail() {
                     ) : (
                       <Box className="w-full h-full items-center justify-center bg-accent-pink">
                         {Icon ? (
-                          <Icon size={32} color="#d4a373" />
+                          <Icon size={32} color="#d4a373" strokeWidth={1.5} />
                         ) : (
                           <Text className="text-primary text-xl font-bold">{initial}</Text>
                         )}
                       </Box>
                     )}
                   </Box>
-                  <Text className="text-text-main text-xs font-medium mt-2 text-center" numberOfLines={2}>
+                  <Text className="text-text-main text-xs font-medium mt-2 text-center leading-4" numberOfLines={2}>
                     {category.name}
                   </Text>
                 </Pressable>

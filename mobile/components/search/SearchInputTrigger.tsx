@@ -7,15 +7,16 @@ import { Input, InputField, InputIcon, InputSlot } from '@/components/ui/input';
 
 type SearchInputTriggerProps = {
   placeholder?: string;
+  className?: string;
 };
 
-export function SearchInputTrigger({ placeholder = 'Čo hľadáte?' }: SearchInputTriggerProps) {
+export function SearchInputTrigger({ placeholder = 'Čo hľadáte?', className }: SearchInputTriggerProps) {
   return (
     <Pressable onPress={() => router.push('/search')}>
       <Box pointerEvents="none">
         <Input
           variant="rounded"
-          className="bg-white h-14 border border-gray-200 shadow-sm"
+          className={`bg-white h-14 border border-gray-200 shadow-sm ${className}`}
           isReadOnly={true}
         >
           <InputSlot className="pl-4">

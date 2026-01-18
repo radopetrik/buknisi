@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
+import { MapPin } from 'lucide-react-native';
+
 import { Box } from '@/components/ui/box';
 import { Text } from '@/components/ui/text';
+import { Icon } from '@/components/ui/icon';
 import { Pressable } from '@/components/ui/pressable';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
@@ -43,8 +46,9 @@ export function CityGrid() {
           {row.map((city) => (
             <View key={city.id} style={{ width: '50%', paddingHorizontal: 6 }}>
               <Pressable onPress={() => router.push(`/explore/${city.slug}`)}>
-                <Box className="bg-white rounded-xl px-4 py-3 border border-border">
-                  <Text className="text-text-main font-semibold text-center" numberOfLines={1}>
+                <Box className="bg-white rounded-2xl px-4 py-4 border border-border flex-row items-center justify-center shadow-sm">
+                  <Icon as={MapPin} size="xs" className="text-primary mr-2" />
+                  <Text className="text-text-main font-bold text-center" numberOfLines={1}>
                     {city.name}
                   </Text>
                 </Box>
