@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { router } from 'expo-router';
 import { getUserOrNull, supabase } from '@/lib/supabase';
@@ -6,9 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
   const [user, setUser] = useState<any>(null);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const [cities, setCities] = useState<any[]>([]);
   const [preferredCity, setPreferredCity] = useState<any>(null);
@@ -78,23 +75,11 @@ export default function ProfileScreen() {
     setCityModalOpen(false);
   }
 
-  async function signIn() {
-    if (!email.trim() || !password) {
-      Alert.alert('Chyba', 'Zadajte email a heslo.');
-      return;
-    }
-
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    setLoading(false);
-    if (error) Alert.alert('Chyba', error.message);
-  }
-
   async function signOut() {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      Alert.alert('Chyba', error.message);
+    }
   }
 
   if (user) {
@@ -161,78 +146,41 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.containerCenter}>
-      <Text style={styles.header}>Prihlásenie</Text>
-      
-      <View style={{ gap: 16 }}>
-        <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Email</Text>
-            <TextInput 
-                style={styles.input}
-                placeholder="name@example.com"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-            />
-        </View>
-        
-        <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Heslo</Text>
-            <TextInput 
-                style={styles.input}
-                placeholder="********"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-            />
-        </View>
+    <SafeAreaView className="flex-1 bg-background items-center justify-center px-6" edges={['top']}>
+      <Text className="text-2xl font-bold text-text-main text-center mb-3">Profil pre prihlásených</Text>
+      <Text className="text-gray-500 text-center mb-6">
+        Aby ste spravovali svoj profil, prihláste sa alebo sa zaregistrujte.
+      </Text>
 
-        <TouchableOpacity 
-            onPress={signIn}
-            disabled={loading}
-            style={[styles.buttonPrimary, loading && styles.buttonDisabled]}
-        >
-            <Text style={styles.buttonTextPrimary}>
-                {loading ? 'Prihlasujem...' : 'Prihlásiť sa'}
-            </Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        className="w-full bg-primary py-4 rounded-full items-center mb-3"
+        onPress={() => router.push('/login')}
+      >
+        <Text className="text-white font-bold">Prihlásiť sa</Text>
+      </TouchableOpacity>
 
-        <TouchableOpacity
-            onPress={() => router.push('/register')}
-            style={styles.buttonSecondary}
-        >
-            <Text style={styles.buttonTextSecondary}>Registrácia</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-            onPress={() => {}}
-            style={styles.linkButton}
-        >
-            <Text style={styles.linkText}>Zabudnuté heslo?</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        className="w-full bg-white border border-gray-200 py-4 rounded-full items-center"
+        onPress={() => router.push('/register')}
+      >
+        <Text className="text-text-main font-bold">Registrácia</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fcfcfc', padding: 16 },
-    containerCenter: { flex: 1, backgroundColor: '#fcfcfc', justifyContent: 'center', padding: 24 },
+    container: { flex: 1, backgroundColor: '#fcfcfc', padding: 16 },
     title: { fontSize: 24, fontWeight: 'bold', color: '#2c2c2c', marginBottom: 24 },
-    header: { fontSize: 30, fontWeight: 'bold', color: '#2c2c2c', marginBottom: 32, textAlign: 'center' },
     card: { backgroundColor: 'white', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#f2f2f2', marginBottom: 24 },
     label: { color: '#787878', marginBottom: 4 },
     labelBold: { color: '#787878', marginBottom: 8, fontWeight: 'bold' },
     email: { fontSize: 18, fontWeight: '600', color: '#2c2c2c', marginBottom: 16 },
-    inputGroup: { marginBottom: 16 },
-    input: { backgroundColor: 'white', padding: 16, borderRadius: 12, borderWidth: 1, borderColor: '#e5e5e5', fontSize: 16, color: '#2c2c2c' },
     buttonPrimary: { padding: 16, borderRadius: 999, alignItems: 'center', backgroundColor: '#d4a373' },
-    buttonDisabled: { backgroundColor: '#e0e0e0' },
     buttonTextPrimary: { color: 'white', fontWeight: 'bold', fontSize: 18 },
     buttonSecondary: { backgroundColor: '#f5f5f5', padding: 12, borderRadius: 8, alignItems: 'center' },
     buttonTextSecondary: { color: '#2c2c2c', fontWeight: 'bold' },
-    linkButton: { alignItems: 'center' },
-    linkText: { color: '#2c2c2c', fontWeight: '600' },
 
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
     modalContent: { backgroundColor: 'white', padding: 16, borderTopLeftRadius: 16, borderTopRightRadius: 16 },

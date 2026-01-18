@@ -4,31 +4,21 @@ import { Stack, router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '@/lib/supabase';
 
-export default function RegisterScreen() {
+export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function signUp() {
-    if (!email.trim() || !password || !firstName.trim() || !lastName.trim()) {
-      Alert.alert('Chyba', 'Vyplňte meno, priezvisko, email a heslo.');
+  async function signIn() {
+    if (!email.trim() || !password) {
+      Alert.alert('Chyba', 'Zadajte email a heslo.');
       return;
     }
 
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email: email.trim(),
       password,
-      options: {
-        data: {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          phone: phone.trim() || null,
-        },
-      },
     });
     setLoading(false);
 
@@ -37,25 +27,7 @@ export default function RegisterScreen() {
       return;
     }
 
-    if (data.session && data.user) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          phone: phone.trim() || null,
-          email: email.trim(),
-        })
-        .eq('id', data.user.id);
-
-      if (profileError) {
-        Alert.alert('Upozornenie', 'Účet vytvorený, ale profil sa nepodarilo uložiť.');
-      }
-    }
-
-    Alert.alert('Hotovo', 'Skontrolujte email pre potvrdenie registrácie.', [
-      { text: 'OK', onPress: () => router.back() },
-    ]);
+    router.replace('/(tabs)/profile');
   }
 
   return (
@@ -76,41 +48,10 @@ export default function RegisterScreen() {
           ),
         }}
       />
-      <Text style={styles.header}>Registrácia</Text>
+      <Text style={styles.header}>Prihlásenie</Text>
 
       <View style={styles.formContainer}>
         <View style={{ gap: 16 }}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Meno</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Janko"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Priezvisko</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Hrasko"
-              value={lastName}
-              onChangeText={setLastName}
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.labelBold}>Telefón</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="+421 900 000 000"
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-            />
-          </View>
-
           <View style={styles.inputGroup}>
             <Text style={styles.labelBold}>Email</Text>
             <TextInput
@@ -134,13 +75,27 @@ export default function RegisterScreen() {
           </View>
 
           <TouchableOpacity
-            onPress={signUp}
+            onPress={signIn}
             disabled={loading}
             style={[styles.buttonPrimary, loading && styles.buttonDisabled]}
           >
             <Text style={styles.buttonTextPrimary}>
-              {loading ? 'Registrujem...' : 'Registrovať sa'}
+              {loading ? 'Prihlasujem...' : 'Prihlásiť sa'}
             </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => router.push('/register')}
+            style={styles.buttonSecondary}
+          >
+            <Text style={styles.buttonTextSecondary}>Registrácia</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => {}}
+            style={styles.linkButton}
+          >
+            <Text style={styles.linkText}>Zabudnuté heslo?</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -159,4 +114,8 @@ const styles = StyleSheet.create({
   buttonPrimary: { paddingVertical: 12, borderRadius: 999, alignItems: 'center', backgroundColor: '#d4a373' },
   buttonDisabled: { backgroundColor: '#e0e0e0' },
   buttonTextPrimary: { color: 'white', fontWeight: '700', fontSize: 16 },
+  buttonSecondary: { backgroundColor: '#f5f5f5', paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+  buttonTextSecondary: { color: '#2c2c2c', fontWeight: '700', fontSize: 15 },
+  linkButton: { alignItems: 'center', paddingTop: 4 },
+  linkText: { color: '#2c2c2c', fontWeight: '600', fontSize: 14 },
 });
