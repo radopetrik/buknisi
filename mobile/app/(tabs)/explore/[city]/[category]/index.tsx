@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Stack, useLocalSearchParams, Link, router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { HeaderBackButton } from '@react-navigation/elements';
 import { getUserOrNull, supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchInputTrigger } from '@/components/search/SearchInputTrigger';
@@ -174,53 +175,33 @@ export default function CategoryListingScreen() {
     setCategoryModalOpen(false);
   }
 
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator color="#d4a373" />
-      </View>
-    );
-  }
+  const headerTitle = data?.category?.name ?? 'Kategórie';
+  const selectedSubCategorySlug = data?.subCategory?.slug;
 
-  if (!data?.city || !data?.category) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <Text className="text-lg text-text-main">Nenašlo sa</Text>
-      </View>
-    );
-  }
-
-  const selectedSubCategorySlug = data.subCategory?.slug;
-
-  return (
-    <View className="flex-1 bg-background">
-      <Stack.Screen
-         options={{
-           headerLeft: () => (
-             <TouchableOpacity onPress={goBackOrHome} className="flex-row items-center">
-               <FontAwesome name="chevron-left" size={16} color="#d4a373" style={{ marginRight: 6 }} />
-               <Text className="text-primary font-semibold">Späť</Text>
-             </TouchableOpacity>
-           ),
-           headerTitle: () => (
-             <TouchableOpacity
-               onPress={() => setCategoryModalOpen(true)}
-               className="flex-row items-center"
-             >
-               <Text className="text-base font-bold text-primary underline mr-2">
-                 {data.category.name}
-               </Text>
-               <FontAwesome name="chevron-down" size={14} color="#d4a373" />
-             </TouchableOpacity>
-           ),
-         }}
-       />
-
-      <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
-        {/* Search Trigger */}
-        <View className="mb-6">
-          <SearchInputTrigger placeholder="Čo hľadáte?" />
+  const content = (() => {
+    if (loading) {
+      return (
+        <View className="flex-1 justify-center items-center bg-background">
+          <ActivityIndicator color="#d4a373" />
         </View>
+      );
+    }
+
+    if (!data?.city || !data?.category) {
+      return (
+        <View className="flex-1 justify-center items-center bg-background">
+          <Text className="text-lg text-text-main">Nenašlo sa</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View className="flex-1">
+        <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
+          {/* Search Trigger */}
+          <View className="mb-6">
+            <SearchInputTrigger placeholder="Čo hľadáte?" />
+          </View>
 
         {/* Sub-categories */}
         <View className="mb-5">
@@ -364,95 +345,125 @@ export default function CategoryListingScreen() {
         )}
 
         <View className="h-10" />
-      </ScrollView>
+        </ScrollView>
 
-      {/* Category Picker Modal */}
-      <Modal
-        visible={categoryModalOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setCategoryModalOpen(false)}
-      >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl p-5 max-h-[80%]">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-bold text-text-main">Vyberte kategóriu</Text>
-              <TouchableOpacity onPress={() => setCategoryModalOpen(false)}>
-                <FontAwesome name="times" size={18} color="#111827" />
+        {/* Category Picker Modal */}
+        <Modal
+          visible={categoryModalOpen}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setCategoryModalOpen(false)}
+        >
+          <View className="flex-1 justify-end bg-black/50">
+            <View className="bg-white rounded-t-3xl p-5 max-h-[80%]">
+              <View className="flex-row justify-between items-center mb-6">
+                <Text className="text-xl font-bold text-text-main">Vyberte kategóriu</Text>
+                <TouchableOpacity onPress={() => setCategoryModalOpen(false)}>
+                  <FontAwesome name="times" size={18} color="#111827" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {categories.map((cat) => (
+                  <TouchableOpacity
+                    key={cat.id}
+                    className="py-4 border-b border-gray-100 flex-row justify-between items-center"
+                    onPress={() => handleSelectCategory(cat)}
+                  >
+                    <Text className="text-base font-semibold text-text-main">{cat.name}</Text>
+                    {data.category?.id === cat.id ? (
+                      <Text className="text-primary font-bold">✓</Text>
+                    ) : (
+                      <View className="w-4" />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <TouchableOpacity
+                onPress={() => setCategoryModalOpen(false)}
+                className="bg-gray-100 rounded-xl py-4 items-center mt-5"
+              >
+                <Text className="font-bold text-text-main">Zavrieť</Text>
               </TouchableOpacity>
             </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {categories.map((cat) => (
-                <TouchableOpacity
-                  key={cat.id}
-                  className="py-4 border-b border-gray-100 flex-row justify-between items-center"
-                  onPress={() => handleSelectCategory(cat)}
-                >
-                  <Text className="text-base font-semibold text-text-main">{cat.name}</Text>
-                  {data.category?.id === cat.id ? (
-                    <Text className="text-primary font-bold">✓</Text>
-                  ) : (
-                    <View className="w-4" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              onPress={() => setCategoryModalOpen(false)}
-              className="bg-gray-100 rounded-xl py-4 items-center mt-5"
-            >
-              <Text className="font-bold text-text-main">Zavrieť</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      {/* City Picker Modal */}
-      <Modal
-        visible={cityModalOpen}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setCityModalOpen(false)}
-      >
-        <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl p-5 max-h-[80%]">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-bold text-text-main">Vyberte mesto</Text>
-              <TouchableOpacity onPress={() => setCityModalOpen(false)} disabled={savingCity}>
-                <FontAwesome name="times" size={18} color="#111827" />
+        {/* City Picker Modal */}
+        <Modal
+          visible={cityModalOpen}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setCityModalOpen(false)}
+        >
+          <View className="flex-1 justify-end bg-black/50">
+            <View className="bg-white rounded-t-3xl p-5 max-h-[80%]">
+              <View className="flex-row justify-between items-center mb-6">
+                <Text className="text-xl font-bold text-text-main">Vyberte mesto</Text>
+                <TouchableOpacity onPress={() => setCityModalOpen(false)} disabled={savingCity}>
+                  <FontAwesome name="times" size={18} color="#111827" />
+                </TouchableOpacity>
+              </View>
+
+              <ScrollView showsVerticalScrollIndicator={false}>
+                {cities.map((city) => (
+                  <TouchableOpacity
+                    key={city.id}
+                    className="py-4 border-b border-gray-100 flex-row justify-between items-center"
+                    onPress={() => handleSelectCity(city)}
+                    disabled={savingCity}
+                  >
+                    <Text className="text-base font-semibold text-text-main">{city.name}</Text>
+                    {data.city?.id === city.id ? (
+                      <Text className="text-primary font-bold">✓</Text>
+                    ) : (
+                      <View className="w-4" />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+
+              <TouchableOpacity
+                onPress={() => setCityModalOpen(false)}
+                className="bg-gray-100 rounded-xl py-4 items-center mt-5"
+                disabled={savingCity}
+              >
+                <Text className="font-bold text-text-main">Zavrieť</Text>
               </TouchableOpacity>
             </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {cities.map((city) => (
-                <TouchableOpacity
-                  key={city.id}
-                  className="py-4 border-b border-gray-100 flex-row justify-between items-center"
-                  onPress={() => handleSelectCity(city)}
-                  disabled={savingCity}
-                >
-                  <Text className="text-base font-semibold text-text-main">{city.name}</Text>
-                  {data.city?.id === city.id ? (
-                    <Text className="text-primary font-bold">✓</Text>
-                  ) : (
-                    <View className="w-4" />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <TouchableOpacity
-              onPress={() => setCityModalOpen(false)}
-              className="bg-gray-100 rounded-xl py-4 items-center mt-5"
-              disabled={savingCity}
-            >
-              <Text className="font-bold text-text-main">Zavrieť</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      </View>
+    );
+  })();
+
+  return (
+    <View className="flex-1 bg-background">
+      <Stack.Screen
+        options={{
+          headerTintColor: '#d4a373',
+          headerBackTitle: 'Späť',
+          headerLeft: () => (
+            <HeaderBackButton label="Späť" onPress={goBackOrHome} tintColor="#d4a373" />
+          ),
+          headerTitle: () =>
+            data?.category ? (
+              <TouchableOpacity
+                onPress={() => setCategoryModalOpen(true)}
+                className="flex-row items-center"
+              >
+                <Text className="text-base font-bold text-primary underline mr-2">
+                  {headerTitle}
+                </Text>
+                <FontAwesome name="chevron-down" size={14} color="#d4a373" />
+              </TouchableOpacity>
+            ) : (
+              <Text className="text-base font-bold text-text-main">{headerTitle}</Text>
+            ),
+        }}
+      />
+      {content}
     </View>
   );
 }

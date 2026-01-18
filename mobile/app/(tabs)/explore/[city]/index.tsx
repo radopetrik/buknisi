@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Stack, useLocalSearchParams, Link, router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import { HeaderBackButton } from '@react-navigation/elements';
 import { supabase } from '@/lib/supabase';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { SearchInputTrigger } from '@/components/search/SearchInputTrigger';
@@ -73,40 +74,31 @@ export default function CityScreen() {
     }
   }
 
-  if (loading) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background">
-        <ActivityIndicator color="#d4a373" />
-      </View>
-    );
-  }
+  const headerTitle = city?.name ?? 'Prehliadať';
 
-  if (!city) {
-    return (
-      <View className="flex-1 justify-center items-center bg-background p-4">
-        <Text className="text-lg text-text-main font-bold mb-2">Mesto nenájdené</Text>
-        <Link href="/cities" asChild>
-          <TouchableOpacity>
-            <Text className="text-primary underline">Späť na zoznam miest</Text>
-          </TouchableOpacity>
-        </Link>
-      </View>
-    );
-  }
+  const content = (() => {
+    if (loading) {
+      return (
+        <View className="flex-1 justify-center items-center bg-background">
+          <ActivityIndicator color="#d4a373" />
+        </View>
+      );
+    }
 
-  return (
-    <View className="flex-1 bg-background">
-      <Stack.Screen
-        options={{
-          title: city.name,
-          headerLeft: () => (
-            <TouchableOpacity onPress={goBackOrHome} className="flex-row items-center">
-              <FontAwesome name="chevron-left" size={16} color="#d4a373" style={{ marginRight: 6 }} />
-              <Text className="text-primary font-semibold">Späť</Text>
+    if (!city) {
+      return (
+        <View className="flex-1 justify-center items-center bg-background p-4">
+          <Text className="text-lg text-text-main font-bold mb-2">Mesto nenájdené</Text>
+          <Link href="/cities" asChild>
+            <TouchableOpacity>
+              <Text className="text-primary underline">Späť na zoznam miest</Text>
             </TouchableOpacity>
-          ),
-        }}
-      />
+          </Link>
+        </View>
+      );
+    }
+
+    return (
       <ScrollView className="flex-1 p-4" showsVerticalScrollIndicator={false}>
         
         {/* Search Trigger */}
@@ -171,6 +163,22 @@ export default function CityScreen() {
         </View>
 
       </ScrollView>
+    );
+  })();
+
+  return (
+    <View className="flex-1 bg-background">
+      <Stack.Screen
+        options={{
+          title: headerTitle,
+          headerTintColor: '#d4a373',
+          headerBackTitle: 'Späť',
+          headerLeft: () => (
+            <HeaderBackButton label="Späť" onPress={goBackOrHome} tintColor="#d4a373" />
+          ),
+        }}
+      />
+      {content}
     </View>
   );
 }

@@ -103,3 +103,5 @@ chcel by som pridat novy field do databazi tabulka bookings. lebo chcem pridat n
 byt este booking akceptovana staffom. nato by som chcel pridat novy field do db. Tiez tym padom treba zmenit ui v "admin" a "mobile-admin" appkach kde bude mozne akceptovat booking. nech sa to robi v oboch pripadoch v calendari. bude musiet byt nejaka nova sekcia kde budu cakajuce bookings ktore moze user potvrdit. a tie nech sa nezobrazuju v kalendari pokilal nesu potvrdene. Zaroveb bude treba zabezpecit aby sa v appkach "web" a "mobile" ak ide booking stavil flag ze caka na potvrdenie.
 
 pozri sa na appku "mobile" na home ci to nevies spravit krajsie modernejsie, mi to pride take divne.    
+
+appka mobile, ked som v city->category a zmenim "category" alebo "sub-category" alebo "city" tak nech ostanem na page a nech sa zmeni iba zoznam firiem popripade zoznam sub_category ked sa update category
