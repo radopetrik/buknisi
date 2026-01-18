@@ -1,5 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Modal, ScrollView } from 'react-native';
 import { useState, useEffect } from 'react';
+import { router } from 'expo-router';
 import { getUserOrNull, supabase } from '@/lib/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -78,9 +79,14 @@ export default function ProfileScreen() {
   }
 
   async function signIn() {
+    if (!email.trim() || !password) {
+      Alert.alert('Chyba', 'Zadajte email a heslo.');
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
     setLoading(false);
@@ -190,6 +196,20 @@ export default function ProfileScreen() {
                 {loading ? 'Prihlasujem...' : 'Prihlásiť sa'}
             </Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+            onPress={() => router.push('/register')}
+            style={styles.buttonSecondary}
+        >
+            <Text style={styles.buttonTextSecondary}>Registrácia</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+            onPress={() => {}}
+            style={styles.linkButton}
+        >
+            <Text style={styles.linkText}>Zabudnuté heslo?</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -211,6 +231,8 @@ const styles = StyleSheet.create({
     buttonTextPrimary: { color: 'white', fontWeight: 'bold', fontSize: 18 },
     buttonSecondary: { backgroundColor: '#f5f5f5', padding: 12, borderRadius: 8, alignItems: 'center' },
     buttonTextSecondary: { color: '#2c2c2c', fontWeight: 'bold' },
+    linkButton: { alignItems: 'center' },
+    linkText: { color: '#2c2c2c', fontWeight: '600' },
 
     modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
     modalContent: { backgroundColor: 'white', padding: 16, borderTopLeftRadius: 16, borderTopRightRadius: 16 },

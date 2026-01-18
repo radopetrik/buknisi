@@ -108,3 +108,5 @@ appka mobile, ked som v city->category a zmenim "category" alebo "sub-category" 
 
 
 appka mobile - v profile pridat moznost registracie. pridat do formu aj moznost reset hesla zatial iba nez akcii pridaj 
+
+appka "mobile" -> search co je home/explore/explore-category/ je ten isty a ten chcem 1) aby sa otvaral ako modalne okno 2) aby sa zkraslil obsah. search nech je ako prve a hned focus nanho a nech je take viditelnejsie potom cas a potom lokalika
