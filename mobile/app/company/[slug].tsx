@@ -1,7 +1,7 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Linking } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, Linking, TextInput, Alert } from 'react-native';
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getUserOrNull, supabase } from '@/lib/supabase';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { format } from 'date-fns';
@@ -15,6 +15,11 @@ export default function CompanyDetailScreen() {
   const [todaySlots, setTodaySlots] = useState<string[]>([]);
   const [ratings, setRatings] = useState<any[]>([]);
   const [profilesMap, setProfilesMap] = useState<Map<string, any>>(new Map());
+  const [user, setUser] = useState<any>(null);
+  const [ratingValue, setRatingValue] = useState(0);
+  const [ratingNote, setRatingNote] = useState('');
+  const [savingRating, setSavingRating] = useState(false);
+  const [userRatingId, setUserRatingId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,6 +28,9 @@ export default function CompanyDetailScreen() {
 
   async function fetchCompany() {
     try {
+        const currentUser = await getUserOrNull();
+        setUser(currentUser);
+
         const { data, error } = await supabase
         .from('companies')
         .select('*, city:cities(name), category:categories(name), photos(url), services(*), company_business_hours(*)')
@@ -65,12 +73,75 @@ export default function CompanyDetailScreen() {
                 profiles.forEach((p: any) => map.set(p.id, p));
                 setProfilesMap(map);
             }
+        } else {
+            setRatings([]);
+            setProfilesMap(new Map());
+        }
+
+        if (currentUser) {
+            const { data: existingRating } = await supabase
+                .from('company_ratings')
+                .select('*')
+                .eq('company_id', data.id)
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+
+            if (existingRating) {
+                setUserRatingId(existingRating.id);
+                setRatingValue(existingRating.rating);
+                setRatingNote(existingRating.note ?? '');
+            } else {
+                setUserRatingId(null);
+                setRatingValue(0);
+                setRatingNote('');
+            }
+        } else {
+            setUserRatingId(null);
+            setRatingValue(0);
+            setRatingNote('');
         }
 
     } catch (e) {
         console.log(e);
     } finally {
         setLoading(false);
+    }
+  }
+
+  async function handleSaveRating() {
+    if (!user || !company) return;
+
+    if (ratingValue < 1) {
+      Alert.alert('Hodnotenie', 'Vyberte počet hviezdičiek.');
+      return;
+    }
+
+    setSavingRating(true);
+
+    try {
+      const payload = {
+        company_id: company.id,
+        user_id: user.id,
+        rating: ratingValue,
+        note: ratingNote.trim() || null,
+      };
+
+      const response = userRatingId
+        ? await supabase.from('company_ratings').update(payload).eq('id', userRatingId).select().single()
+        : await supabase.from('company_ratings').insert(payload).select().single();
+
+      if (response.error) {
+        Alert.alert('Chyba', response.error.message);
+        return;
+      }
+
+      if (response.data) {
+        setUserRatingId(response.data.id);
+      }
+
+      await fetchCompany();
+    } finally {
+      setSavingRating(false);
     }
   }
 
@@ -243,6 +314,45 @@ export default function CompanyDetailScreen() {
               </View>
               <Text className="text-text-muted ml-2">({reviewCount} hodnotení)</Text>
             </View>
+
+            {user ? (
+              <View className="mb-6 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                <Text className="text-base font-bold text-text-main mb-2">
+                  {userRatingId ? 'Upravte svoje hodnotenie' : 'Ohodnoťte tento podnik'}
+                </Text>
+                <View className="flex-row mb-3">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity key={star} onPress={() => setRatingValue(star)} className="mr-2">
+                      <FontAwesome name={star <= ratingValue ? 'star' : 'star-o'} size={24} color="#ffc107" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+                <TextInput
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-text-main h-20"
+                  placeholder="Krátka poznámka (nepovinné)"
+                  multiline
+                  textAlignVertical="top"
+                  value={ratingNote}
+                  onChangeText={setRatingNote}
+                />
+                <TouchableOpacity
+                  className={`mt-3 bg-primary py-3 rounded-full items-center ${savingRating ? 'opacity-70' : ''}`}
+                  onPress={handleSaveRating}
+                  disabled={savingRating}
+                >
+                  <Text className="text-white font-bold">
+                    {savingRating ? 'Ukladám...' : userRatingId ? 'Uložiť hodnotenie' : 'Odoslať hodnotenie'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View className="mb-6 bg-white rounded-xl border border-gray-100 p-4 shadow-sm">
+                <Text className="text-text-muted mb-3">Hodnotiť môže iba prihlásený používateľ.</Text>
+                <TouchableOpacity className="bg-primary py-3 rounded-full items-center" onPress={() => router.push('/(tabs)/profile')}>
+                  <Text className="text-white font-bold">Prihlásiť sa</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {ratings.length > 0 ? (
               ratings.map((rating: any) => {
