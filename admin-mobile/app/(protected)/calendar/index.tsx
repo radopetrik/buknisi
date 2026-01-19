@@ -255,7 +255,9 @@ function BookingCard({ booking, onPress }: { booking: BookingRow; onPress: () =>
         </Box>
         <Box className="flex-1 border-l border-gray-100 pl-4">
           <Text className="text-base font-bold text-gray-900 mb-1">
-            {client?.first_name} {client?.last_name}
+            {client?.first_name || client?.last_name
+              ? `${client?.first_name ?? ""} ${client?.last_name ?? ""}`.trim()
+              : "Náhodný zákazník"}
           </Text>
           <Text className="text-blue-600 font-medium text-sm">
             {service?.name || "Služba"}
