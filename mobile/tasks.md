@@ -120,3 +120,6 @@ appke "mobile" -> explore->city->category hned nad zoznamom companies by som chc
 
 
 appke "mobile", sekcia home -> skus sa inpirovat tymto obrazkom. pouzi aj nejake obrazky ilustracne alebo mozno aj nie necham na tebe
+
+
+appka admin-mobile sekcia calendar -> agenda ako je zoznam bookings tak ak nieje ziaden klient tak napisat "nahodny zakaznik" alebo nieco podobne

@@ -25,10 +25,11 @@ import {
 import { sk } from "date-fns/locale";
 import { Clock, ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { RefreshControl, ScrollView, SectionList, View } from "react-native";
+import { Alert, Modal, Pressable as RNPressable, RefreshControl, ScrollView, SectionList, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Box } from "@/components/ui/box";
+import { Button, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { Pressable } from "@/components/ui/pressable";
 import { Spinner } from "@/components/ui/spinner";
@@ -59,6 +60,8 @@ type BookingRow = {
   time_from: string;
   time_to: string;
   staff_id: string | null;
+  invoice_id: string | null;
+  client_id: string | null;
   clients:
     | { first_name: string; last_name: string }
     | { first_name: string; last_name: string }[]
@@ -78,6 +81,12 @@ const AGENDA_MAX_PAGES = 8;
 
 function dateToDateString(date: Date) {
   return format(date, "yyyy-MM-dd");
+}
+
+function parseDateString(value: string) {
+  if (!value) return null;
+  const parsed = new Date(`${value}T00:00:00`);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 function toEventDateTime(date: string, time: string) {
@@ -198,7 +207,7 @@ async function fetchBookingsRange(params: {
     .from("bookings")
     .select(
       `
-      id, date, time_from, time_to, staff_id,
+      id, date, time_from, time_to, staff_id, invoice_id, client_id,
       clients(first_name, last_name),
       staff(full_name),
       booking_services(services(name, duration))
@@ -229,46 +238,48 @@ async function fetchBookingsRange(params: {
   return (data ?? []) as BookingRow[];
 }
 
-function BookingCard({ booking }: { booking: BookingRow }) {
+function BookingCard({ booking, onPress }: { booking: BookingRow; onPress: () => void }) {
   const client = getClient(booking);
   const service = getService(booking);
 
   return (
-    <Box className="bg-white rounded-xl p-4 mb-3 border-l-4 border-l-blue-500 shadow-sm flex-row">
-      <Box className="mr-4 items-center justify-center">
-        <Text className="font-bold text-gray-900 text-lg">
-          {booking.time_from.slice(0, 5)}
-        </Text>
-        <Text className="text-xs text-gray-400">
-          {booking.time_to.slice(0, 5)}
-        </Text>
-      </Box>
-      <Box className="flex-1 border-l border-gray-100 pl-4">
-        <Text className="text-base font-bold text-gray-900 mb-1">
-          {client?.first_name} {client?.last_name}
-        </Text>
-        <Text className="text-blue-600 font-medium text-sm">
-          {service?.name || "Služba"}
-        </Text>
-        <HStack className="items-center mt-1">
-          {service?.duration ? (
-            <>
-              <Clock size={12} color="#9ca3af" />
-              <Text className="text-xs text-gray-400 ml-1">
-                {service.duration} min
+    <Pressable onPress={onPress} className="mb-3">
+      <Box className="bg-white rounded-xl p-4 border-l-4 border-l-blue-500 shadow-sm flex-row">
+        <Box className="mr-4 items-center justify-center">
+          <Text className="font-bold text-gray-900 text-lg">
+            {booking.time_from.slice(0, 5)}
+          </Text>
+          <Text className="text-xs text-gray-400">
+            {booking.time_to.slice(0, 5)}
+          </Text>
+        </Box>
+        <Box className="flex-1 border-l border-gray-100 pl-4">
+          <Text className="text-base font-bold text-gray-900 mb-1">
+            {client?.first_name} {client?.last_name}
+          </Text>
+          <Text className="text-blue-600 font-medium text-sm">
+            {service?.name || "Služba"}
+          </Text>
+          <HStack className="items-center mt-1">
+            {service?.duration ? (
+              <>
+                <Clock size={12} color="#9ca3af" />
+                <Text className="text-xs text-gray-400 ml-1">
+                  {service.duration} min
+                </Text>
+              </>
+            ) : null}
+            {booking.staff?.full_name ? (
+              <Text className="text-xs text-gray-400 ml-3">
+                {booking.staff.full_name}
               </Text>
-            </>
-          ) : null}
-          {booking.staff?.full_name ? (
-            <Text className="text-xs text-gray-400 ml-3">
-              {booking.staff.full_name}
-            </Text>
-          ) : (
-            <Text className="text-xs text-gray-400 ml-3">Nepriradené</Text>
-          )}
-        </HStack>
+            ) : (
+              <Text className="text-xs text-gray-400 ml-3">Nepriradené</Text>
+            )}
+          </HStack>
+        </Box>
       </Box>
-    </Box>
+    </Pressable>
   );
 }
 
@@ -360,6 +371,17 @@ export default function CalendarScreen() {
   const params = useLocalSearchParams<{ create?: string }>();
 
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
+  const [bookingActionOpen, setBookingActionOpen] = useState(false);
+  const [processingAction, setProcessingAction] = useState(false);
+  const [moveModalOpen, setMoveModalOpen] = useState(false);
+  const [moveDate, setMoveDate] = useState("");
+  const [moveTimeFrom, setMoveTimeFrom] = useState("");
+  const [moveTimeTo, setMoveTimeTo] = useState("");
+  const [moveDateCursor, setMoveDateCursor] = useState(() => startOfMonth(new Date()));
+  const [moveDatePickerOpen, setMoveDatePickerOpen] = useState(false);
+  const [moveTimePickerOpen, setMoveTimePickerOpen] = useState(false);
+  const [moveTimeTarget, setMoveTimeTarget] = useState<"from" | "to">("from");
 
   const [viewMode, setViewMode] = useState<ViewMode>("agenda");
   const [selectedDate, setSelectedDate] = useState(() => new Date());
@@ -412,6 +434,118 @@ export default function CalendarScreen() {
     if (!canCreateBooking) return;
     setCreateModalOpen(true);
   }, [canCreateBooking]);
+
+  const closeBookingActions = useCallback(() => {
+    setBookingActionOpen(false);
+    setSelectedBooking(null);
+  }, []);
+
+  const openBookingActions = useCallback((booking: BookingRow) => {
+    setSelectedBooking(booking);
+    setBookingActionOpen(true);
+  }, []);
+
+  const handlePayBooking = useCallback(() => {
+    if (!selectedBooking) return;
+    setBookingActionOpen(false);
+    router.push({
+      pathname: "/(protected)/dashboard",
+      params: { bookingId: selectedBooking.id },
+    });
+  }, [router, selectedBooking]);
+
+  const openMoveBooking = useCallback(() => {
+    if (!selectedBooking) return;
+    setBookingActionOpen(false);
+    setMoveDate(selectedBooking.date);
+    setMoveTimeFrom(selectedBooking.time_from.slice(0, 5));
+    setMoveTimeTo(selectedBooking.time_to.slice(0, 5));
+    setMoveDateCursor(parseDateString(selectedBooking.date) ?? startOfMonth(new Date()));
+    setMoveModalOpen(true);
+  }, [selectedBooking]);
+
+  const closeMoveBooking = useCallback(() => {
+    setMoveModalOpen(false);
+    setMoveDatePickerOpen(false);
+    setMoveTimePickerOpen(false);
+  }, []);
+
+  const handleMoveBookingSave = useCallback(async () => {
+    if (!selectedBooking || !company?.id) return;
+    if (!moveDate || !moveTimeFrom || !moveTimeTo) {
+      Alert.alert("Chyba", "Vyplňte dátum a čas.");
+      return;
+    }
+
+    if (moveTimeFrom >= moveTimeTo) {
+      Alert.alert("Chyba", "Čas od musí byť menší ako čas do.");
+      return;
+    }
+
+    setProcessingAction(true);
+    try {
+      const { error } = await supabase
+        .from("bookings")
+        .update({ date: moveDate, time_from: moveTimeFrom, time_to: moveTimeTo })
+        .eq("id", selectedBooking.id)
+        .eq("company_id", company.id);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ["agenda"] });
+      queryClient.invalidateQueries({ queryKey: ["timelineBookings"] });
+      queryClient.invalidateQueries({ queryKey: ["monthDaysWithBookings"] });
+
+      closeMoveBooking();
+      closeBookingActions();
+    } catch (e: any) {
+      Alert.alert("Chyba", e?.message ?? "Booking sa nepodarilo presunúť.");
+    } finally {
+      setProcessingAction(false);
+    }
+  }, [
+    closeBookingActions,
+    closeMoveBooking,
+    company?.id,
+    moveDate,
+    moveTimeFrom,
+    moveTimeTo,
+    queryClient,
+    selectedBooking,
+  ]);
+
+  const handleCancelBooking = useCallback(() => {
+    if (!selectedBooking || !company?.id) return;
+
+    Alert.alert("Zrušiť booking", "Naozaj chcete zrušiť booking?", [
+      { text: "Späť", style: "cancel" },
+      {
+        text: "Zrušiť booking",
+        style: "destructive",
+        onPress: async () => {
+          setProcessingAction(true);
+          try {
+            const { error } = await supabase
+              .from("bookings")
+              .delete()
+              .eq("id", selectedBooking.id)
+              .eq("company_id", company.id);
+
+            if (error) throw error;
+
+            queryClient.invalidateQueries({ queryKey: ["agenda"] });
+            queryClient.invalidateQueries({ queryKey: ["timelineBookings"] });
+            queryClient.invalidateQueries({ queryKey: ["monthDaysWithBookings"] });
+            closeBookingActions();
+          } catch (e: any) {
+            Alert.alert("Chyba", e?.message ?? "Booking sa nepodarilo zrušiť.");
+          } finally {
+            setProcessingAction(false);
+          }
+        },
+      },
+    ]);
+  }, [closeBookingActions, company?.id, queryClient, selectedBooking]);
 
   const createParam = Array.isArray(params.create)
     ? params.create[0]
@@ -576,6 +710,22 @@ export default function CalendarScreen() {
     return eachDayOfInterval({ start, end });
   }, [monthCursor]);
 
+  const moveMonthGridDays = useMemo(() => {
+    const start = startOfWeek(startOfMonth(moveDateCursor), { weekStartsOn: 1 });
+    const end = endOfWeek(endOfMonth(moveDateCursor), { weekStartsOn: 1 });
+    return eachDayOfInterval({ start, end });
+  }, [moveDateCursor]);
+
+  const moveTimeOptions = useMemo(() => {
+    const items: string[] = [];
+    for (let hour = 0; hour < 24; hour += 1) {
+      for (let minutes = 0; minutes < 60; minutes += 15) {
+        items.push(`${String(hour).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`);
+      }
+    }
+    return items;
+  }, []);
+
   const filterChips = useMemo(() => {
     const base: { label: string; option: BookingsFilter }[] = [
       { label: "Moje", option: { type: "mine" } },
@@ -631,41 +781,44 @@ export default function CalendarScreen() {
         </Box>
       </Box>
 
-      {viewMode === "agenda" ? (
-        <SectionList
-          className="flex-1 px-4"
-          sections={agendaSections}
-          keyExtractor={(item) => item.id}
-          renderSectionHeader={({ section }) => renderAgendaHeader(section)}
-          renderItem={({ item }) => <BookingCard booking={item} />}
-          refreshControl={
-            <RefreshControl
-              refreshing={agendaQuery.isFetching && !agendaQuery.isFetchingNextPage}
-              onRefresh={() => agendaQuery.refetch()}
-            />
-          }
-          onEndReached={() => {
-            if (agendaQuery.hasNextPage && !agendaQuery.isFetchingNextPage) {
-              agendaQuery.fetchNextPage();
-            }
-          }}
-          onEndReachedThreshold={0.3}
-          ListEmptyComponent={
-            <Box className="items-center justify-center py-10 bg-white rounded-xl border border-dashed border-gray-300 mt-4">
-              <Text className="text-gray-400">Žiadne bookings</Text>
-            </Box>
-          }
-          ListFooterComponent={
-            agendaQuery.isFetchingNextPage ? (
-              <Box className="py-4 items-center">
-                <Spinner className="text-gray-400" />
-              </Box>
-            ) : (
-              <Box className="h-6" />
-            )
-          }
-        />
-      ) : null}
+       {viewMode === "agenda" ? (
+         <SectionList
+           className="flex-1 px-4"
+           sections={agendaSections}
+           keyExtractor={(item) => item.id}
+           renderSectionHeader={({ section }) => renderAgendaHeader(section)}
+           renderItem={({ item }) => (
+             <BookingCard booking={item} onPress={() => openBookingActions(item)} />
+           )}
+           refreshControl={
+             <RefreshControl
+               refreshing={agendaQuery.isFetching && !agendaQuery.isFetchingNextPage}
+               onRefresh={() => agendaQuery.refetch()}
+             />
+           }
+           onEndReached={() => {
+             if (agendaQuery.hasNextPage && !agendaQuery.isFetchingNextPage) {
+               agendaQuery.fetchNextPage();
+             }
+           }}
+           onEndReachedThreshold={0.3}
+           ListEmptyComponent={
+             <Box className="items-center justify-center py-10 bg-white rounded-xl border border-dashed border-gray-300 mt-4">
+               <Text className="text-gray-400">Žiadne bookings</Text>
+             </Box>
+           }
+           ListFooterComponent={
+             agendaQuery.isFetchingNextPage ? (
+               <Box className="py-4 items-center">
+                 <Spinner className="text-gray-400" />
+               </Box>
+             ) : (
+               <Box className="h-6" />
+             )
+           }
+         />
+       ) : null}
+
 
       {viewMode === "month" ? (
         <Box className="flex-1 px-4">
@@ -779,6 +932,10 @@ export default function CalendarScreen() {
             enableResourceScroll={resources.length > 1}
             resourcePerPage={2}
             isLoading={timelineBookingsQuery.isLoading}
+            onPressEvent={(event) => {
+              const booking = (timelineBookingsQuery.data ?? []).find((b) => b.id === event.id);
+              if (booking) openBookingActions(booking);
+            }}
             onDateChanged={(date) => setSelectedDate(new Date(date))}
             theme={{
               colors: {
@@ -798,6 +955,297 @@ export default function CalendarScreen() {
           </CalendarContainer>
         </Box>
       ) : null}
+
+      <Modal visible={bookingActionOpen} transparent animationType="fade" onRequestClose={closeBookingActions}>
+        <RNPressable className="flex-1 bg-black/40" onPress={closeBookingActions}>
+          <View className="flex-1 justify-end">
+            <RNPressable>
+              <Box className="bg-white rounded-t-3xl p-5">
+                <HStack className="items-center justify-between mb-3">
+                  <Text className="text-lg font-bold text-gray-900">Booking</Text>
+                  <Pressable onPress={closeBookingActions} className="p-2">
+                    <Text className="text-base font-bold">×</Text>
+                  </Pressable>
+                </HStack>
+                {selectedBooking ? (
+                  <VStack className="gap-3">
+                    <Box className="bg-gray-50 rounded-xl p-4">
+                      <Text className="text-gray-900 font-semibold">
+                        {getClient(selectedBooking)?.first_name} {getClient(selectedBooking)?.last_name}
+                      </Text>
+                      <Text className="text-gray-500 text-sm mt-1">
+                        {format(new Date(selectedBooking.date), "d. MMM yyyy", { locale: sk })} · {selectedBooking.time_from.slice(0, 5)}–{selectedBooking.time_to.slice(0, 5)}
+                      </Text>
+                      <Text className="text-gray-500 text-sm mt-1">
+                        {getService(selectedBooking)?.name ?? "Služba"}
+                      </Text>
+                    </Box>
+
+                    <Button
+                      variant="outline"
+                      action="secondary"
+                      className="w-full"
+                      onPress={openMoveBooking}
+                    >
+                      <ButtonText>Presunúť booking</ButtonText>
+                    </Button>
+
+                    {selectedBooking.invoice_id ? (
+                      <Box className="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                        <Text className="text-emerald-700 font-semibold">Zaplatené</Text>
+                      </Box>
+                    ) : (
+                      <Button className="w-full" onPress={handlePayBooking}>
+                        <ButtonText>Rýchlo zaplatiť</ButtonText>
+                      </Button>
+                    )}
+
+                    <Button
+                      variant="outline"
+                      action="negative"
+                      className="w-full"
+                      onPress={handleCancelBooking}
+                      isDisabled={processingAction}
+                    >
+                      <ButtonText>Zrušiť booking</ButtonText>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      action="secondary"
+                      className="w-full"
+                      onPress={closeBookingActions}
+                    >
+                      <ButtonText>Zavrieť</ButtonText>
+                    </Button>
+                  </VStack>
+                ) : null}
+              </Box>
+            </RNPressable>
+          </View>
+        </RNPressable>
+      </Modal>
+
+      <Modal visible={moveModalOpen} transparent animationType="fade" onRequestClose={closeMoveBooking}>
+        <RNPressable className="flex-1 bg-black/40" onPress={closeMoveBooking}>
+          <View className="flex-1 justify-end">
+            <RNPressable>
+              <Box className="bg-white rounded-t-3xl p-5">
+                <HStack className="items-center justify-between mb-3">
+                  <Text className="text-lg font-bold text-gray-900">Presunúť booking</Text>
+                  <Pressable onPress={closeMoveBooking} className="p-2">
+                    <Text className="text-base font-bold">×</Text>
+                  </Pressable>
+                </HStack>
+
+                <VStack className="gap-3">
+                  <Button
+                    variant="outline"
+                    action="secondary"
+                    className="w-full"
+                    onPress={() => setMoveDatePickerOpen(true)}
+                  >
+                    <ButtonText>
+                      {moveDate
+                        ? `Dátum: ${format(new Date(moveDate), "d. MMM yyyy", { locale: sk })}`
+                        : "Vyberte dátum"}
+                    </ButtonText>
+                  </Button>
+
+                  <HStack className="gap-3">
+                    <Button
+                      variant="outline"
+                      action="secondary"
+                      className="flex-1"
+                      onPress={() => {
+                        setMoveTimeTarget("from");
+                        setMoveTimePickerOpen(true);
+                      }}
+                    >
+                      <ButtonText>{moveTimeFrom ? `Od: ${moveTimeFrom}` : "Čas od"}</ButtonText>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      action="secondary"
+                      className="flex-1"
+                      onPress={() => {
+                        setMoveTimeTarget("to");
+                        setMoveTimePickerOpen(true);
+                      }}
+                    >
+                      <ButtonText>{moveTimeTo ? `Do: ${moveTimeTo}` : "Čas do"}</ButtonText>
+                    </Button>
+                  </HStack>
+
+                  <Button
+                    className="w-full"
+                    onPress={handleMoveBookingSave}
+                    isDisabled={processingAction}
+                  >
+                    <ButtonText>Uložiť presun</ButtonText>
+                  </Button>
+
+                  <Button
+                    variant="outline"
+                    action="secondary"
+                    className="w-full"
+                    onPress={closeMoveBooking}
+                  >
+                    <ButtonText>Zavrieť</ButtonText>
+                  </Button>
+                </VStack>
+              </Box>
+            </RNPressable>
+          </View>
+        </RNPressable>
+      </Modal>
+
+      <Modal
+        visible={moveDatePickerOpen}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setMoveDatePickerOpen(false)}
+      >
+        <View className="flex-1 bg-black/40 items-center justify-center px-6">
+          <View className="w-full bg-white rounded-2xl overflow-hidden">
+            <HStack className="items-center justify-between px-4 py-3 border-b border-gray-200">
+              <Pressable onPress={() => setMoveDateCursor((d) => subMonths(d, 1))}>
+                <ChevronLeft color="#111827" />
+              </Pressable>
+              <Text className="font-semibold text-gray-900">
+                {format(moveDateCursor, "MMMM yyyy", { locale: sk })}
+              </Text>
+              <Pressable onPress={() => setMoveDateCursor((d) => addMonths(d, 1))}>
+                <ChevronRight color="#111827" />
+              </Pressable>
+            </HStack>
+
+            <HStack className="justify-around px-3 pt-3">
+              {"Po_Út_St_Št_Pi_So_Ne".split("_").map((d) => (
+                <Text key={d} className="text-xs font-semibold text-gray-500 w-[36px] text-center">
+                  {d}
+                </Text>
+              ))}
+            </HStack>
+
+            <VStack className="px-3 pb-3">
+              {Array.from({ length: Math.ceil(moveMonthGridDays.length / 7) }, (_, row) => {
+                const days = moveMonthGridDays.slice(row * 7, row * 7 + 7);
+                return (
+                  <HStack key={row} className="justify-around mt-2">
+                    {days.map((day) => {
+                      const inMonth = isSameMonth(day, moveDateCursor);
+                      const selected = moveDate ? isSameDay(day, parseDateString(moveDate) ?? day) : false;
+                      return (
+                        <Pressable
+                          key={day.toISOString()}
+                          onPress={() => {
+                            setMoveDate(dateToDateString(day));
+                            setMoveDatePickerOpen(false);
+                          }}
+                          className={`w-[36px] h-[36px] rounded-lg items-center justify-center ${
+                            selected ? "bg-black" : "bg-transparent"
+                          }`}
+                        >
+                          <Text
+                            className={`font-semibold ${
+                              selected
+                                ? "text-white"
+                                : inMonth
+                                  ? "text-gray-900"
+                                  : "text-gray-300"
+                            }`}
+                          >
+                            {format(day, "d")}
+                          </Text>
+                        </Pressable>
+                      );
+                    })}
+                  </HStack>
+                );
+              })}
+            </VStack>
+
+            <HStack className="gap-3 px-4 py-4 border-t border-gray-200">
+              <Button
+                variant="outline"
+                action="secondary"
+                className="flex-1"
+                onPress={() => setMoveDatePickerOpen(false)}
+              >
+                <ButtonText>Zrušiť</ButtonText>
+              </Button>
+              <Button
+                className="flex-1"
+                onPress={() => {
+                  setMoveDate(dateToDateString(new Date()));
+                  setMoveDateCursor(startOfMonth(new Date()));
+                  setMoveDatePickerOpen(false);
+                }}
+              >
+                <ButtonText>Dnes</ButtonText>
+              </Button>
+            </HStack>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={moveTimePickerOpen}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setMoveTimePickerOpen(false)}
+      >
+        <View className="flex-1 bg-black/40 items-center justify-center px-6">
+          <View className="w-full bg-white rounded-2xl overflow-hidden">
+            <HStack className="items-center justify-between px-4 py-3 border-b border-gray-200">
+              <Text className="font-semibold text-gray-900">Vyber čas</Text>
+              <Pressable onPress={() => setMoveTimePickerOpen(false)} className="p-1">
+                <Text className="text-base font-bold">×</Text>
+              </Pressable>
+            </HStack>
+
+            <ScrollView className="max-h-[360px]" contentContainerStyle={{ padding: 12 }}>
+              <VStack className="gap-2">
+                {moveTimeOptions.map((t) => {
+                  const selected = moveTimeTarget === "from" ? t === moveTimeFrom : t === moveTimeTo;
+                  return (
+                    <Pressable
+                      key={t}
+                      onPress={() => {
+                        if (moveTimeTarget === "from") {
+                          setMoveTimeFrom(t);
+                        } else {
+                          setMoveTimeTo(t);
+                        }
+                        setMoveTimePickerOpen(false);
+                      }}
+                      className={`px-4 py-3 rounded-xl border ${
+                        selected ? "border-black bg-black" : "border-gray-200 bg-white"
+                      }`}
+                    >
+                      <Text className={`font-semibold ${selected ? "text-white" : "text-gray-900"}`}>
+                        {t}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </VStack>
+            </ScrollView>
+
+            <HStack className="gap-3 px-4 py-4 border-t border-gray-200">
+              <Button
+                variant="outline"
+                action="secondary"
+                className="flex-1"
+                onPress={() => setMoveTimePickerOpen(false)}
+              >
+                <ButtonText>Zrušiť</ButtonText>
+              </Button>
+            </HStack>
+          </View>
+        </View>
+      </Modal>
 
       <CreateBookingModal
         open={createModalOpen}

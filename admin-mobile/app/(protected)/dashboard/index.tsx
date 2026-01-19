@@ -921,7 +921,7 @@ export default function BillingsScreen() {
   const { data: company } = useCompany();
   const queryClient = useQueryClient();
   const router = useRouter();
-  const params = useLocalSearchParams<{ createPayment?: string }>();
+  const params = useLocalSearchParams<{ createPayment?: string; bookingId?: string }>();
 
   const [activeTab, setActiveTab] = useState<"unpaid" | "history">("unpaid");
 
@@ -954,6 +954,7 @@ export default function BillingsScreen() {
   const unpaidCount = data?.unpaidBookings.length ?? 0;
 
   const createParam = Array.isArray(params.createPayment) ? params.createPayment[0] : params.createPayment;
+  const bookingParam = Array.isArray(params.bookingId) ? params.bookingId[0] : params.bookingId;
 
   const openNewPayment = useCallback(() => {
     if (!data) return;
@@ -975,6 +976,20 @@ export default function BillingsScreen() {
     openNewPayment();
     router.setParams({ createPayment: "" });
   }, [createParam, data, openNewPayment, router]);
+
+  useEffect(() => {
+    if (!bookingParam) return;
+    if (!data) return;
+
+    const booking = data.unpaidBookings.find((item) => item.id === bookingParam);
+    if (booking) {
+      openPayBooking(booking);
+    } else {
+      alert("Booking je už zaplatený alebo neexistuje.");
+    }
+
+    router.setParams({ bookingId: "" });
+  }, [bookingParam, data, openPayBooking, router]);
 
   const handlePay = useCallback(
     async (payload: { selections: BookingServiceSelection[]; clientId: string | undefined; paymentMethod: PaymentMethod }) => {
