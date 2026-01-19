@@ -4,6 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { supabase } from "@/lib/supabase";
+import { AUTH_BG_URI } from "@/lib/auth-background";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText, ButtonSpinner } from "@/components/ui/button";
 import {
@@ -23,9 +24,6 @@ const loginSchema = z.object({
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
-
-const AUTH_BG_URI =
-  "https://images.unsplash.com/photo-1632345031435-8727f6897d53?q=80&w=2070&auto=format&fit=crop";
 
 export default function LoginScreen() {
   const router = useRouter();

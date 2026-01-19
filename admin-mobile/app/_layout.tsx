@@ -6,7 +6,8 @@ import { queryClient } from "@/lib/query-client";
 import { useEffect, useState } from "react";
 import { isInvalidRefreshTokenError, supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
-import { View, ActivityIndicator } from "react-native";
+import { View } from "react-native";
+import SplashScreen from "@/components/splash-screen";
 
 function RootLayoutNav() {
   const [session, setSession] = useState<Session | null>(null);
@@ -81,8 +82,8 @@ function RootLayoutNav() {
 
   if (!initialized) {
     return (
-      <View className="flex-1 justify-center items-center">
-        <ActivityIndicator size="large" />
+      <View className="flex-1">
+        <SplashScreen />
       </View>
     );
   }
