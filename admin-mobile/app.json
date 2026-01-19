@@ -4,7 +4,7 @@
     "slug": "admin-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app_icon_square_gold_on_black_orezane.png",
+    "icon": "./assets/images/mobile-admin-ikona.png",
     "scheme": "adminmobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

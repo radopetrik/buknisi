@@ -4,7 +4,7 @@
     "slug": "buknisi",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/app_icon_square_white_on_gold.png",
+    "icon": "./assets/images/mobile-ikona.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
