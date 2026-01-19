@@ -8,11 +8,21 @@
     "scheme": "adminmobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/logo_buknisi.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.happycoderapps.buknisi-admin",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "splash": {
+        "image": "./assets/images/logo_buknisi.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
       }
     },
     "android": {
@@ -23,7 +33,13 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.happycoderapps.buknisiadmin",
+      "splash": {
+        "image": "./assets/images/logo_buknisi.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#000000"
+      }
     },
     "web": {
       "output": "static",
