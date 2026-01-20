@@ -37,12 +37,8 @@ export default function SplashScreen() {
             className="h-16 w-48"
             resizeMode="contain"
           />
-          <Text className="text-white text-3xl font-semibold mt-6 text-center">Buď sebavedomá</Text>
-          <Text className="text-white/90 text-base text-center mt-2">Loading...</Text>
-          <Box className="flex-row items-center mt-5">
-            <ActivityIndicator size="small" color="#fff" />
-            <Text className="text-white text-base font-medium ml-3">Pripravujeme aplikáciu</Text>
-          </Box>
+          <Text className="text-white/80 text-base text-center mt-4">Loading...</Text>
+          <ActivityIndicator size="small" color="#fff" className="mt-4" />
         </Box>
       </Box>
     </SafeAreaView>

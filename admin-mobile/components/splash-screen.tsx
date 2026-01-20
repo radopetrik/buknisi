@@ -15,16 +15,10 @@ export default function SplashScreen() {
           resizeMode="contain"
         />
         <Text
-          className="mt-6 text-white text-center text-2xl"
+          className="mt-4 text-white/70 text-center"
           style={{ fontFamily: "Manrope" }}
         >
-          Buď sebavedomá
-        </Text>
-        <Text
-          className="mt-2 text-white/70 text-center"
-          style={{ fontFamily: "Manrope" }}
-        >
-          Načítavame vaše údaje
+          Loading...
         </Text>
         <ActivityIndicator size="large" className="mt-6" />
       </View>
